@@ -1,7 +1,7 @@
 {
   "name": "XianLing",
   "version": "",
-  "description": "AI驱动的沉浸式古代县令模拟器（SillyTavern / 自定义API，Vue3 + TypeScript）",
+  "description": "AI驱动的古代县城经营模拟器（SillyTavern / 自定义API，Vue3 + TypeScript）",
   "private": true,
   "type": "module",
   "license": "Apache-2.0",

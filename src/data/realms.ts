@@ -7,7 +7,7 @@ function createStandardStages(realmLevel: number): RealmStageDefinition[] {
   return [
     {
       stage: '初期' as RealmStage,
-      title: '初入官场',
+      title: '初具规模',
       breakthrough_difficulty: '普通' as const,
       resource_multiplier: baseMultiplier,
       lifespan_bonus: 0,
@@ -15,7 +15,7 @@ function createStandardStages(realmLevel: number): RealmStageDefinition[] {
     },
     {
       stage: '中期' as RealmStage,
-      title: '渐有政声',
+      title: '蒸蒸日上',
       breakthrough_difficulty: '普通' as const,
       resource_multiplier: baseMultiplier * 1.3,
       lifespan_bonus: Math.floor(realmLevel * 10),
@@ -23,7 +23,7 @@ function createStandardStages(realmLevel: number): RealmStageDefinition[] {
     },
     {
       stage: '后期' as RealmStage,
-      title: '政绩卓著',
+      title: '繁荣昌盛',
       breakthrough_difficulty: '困难' as const,
       resource_multiplier: baseMultiplier * 1.6,
       lifespan_bonus: Math.floor(realmLevel * 20),
@@ -31,23 +31,23 @@ function createStandardStages(realmLevel: number): RealmStageDefinition[] {
     },
     {
       stage: '圆满' as RealmStage,
-      title: '口碑载道',
+      title: '富甲一方',
       breakthrough_difficulty: '困难' as const,
       resource_multiplier: baseMultiplier * 2,
       lifespan_bonus: Math.floor(realmLevel * 30),
-      special_abilities: [`${getRealmName(realmLevel)}圆满`, '政声稳固']
+      special_abilities: [`${getRealmName(realmLevel)}圆满`, '城市稳固']
     },
     {
       stage: '极境' as RealmStage,
-      title: '权倾一方',
+      title: '万城来朝',
       breakthrough_difficulty: '逆天' as const,
       resource_multiplier: baseMultiplier * 3,
       lifespan_bonus: Math.floor(realmLevel * 50),
       special_abilities: [
         '同阶无敌',
         '有限跨阶',
-        '官威如山',
-        '升迁加速'
+        '城市威望',
+        '发展加速'
       ],
       can_cross_realm_battle: true
     }
@@ -55,8 +55,8 @@ function createStandardStages(realmLevel: number): RealmStageDefinition[] {
 }
 
 function getRealmName(level: number): string {
-  const names = ['布衣', '九品', '八品', '七品', '六品', '五品', '四品', '三品', '二品'];
-  return names[level] || '未知官品';
+  const names = ['荒村', '集镇', '县城', '府城', '州城', '都城', '皇城', '京畿', '天下'];
+  return names[level] || '未知城市等级';
 }
 
 // 导出getRealmName函数供其他模块使用
@@ -65,111 +65,111 @@ export { getRealmName };
 export const REALM_DEFINITIONS: RealmDefinition[] = [
   {
     level: 0,
-    name: '布衣',
-    title: '未入仕途',
-    coreFeature: '平民百姓，未入官场',
+    name: '荒村',
+    title: '贫瘠村落',
+    coreFeature: '人口稀少，基础设施简陋',
     lifespan: '约百载',
-    activityScope: '民间',
-    gapDescription: '未入仕途，仍是平民百姓。'
+    activityScope: '村级',
+    gapDescription: '一处贫瘠的村落，只有寥寥数户人家，基础设施极其简陋，需要大量建设才能发展。'
   },
   {
     level: 1,
-    name: '九品',
-    title: '县丞',
-    coreFeature: '初入官场，辅佐县令',
+    name: '集镇',
+    title: '初具规模',
+    coreFeature: '商贾往来，市井兴起',
     lifespan: '约120载',
-    activityScope: '县级',
-    gapDescription: '县衙佐官，协助县令处理日常政务，是官场的入门之阶。',
+    activityScope: '镇级',
+    gapDescription: '已形成初步的市集，商贾往来，人口逐渐增多。基础设施开始建设，但要成为县城还需努力。',
     stages: createStandardStages(1)
   },
   {
     level: 2,
-    name: '八品',
-    title: '县令',
-    coreFeature: '执掌一县，为民父母',
+    name: '县城',
+    title: '正式治所',
+    coreFeature: '县衙设立，功能齐全',
     lifespan: '约250载',
     activityScope: '县级',
-    gapDescription: '正式成为一县之主，掌管全县行政、司法、税收大权，百姓尊称"父母官"。',
+    gapDescription: '正式成为县级治所，县衙、学堂、医馆等基础设施齐全。商业繁荣，人口稳定增长。',
     stages: createStandardStages(2)
   },
   {
     level: 3,
-    name: '七品',
-    title: '知县',
-    coreFeature: '治理有方，政声远播',
+    name: '府城',
+    title: '区域中心',
+    coreFeature: '交通枢纽，贸易发达',
     lifespan: '500-800载',
-    activityScope: '县级至州级',
-    gapDescription: '治理有方，政绩显著。其名号在民间流传，百姓称颂，上级赏识。',
+    activityScope: '府级',
+    gapDescription: '发展成为区域中心，交通便利，贸易发达。各类建筑林立，城市功能完善，吸引大量人口涌入。',
     stages: createStandardStages(3)
   },
   {
     level: 4,
-    name: '六品',
-    title: '知州',
-    coreFeature: '掌管一州，威望显赫',
+    name: '州城',
+    title: '州府治所',
+    coreFeature: '文教昌盛，工艺发达',
     lifespan: '1500-2000载',
     activityScope: '州级',
-    gapDescription: '升任知州，掌管一州政务。其一言可定一州政策，是地方的实权官员。',
+    gapDescription: '升为州府治所，文教事业兴盛，手工业发达。城市规划合理，公共设施完善，成为周边地区的经济文化中心。',
     stages: createStandardStages(4)
   },
   {
     level: 5,
-    name: '五品',
-    title: '知府',
-    coreFeature: '治理府城，位高权重',
+    name: '都城',
+    title: '繁华都会',
+    coreFeature: '百业兴旺，万商云集',
     lifespan: '约5000载',
     activityScope: '府级',
-    gapDescription: '官拜知府，治理数县之地。县级政务于他已如观掌纹，不在话下。',
+    gapDescription: '已是繁华的都会，百业兴旺，商贾云集。城市规模宏大，建筑精美，是区域内最重要的商业和文化中心。',
     stages: createStandardStages(5)
   },
   {
     level: 6,
-    name: '四品',
-    title: '道台',
-    coreFeature: '监察一方，督察司法',
+    name: '皇城',
+    title: '帝王居所',
+    coreFeature: '皇宫巍峨，制度完善',
     lifespan: '万载以上',
     activityScope: '多府之地',
-    gapDescription: '官拜道台，监察数府政务，督察司法，位高权重。',
+    gapDescription: '皇城所在地，皇宫巍峨壮丽。城市管理制度完善，各项制度健全，是帝国的政治中心。',
     stages: createStandardStages(6)
   },
   {
     level: 7,
-    name: '三品',
-    title: '按察使',
-    coreFeature: '司法大权，声威显赫',
+    name: '京畿',
+    title: '京畿重地',
+    coreFeature: '天子脚下，富庶繁华',
     lifespan: '与世同君',
     activityScope: '省级',
-    gapDescription: '官拜按察使，掌管一省司法大权，其政令影响深远，稳定一方民生。',
+    gapDescription: '天子脚下的京畿重地，富庶繁华，甲于天下。城市规模庞大，人口众多，是帝国的核心区域。',
     stages: createStandardStages(7)
   },
   {
     level: 8,
-    name: '二品',
-    title: '巡抚',
-    coreFeature: '封疆大吏，位极人臣',
-    lifespan: '不定（任期）',
-    activityScope: '一省或多省',
-    gapDescription: '已是地方官之巅峰，巡抚一方，准备入阁拜相。每一次升迁都是朝堂盛事。',
+    name: '天下',
+    title: '天下名城',
+    coreFeature: '万国来朝，举世瞩目',
+    lifespan: '不定（永恒）',
+    activityScope: '举世闻名',
+    gapDescription: '已成为天下名城，万国来朝，举世瞩目。城市发展达到顶峰，是文明与繁荣的象征。',
     stages: createStandardStages(8)
   }
 ];
 
 /**
- * 获取特定官品的定义
+ * 获取特定城市等级的定义
  */
 export function getRealmDefinition(level: number): RealmDefinition | undefined {
   return REALM_DEFINITIONS.find(realm => realm.level === level);
 }
 
 /**
- * 获取官品子阶段信息
+ * 获取城市等级子阶段信息
  */
 export function getRealmStageInfo(realmLevel: number, stage: RealmStage) {
   const realm = getRealmDefinition(realmLevel);
   const stageInfo = realm?.stages?.find(s => s.stage === stage);
 
   return {
-    realmName: realm?.name || '未知官品',
+    realmName: realm?.name || '未知城市等级',
     stageInfo,
     fullTitle: stageInfo ? `${realm?.name}${stage}·${stageInfo.title}` : `${realm?.name || '未知'}${stage}`
   };

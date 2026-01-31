@@ -19,8 +19,8 @@ export const ACTION_OPTIONS_RULES = `
 {
   "action_options": [
     "前往藏经阁查阅典籍",
-    "向师兄打听宗门近况",
-    "在此处闭关修炼",
+    "向同事打听组织近况",
+    "在此处专注发展",
     "关注突发世界事件",
     "四处走动熟悉环境"
   ]
@@ -44,6 +44,6 @@ export const ACTION_OPTIONS_RULES = `
 - ❌ 省略 action_options 字段
 - ❌ action_options 为空数组
 - ❌ 只有1-2个选项
-- ❌ 重复相似的选项（如"继续修炼"和"接着修炼"）
+- ❌ 重复相似的选项（如"继续专注发展"和"接着专注发展"）
 - ❌ 无法执行的选项
 `.trim()
