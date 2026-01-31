@@ -517,22 +517,6 @@ const autoTranslateMap: Record<string, string> = {
   '出身背景: {0}': 'Origin: {0}',
 
   // === Common Components ===
-  // CloudDataSync
-  '已获取': 'Synced',
-  '暂不可用': 'Unavailable',
-  '云端功能暂未开放': 'Cloud feature not available yet',
-  '获取云端': 'Fetch Cloud',
-  '正在同步云端数据...': 'Syncing cloud data...',
-  '云端数据已获取': 'Cloud data synced',
-  '获取云端数据': 'Fetch cloud data',
-  '云端数据已获取，无需重复操作': 'Cloud data already synced',
-  '正在获取云端数据...': 'Fetching cloud data...',
-  '同步成功！新增 {0} 项云端数据': 'Sync successful! Added {0} cloud items',
-  '所有云端数据已是最新': 'All cloud data is up to date',
-  '同步成功': 'Sync successful',
-  '同步失败': 'Sync failed',
-  '同步失败: {0}': 'Sync failed: {0}',
-
   // StorePreSeting
   '存储中': 'Storing',
   '已存储': 'Stored',

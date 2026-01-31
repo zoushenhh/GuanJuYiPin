@@ -10,9 +10,8 @@
             {{ $t('单机模式') }}
           </div>
 
-          <!-- 右侧：云端同步按钮 -->
+          <!-- 右侧：数据管理按钮 -->
           <div class="cloud-sync-container">
-            <CloudDataSync @sync-completed="onSyncCompleted" variant="compact" size="small" />
             <StorePreSeting
               variant="compact"
               size="small"
@@ -128,7 +127,6 @@
 
 <script setup lang="ts">
 import VideoBackground from '@/components/common/VideoBackground.vue';
-import CloudDataSync from '@/components/common/CloudDataSync.vue';
 import DataClearButtons from '@/components/common/DataClearButtons.vue';
 import StorePreSeting from '@/components/common/StorePreSeting.vue';
 import LoadingPreSeting from '@/components/common/LoadingPreSeting.vue';
@@ -444,14 +442,6 @@ async function createCharacter() {
     emit('creation-complete', { error: error }); // 发射一个带错误的事件
   }
   // 注意：成功情况下不在这里重置状态，因为需要等待App.vue处理完成后再重置
-}
-
-// 处理云端同步完成事件
-function onSyncCompleted(result: { success: boolean; newItemsCount: number; message: string }) {
-  console.log('[角色创建] 云端同步完成:', result);
-  if (result.success && result.newItemsCount > 0) {
-    toast.success(`已更新 ${result.newItemsCount} 项云端数据`);
-  }
 }
 
 // 处理数据清除完成事件

@@ -294,7 +294,7 @@ const uiStore = useUIStore();
 const gameStateStore = useGameStateStore();
 
 // --- 事件处理器 ---
-const handleStartCreation = async (_mode: 'single') => {
+const handleStartCreation = async () => {
   try {
     creationStore.setMode('single');
     switchView('CharacterCreation');

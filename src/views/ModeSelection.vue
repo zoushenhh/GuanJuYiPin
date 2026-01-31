@@ -27,8 +27,8 @@
           <!-- 单机模式 -->
           <div
             class="gate-card"
-            :class="{ selected: selectedMode === 'single' }"
-            @click="selectPath('single')"
+            :class="{ selected: selectedMode }"
+            @click="selectPath"
           >
             <div class="gate-icon">
               <div class="icon-bg"></div>
@@ -43,7 +43,7 @@
                 <span class="tag-offline">{{ $t('离线可用') }}</span>
               </div>
             </div>
-            <div v-if="selectedMode === 'single'" class="check-mark">
+            <div v-if="selectedMode" class="check-mark">
               <Check :size="18" />
             </div>
           </div>
@@ -80,31 +80,27 @@ import { useI18n } from '@/i18n';
 import VideoBackground from '@/components/common/VideoBackground.vue';
 import { Sparkles, History, User, Check } from 'lucide-vue-next';
 
-const selectedMode = ref<'single' | null>(null);
+const selectedMode = ref(false);
 
 const { t } = useI18n();
 
 const displayVersion = computed(() => APP_VERSION);
 
 const emit = defineEmits<{
-  (e: 'start-creation', mode: 'single'): void;
+  (e: 'start-creation'): void;
   (e: 'show-character-list'): void;
 }>();
 
-const selectPath = async (mode: 'single') => {
-  if (selectedMode.value === mode) {
-    selectedMode.value = null;
-  } else {
-    selectedMode.value = mode;
-  }
+const selectPath = () => {
+  selectedMode.value = !selectedMode.value;
 };
 
-const startNewGame = async () => {
+const startNewGame = () => {
   if (!selectedMode.value) return;
-  emit('start-creation', 'single');
+  emit('start-creation');
 };
 
-const enterCharacterSelection = async () => {
+const enterCharacterSelection = () => {
   emit('show-character-list');
 };
 </script>

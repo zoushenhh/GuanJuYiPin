@@ -111,7 +111,6 @@ function normalizeRelationshipMatrixV3(raw: unknown, npcNames: string[]): any | 
 interface GameState {
   // --- V3 元数据/系统字段（随存档保存）---
   saveMeta: any | null;
-  onlineState: any | null;
   userSettings: any | null;
 
   character: CharacterBaseInfo | null;
@@ -168,7 +167,6 @@ interface GameState {
 export const useGameStateStore = defineStore('gameState', {
   state: (): GameState => ({
     saveMeta: null,
-    onlineState: { 模式: '单机', 房间ID: null, 玩家ID: null },
     userSettings: null,
 
     character: null,
@@ -277,8 +275,6 @@ export const useGameStateStore = defineStore('gameState', {
 
       // V3 保存的元数据/设置也读入到 store（用于后续保存回写）
       this.saveMeta = v3?.元数据 ? deepCopy(v3.元数据) : null;
-      // 固定为单机模式，不从存档读取联机状态
-      this.onlineState = { 模式: '单机', 房间ID: null, 玩家ID: null };
       this.userSettings = v3?.系统?.设置 ? deepCopy(v3.系统.设置) : null;
       const normalizeQualitySuffix = (obj: any, field: string) => {
         if (!obj || typeof obj !== 'object') return;
@@ -456,7 +452,6 @@ export const useGameStateStore = defineStore('gameState', {
      * @returns 完整的存档数据
      */
     toSaveData(): SaveData | null {
-      // 🔥 详细的数据检查和日志输出，帮助诊断联机模式下的问题
       const missingFields: string[] = [];
       if (!this.character) missingFields.push('character');
       if (!this.attributes) missingFields.push('attributes');
@@ -469,7 +464,6 @@ export const useGameStateStore = defineStore('gameState', {
 
       if (missingFields.length > 0) {
         console.error('[gameStateStore.toSaveData] 存档数据不完整，缺少以下字段:', missingFields.join(', '));
-        console.error('[gameStateStore.toSaveData] 联机状态:', this.onlineState);
         console.error('[gameStateStore.toSaveData] 游戏是否已加载:', this.isGameLoaded);
         return null;
       }
@@ -534,9 +528,6 @@ export const useGameStateStore = defineStore('gameState', {
           conversationAutoSaveEnabled: this.conversationAutoSaveEnabled,
         };
 
-      const online =
-        { 模式: '单机', 房间ID: null, 玩家ID: null };
-
       const body = (() => {
         const baseBody: Record<string, any> =
           this.body && typeof this.body === 'object' ? deepCopy(this.body) : {};
@@ -582,7 +573,6 @@ export const useGameStateStore = defineStore('gameState', {
           缓存: { 掌握技能: this.masteredSkills ?? (skillState as any)?.掌握技能 ?? [] },
           历史: { 叙事: this.narrativeHistory || [] },
           扩展: {},
-          联机: online,
         },
       };
 
@@ -676,7 +666,6 @@ export const useGameStateStore = defineStore('gameState', {
      */
     resetState() {
       this.saveMeta = null;
-      this.onlineState = { 模式: '单机', 房间ID: null, 玩家ID: null };
       this.userSettings = null;
       this.character = null;
       this.attributes = null;
