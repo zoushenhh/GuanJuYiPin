@@ -2,15 +2,15 @@ import type { SectContentStatus, SectMemberInfo, SectSystemV2, SectType, WorldFa
 import { SECT_SYSTEM_VERSION } from '@/utils/sectMigration';
 
 /**
- * @fileoverview 衙门系统工厂模块 / 宗门系统工厂模块
+ * @fileoverview 衙门系统工厂模块（县令主题）
  *
  * 【职责】
- * - 创建和管理衙门/宗门系统
+ * - 创建和管理衙门系统
  * - 初始化衙门内容和状态
  * - 处理衙门成员信息
  *
  * 【术语对照】
- * - 宗门 -> 衙门
+ * - 宗门 -> 衙门/官府
  * - 掌门 -> 县令/长官
  * - 弟子 -> 下属/官员
  * - 藏经阁 -> 档案库/书房

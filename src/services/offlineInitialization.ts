@@ -5,7 +5,7 @@ import { calculateInitialAttributes } from './characterInitialization';
 
 /**
  * 单机模式下的本地初始化（不依赖酒馆/AI）
- * 创建一个结构正确、包含基础物品的存档
+ * 创建一个结构正确、包含基础物品的存档（县令主题）
  * 注意：记忆为空，将在游戏主界面通过 AI 生成真正的开局文本
  */
 export async function initializeCharacterOffline(
@@ -63,11 +63,11 @@ export async function initializeCharacterOffline(
         物品: {
           consumable_xinshou_danyao_01: {
             物品ID: 'consumable_xinshou_danyao_01',
-            名称: '新手丹药',
+            名称: '新手草药',
             类型: '其他',
             数量: 3,
             品质: { quality: '凡', grade: 1 },
-            描述: '一颗普通的丹药，能恢复少量气血。',
+            描述: '一些普通的草药，能恢复少量健康。',
           },
           equipment_cubuyi_01: {
             物品ID: 'equipment_cubuyi_01',
@@ -75,19 +75,19 @@ export async function initializeCharacterOffline(
             类型: '装备',
             数量: 1,
             品质: { quality: '凡', grade: 1 },
-            描述: '一件朴素的粗布衣服，能提供微不足道的防御。',
+            描述: '一件朴素的粗布衣服，能提供微不足道的防护。',
           },
         },
       },
       装备: { 装备1: null, 装备2: null, 装备3: null, 装备4: null, 装备5: null, 装备6: null },
-      功法: { 当前功法ID: null, 功法进度: {}, 功法套装: { 主修: null, 辅修: [] } },
-      修炼: { 专研内容: null, 修炼状态: { 模式: '未修炼' } },
+      方略: { 当前方略ID: null, 方略进度: {}, 方略套装: { 主修: null, 辅修: [] } },
+      施政: { 施政方略: null, 施政状态: { 模式: '未施政' } },
       大道: createEmptyThousandDaoSystem(),
       技能: { 掌握技能: [], 装备栏: [], 冷却: {} },
     },
     社交: {
       关系: {},
-      衙门: null,
+      官府: null,
       事件: {
         配置: {
           启用随机事件: true,

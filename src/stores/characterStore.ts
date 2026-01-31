@@ -14,8 +14,6 @@ import * as storage from '@/utils/indexedDBManager';
 import { getTavernHelper, clearAllCharacterData, isTavernEnv } from '@/utils/tavern';
 import { ensureSaveDataHasTavernNsfw } from '@/utils/nsfw';
 import { initializeCharacter } from '@/services/characterInitialization';
-import { createCharacter as createCharacterAPI, fetchCharacterProfile, updateCharacterSave, verifyStoredToken } from '@/services/request';
-import { isBackendConfigured } from '@/services/backendConfig';
 import { validateGameData } from '@/utils/dataValidation';
 import { getAIDataRepairSystemPrompt } from '@/utils/prompts/tasks/dataRepairPrompts';
 import { updateLifespanFromGameTime, updateNpcLifespanFromGameTime } from '@/utils/lifespanCalculator'; // <-- 导入寿命计算工具
@@ -929,7 +927,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
         try {
           const saveData = await storage.loadSaveData(charId, slotKey);
           if (saveData) {
-            console.log('[15] 从IndexedDB加载的角色.背包.灵石数据:', (saveData as any).角色?.背包?.灵石)
+            console.log('[15] 从IndexedDB加载的角色.背包.银两数据:', (saveData as any).角色?.背包?.银两)
             targetSlot.存档数据 = saveData;
             debug.log('角色商店', `✅ 已从 IndexedDB 加载存档数据`);
           } else {
@@ -1146,7 +1144,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
 
       debug.log('角色商店', '✅ 从 IndexedDB 加载存档数据');
 
-      // 修复大道数据：确保经验值不是undefined
+      // 修复大道数据：确保经验值不是undefined（大道=治国理论体系）
       if (saveData.大道) {
         const daoSystem = saveData.大道;
 
@@ -1175,7 +1173,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
                 daoData.阶段列表 = [];
               }
               if (!daoData.描述) {
-                daoData.描述 = '神秘的大道';
+                daoData.描述 = '神秘的治国理论';
               }
             }
           });
@@ -1385,7 +1383,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
         throw new Error('无法生成存档数据，游戏状态不完整。');
       }
 
-      console.log('[11] toSaveData()返回的角色.背包.灵石数据:', (currentSaveData as any).角色?.背包?.灵石)
+      console.log('[11] toSaveData()返回的角色.背包.银两数据:', (currentSaveData as any).角色?.背包?.银两)
 
       // 2. 自动更新年龄、技能等派生数据
       updateLifespanFromGameTime(currentSaveData);
@@ -1422,7 +1420,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       console.log('[12] 即将保存到IndexedDB的数据:', {
         角色ID: active.角色ID,
         存档槽位: active.存档槽位,
-        背包灵石: (currentSaveData as any).角色?.背包?.灵石
+        背包银两: (currentSaveData as any).角色?.背包?.银两
       })
 
       // 3. 🔥 核心变更：将巨大的SaveData独立保存到IndexedDB
@@ -2468,17 +2466,17 @@ const equipTechnique = async (itemId: string) => {
     完整物品数据: item
   });
 
-  // 1. 卸下当前所有治国方略（功法类型）
+  // 1. 卸下当前所有治国方略（治国方略类型）
   Object.values(((saveData as any).角色?.背包?.物品 ?? {}) as Record<string, Item>).forEach((i) => {
-    if (i.类型 === '功法') {
+    if (i.类型 === '治国方略') {
       i.已装备 = false;
     }
   });
 
-  // 2. 装备新治国方略（功法类型）
+  // 2. 装备新治国方略（治国方略类型）
   item.已装备 = true;
 
-  // 🔥 [关键修复] 初始化政绩进度/修炼进度（如果未定义）
+  // 🔥 [关键修复] 初始化政绩进度（如果未定义）
   if (item.政绩进度 === undefined || item.政绩进度 === null) {
     item.政绩进度 = item.政绩进度 || 0;
     debug.log('角色商店', `初始化治国方略政绩进度为 0`);
@@ -2490,9 +2488,9 @@ const equipTechnique = async (itemId: string) => {
   }
 
   // 检查哪些技能应该立即解锁（解锁阈值 <= 当前进度）
-  const skillsToCheck = item.方略技能 || item.功法技能 || [];
+  const skillsToCheck = item.方略技能 || [];
   if (skillsToCheck && Array.isArray(skillsToCheck)) {
-    const currentProgress = item.政绩进度 || item.修炼进度 || 0;
+    const currentProgress = item.政绩进度 || 0;
     debug.log('角色商店', `[技能解锁检查] 治国方略: ${item.名称}, 进度: ${currentProgress}%, 技能数: ${skillsToCheck.length}`);
     skillsToCheck.forEach((skill: any) => {
       const unlockThreshold = skill.熟练度要求 || 0;
@@ -2532,12 +2530,12 @@ const equipTechnique = async (itemId: string) => {
   // 🔥 [关键修复] loadFromSaveData 后再次确保技能解锁状态正确
   // 因为 loadFromSaveData 可能会创建新对象
   const itemInStore = gameStateStore.inventory?.物品?.[itemId];
-  if (itemInStore && itemInStore.类型 === '功法') {
+  if (itemInStore && itemInStore.类型 === '治国方略') {
     if (!itemInStore.已解锁技能) {
       itemInStore.已解锁技能 = [];
     }
-    const currentProgress = itemInStore.修炼进度 || 0;
-    const skillsToCheck = itemInStore.功法技能 || [];
+    const currentProgress = itemInStore.政绩进度 || 0;
+    const skillsToCheck = itemInStore.方略技能 || [];
     if (skillsToCheck && Array.isArray(skillsToCheck)) {
       skillsToCheck.forEach((skill: any) => {
         const unlockThreshold = skill.熟练度要求 || 0;

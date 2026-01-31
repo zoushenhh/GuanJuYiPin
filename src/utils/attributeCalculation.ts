@@ -15,7 +15,7 @@ const CHINESE_TO_ENGLISH_MAP: Record<string, string> = {
 };
 
 /**
- * 计算装备提供的后天六司加成
+ * 计算装备提供的后天六司加成（县令主题：装备提供的属性加成）
  */
 export function calculateEquipmentBonuses(equipment: Equipment, inventory: SaveData['背包']): InnateAttributes {
   const bonuses: InnateAttributes = {
@@ -70,7 +70,7 @@ export function calculateEquipmentBonuses(equipment: Equipment, inventory: SaveD
 }
 
 /**
- * 从角色存档数据中计算天赋提供的后天六司加成
+ * 从角色存档数据中计算才干提供的后天六司加成
  */
 export function calculateTalentBonusesFromCharacter(saveData: SaveData): InnateAttributes {
   const bonuses: InnateAttributes = {
@@ -138,7 +138,7 @@ export function calculateTalentBonusesFromCharacter(saveData: SaveData): InnateA
 }
 
 /**
- * 计算天赋提供的后天六司加成
+ * 计算才干提供的后天六司加成
  */
 export function calculateTalentBonuses(talents: Talent[]): InnateAttributes {
   const bonuses: InnateAttributes = {
@@ -203,7 +203,7 @@ export function calculateTalentBonuses(talents: Talent[]): InnateAttributes {
 }
 
 /**
- * 计算已装备功法提供的属性加成
+ * 计算已装备治国方略提供的属性加成
  */
 export function calculateTechniqueBonuses(saveData: SaveData): InnateAttributes {
   const bonuses: InnateAttributes = { 根骨: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 };
@@ -213,12 +213,12 @@ export function calculateTechniqueBonuses(saveData: SaveData): InnateAttributes 
     return bonuses;
   }
 
-  // 查找已装备的功法
+  // 查找已装备的治国方略
   const items = (itemsMap ?? {}) as Record<string, Item>;
-  const equippedTechnique = Object.values(items).find((item) => item.类型 === '功法' && item.已装备 === true);
+  const equippedTechnique = Object.values(items).find((item) => item.类型 === '方略' && item.已装备 === true);
 
-  if (equippedTechnique && equippedTechnique.类型 === '功法' && equippedTechnique.功法效果?.属性加成) {
-    const attributeBonuses = equippedTechnique.功法效果.属性加成;
+  if (equippedTechnique && equippedTechnique.类型 === '方略' && equippedTechnique.方略效果?.属性加成) {
+    const attributeBonuses = equippedTechnique.方略效果.属性加成;
     for (const key in attributeBonuses) {
       if (key in bonuses) {
         bonuses[key as keyof InnateAttributes] += attributeBonuses[key as keyof InnateAttributes] || 0;
@@ -342,5 +342,5 @@ export function getAttributeDescription(attributeName: string, value: number): s
     }
   }
 
-  return `未知境界(${value})`;
+  return `未知官品(${value})`;
 }

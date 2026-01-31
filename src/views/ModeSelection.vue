@@ -6,10 +6,6 @@
     <div class="selection-content">
       <!-- 右上角信息 -->
       <div class="top-info">
-        <div class="status-indicator" :class="backendReady ? 'online' : 'offline'">
-          <span class="status-dot"></span>
-          <span>{{ backendReady ? $t('已连接') : $t('离线') }}</span>
-        </div>
         <div class="version-tag">V{{ displayVersion }}</div>
       </div>
 
@@ -52,33 +48,6 @@
             </div>
           </div>
 
-          <!-- 联机模式 -->
-          <div
-            class="gate-card"
-            :class="{ selected: selectedMode === 'cloud', disabled: !backendReady }"
-            @click="selectPath('cloud')"
-          >
-            <div class="gate-icon">
-              <div class="icon-bg"></div>
-              <Users :size="36" :stroke-width="1.5" />
-            </div>
-            <div class="gate-info">
-              <h2 class="gate-title">{{ $t('联机共修') }}</h2>
-              <p class="gate-desc">{{ backendReady ? $t('同僚相伴 · 共证官道') : $t('官署未启 · 暂不可入') }}</p>
-              <p class="gate-detail">{{ $t('与同僚共闯仕途') }}</p>
-              <div class="gate-tags">
-                <span class="tag-cloud">{{ $t('云端同步') }}</span>
-                <span class="tag-secure">{{ $t('数据安全') }}</span>
-              </div>
-            </div>
-            <div v-if="selectedMode === 'cloud'" class="check-mark">
-              <Check :size="18" />
-            </div>
-            <div v-if="!backendReady" class="disabled-mask">
-              <Lock :size="20" />
-              <span>{{ $t('未启用') }}</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -106,76 +75,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from '@/i18n';
 import VideoBackground from '@/components/common/VideoBackground.vue';
-import { Sparkles, History, User, Users, Check, Lock } from 'lucide-vue-next';
-import { useUIStore } from '@/stores/uiStore';
-import { isBackendConfigured, fetchBackendVersion } from '@/services/backendConfig';
-import { verifyStoredToken } from '@/services/request';
+import { Sparkles, History, User, Check } from 'lucide-vue-next';
 
-const selectedMode = ref<'single' | 'cloud' | null>(null);
-const backendReady = ref(false);
-const backendVersion = ref<string | null>(null);
+const selectedMode = ref<'single' | null>(null);
 
 const { t } = useI18n();
 
-const displayVersion = computed(() => (
-  backendReady.value ? (backendVersion.value ?? t('同步中')) : APP_VERSION
-));
-
-onMounted(async () => {
-  // 真正检测后端连接状态，而不是只检查配置
-  if (isBackendConfigured()) {
-    const version = await fetchBackendVersion();
-    if (version) {
-      backendReady.value = true;
-      backendVersion.value = version;
-    }
-  }
-});
+const displayVersion = computed(() => APP_VERSION);
 
 const emit = defineEmits<{
-  (e: 'start-creation', mode: 'single' | 'cloud'): void;
+  (e: 'start-creation', mode: 'single'): void;
   (e: 'show-character-list'): void;
-  (e: 'go-to-login'): void;
 }>();
 
-const uiStore = useUIStore();
-
-// 检查是否已登录
-const _isLoggedIn = () => {
-  const token = localStorage.getItem('access_token');
-  return !!token;
-};
-
-const selectPath = async (mode: 'single' | 'cloud') => {
-  if (mode === 'cloud' && !backendReady.value) {
-    uiStore.showRetryDialog({
-      title: t('联机未启用'),
-      message: t('未配置后端服务器，无法使用联机共修与登录功能。请先选择"单机闯关"。'),
-      confirmText: t('知道了'),
-      cancelText: t('取消'),
-      onConfirm: () => {},
-      onCancel: () => {}
-    });
-    return;
-  }
-
-  // 联机模式：验证 token 有效性
-  if (mode === 'cloud') {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      const isValid = await verifyStoredToken();
-      if (!isValid) {
-        // token 无效，清除并提示重新登录
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('username');
-        console.log('[ModeSelection] Token 无效，已清除');
-      }
-    }
-  }
-
+const selectPath = async (mode: 'single') => {
   if (selectedMode.value === mode) {
     selectedMode.value = null;
   } else {
@@ -185,26 +101,7 @@ const selectPath = async (mode: 'single' | 'cloud') => {
 
 const startNewGame = async () => {
   if (!selectedMode.value) return;
-
-  // 联机模式需要先登录并验证 token 有效性
-  if (selectedMode.value === 'cloud') {
-    const isValid = await verifyStoredToken();
-    if (!isValid) {
-      uiStore.showRetryDialog({
-        title: t('请先登录'),
-        message: t('联机共修需要先登录账号，是否前往登录？'),
-        confirmText: t('前往登录'),
-        cancelText: t('取消'),
-        onConfirm: () => {
-          emit('go-to-login');
-        },
-        onCancel: () => {}
-      });
-      return;
-    }
-  }
-
-  emit('start-creation', selectedMode.value);
+  emit('start-creation', 'single');
 };
 
 const enterCharacterSelection = async () => {
@@ -297,35 +194,6 @@ const enterCharacterSelection = async () => {
   gap: 0.75rem;
 }
 
-/* 状态指示器 */
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-}
-
-.status-indicator.online {
-  background: rgba(34, 197, 94, 0.12);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  color: #4ade80;
-}
-
-.status-indicator.offline {
-  background: rgba(248, 113, 113, 0.1);
-  border: 1px solid rgba(248, 113, 113, 0.25);
-  color: #fca5a5;
-}
-
-.status-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
 /* 标题区域 */
 .header-section {
   text-align: center;
@@ -413,17 +281,6 @@ const enterCharacterSelection = async () => {
 .gate-card.selected {
   background: rgba(30, 58, 138, 0.4);
   border-color: rgba(147, 197, 253, 0.35);
-}
-
-.gate-card.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.gate-card.disabled:hover {
-  transform: none;
-  background: rgba(30, 41, 59, 0.5);
-  border-color: rgba(255, 255, 255, 0.06);
 }
 
 /* 卡片图标 */
@@ -515,20 +372,6 @@ const enterCharacterSelection = async () => {
   border: 1px solid rgba(34, 211, 209, 0.25);
 }
 
-/* 云端同步 - 蓝色 */
-.tag-cloud {
-  color: #60a5fa;
-  background: rgba(96, 165, 250, 0.12);
-  border: 1px solid rgba(96, 165, 250, 0.25);
-}
-
-/* 数据安全 - 绿色 */
-.tag-secure {
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.1);
-  border: 1px solid rgba(74, 222, 128, 0.25);
-}
-
 /* 选中标记 */
 .check-mark {
   position: absolute;
@@ -543,22 +386,6 @@ const enterCharacterSelection = async () => {
   align-items: center;
   justify-content: center;
   color: #4ade80;
-}
-
-/* 禁用遮罩 */
-.disabled-mask {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(2px);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  color: #94a3b8;
-  font-size: 0.8rem;
 }
 
 /* 操作按钮区域 */
@@ -870,8 +697,7 @@ button {
     min-height: 36px;
   }
 
-  .version-tag,
-  .status-indicator {
+  .version-tag {
     font-size: 0.65rem;
     padding: 0.15rem 0.4rem;
   }

@@ -133,7 +133,7 @@ interface GameState {
   narrativeHistory: GameMessage[] | null;
   isGameLoaded: boolean;
 
-  // 三千大道系统
+  // 三千大道系统（治国理论体系）
   thousandDao: any | null;
   // 事件系统
   eventSystem: EventSystem;
@@ -168,7 +168,7 @@ interface GameState {
 export const useGameStateStore = defineStore('gameState', {
   state: (): GameState => ({
     saveMeta: null,
-    onlineState: null,
+    onlineState: { 模式: '单机', 房间ID: null, 玩家ID: null },
     userSettings: null,
 
     character: null,
@@ -300,10 +300,6 @@ export const useGameStateStore = defineStore('gameState', {
       const character: CharacterBaseInfo | null = v3?.角色?.身份 ? deepCopy(v3.角色.身份) : null;
       const attributes: PlayerAttributes | null = v3?.角色?.属性 ? deepCopy(v3.角色.属性) : null;
       const location: PlayerLocation | null = v3?.角色?.位置 ? deepCopy(v3.角色.位置) : null;
-      if (location && (this.onlineState as any)?.模式 === '联机') {
-        delete (location as any).x;
-        delete (location as any).y;
-      }
       const inventory: Inventory | null = v3?.角色?.背包 ? deepCopy(v3.角色.背包) : null;
       const equipment: Equipment | null = v3?.角色?.装备 ? deepCopy(v3.角色.装备) : null;
       const relationships: Record<string, NpcProfile> | null = v3?.社交?.关系 ? deepCopy(v3.社交.关系) : null;
@@ -524,7 +520,7 @@ export const useGameStateStore = defineStore('gameState', {
           ? { ...(this.sectSystem || {}), ...(this.sectMemberInfo ? { 成员信息: this.sectMemberInfo } : {}) }
           : null;
 
-      // 将 sectSystem 中的 宗门 字段映射到 衙门（兼容性处理）
+      // 将 sectSystem 中的 宗门 字段映射到 衙门（兼容性处理：旧存档可能包含宗门字段）
       if (sectNormalized && (sectNormalized as any).宗门) {
         (sectNormalized as any).衙门 = (sectNormalized as any).宗门;
         delete (sectNormalized as any).宗门;
@@ -538,13 +534,7 @@ export const useGameStateStore = defineStore('gameState', {
         };
 
       const online =
-        this.onlineState ?? { 模式: '单机', 房间ID: null, 玩家ID: null, 只读路径: ['世界'], 世界曝光: false, 冲突策略: '服务器' };
-
-      const location = deepCopy(this.location);
-      if (location && (online as any)?.模式 === '联机') {
-        delete (location as any).x;
-        delete (location as any).y;
-      }
+        { 模式: '单机', 房间ID: null, 玩家ID: null };
 
       const body = (() => {
         const baseBody: Record<string, any> =
@@ -685,7 +675,7 @@ export const useGameStateStore = defineStore('gameState', {
      */
     resetState() {
       this.saveMeta = null;
-      this.onlineState = null;
+      this.onlineState = { 模式: '单机', 房间ID: null, 玩家ID: null };
       this.userSettings = null;
       this.character = null;
       this.attributes = null;
@@ -780,7 +770,7 @@ export const useGameStateStore = defineStore('gameState', {
     },
 
     /**
-     * 在返回道途前保存
+     * 在返回主界面前保存游戏状态
      */
     async saveBeforeExit() {
       if (!this.isGameLoaded) {

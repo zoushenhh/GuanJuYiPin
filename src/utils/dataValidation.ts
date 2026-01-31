@@ -167,9 +167,9 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
     }
 
     try {
-      if (!repairedNpc.出生) repairedNpc.出生 = '散修';
+      if (!repairedNpc.出生) repairedNpc.出生 = '平民';
     } catch (e) {
-      repairedNpc.出生 = '散修';
+      repairedNpc.出生 = '平民';
     }
 
     try {
@@ -181,9 +181,9 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
     }
 
     try {
-      if (!repairedNpc.灵根) repairedNpc.灵根 = '五行杂灵根';
+      if (!repairedNpc.灵根) repairedNpc.灵根 = '五行杂才干';
     } catch (e) {
-      repairedNpc.灵根 = '五行杂灵根';
+      repairedNpc.灵根 = '五行杂才干';
     }
 
     try {
@@ -194,31 +194,31 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
       repairedNpc.先天六司 = { 根骨: 5, 灵性: 5, 悟性: 5, 气运: 5, 魅力: 5, 心性: 5 };
     }
 
-    // 3. 结构检查与修复 (境界) - 防御性处理
+    // 3. 结构检查与修复 (官品/职位) - 防御性处理
     try {
       if (typeof repairedNpc.境界 !== 'object' || repairedNpc.境界 === null) {
         repairedNpc.境界 = {
-          名称: '凡人',
+          名称: '平民',
           阶段: '',
           当前进度: 0,
           下一级所需: 100,
-          突破描述: '引气入体，感悟天地灵气，踏上仕途第一步'
+          突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
         };
       } else {
-        if (typeof repairedNpc.境界.名称 !== 'string') repairedNpc.境界.名称 = '凡人';
+        if (typeof repairedNpc.境界.名称 !== 'string') repairedNpc.境界.名称 = '平民';
         if (typeof repairedNpc.境界.阶段 !== 'string') repairedNpc.境界.阶段 = '';
         if (typeof repairedNpc.境界.当前进度 !== 'number' || isNaN(repairedNpc.境界.当前进度)) repairedNpc.境界.当前进度 = 0;
         if (typeof repairedNpc.境界.下一级所需 !== 'number' || isNaN(repairedNpc.境界.下一级所需)) repairedNpc.境界.下一级所需 = 100;
-        if (typeof repairedNpc.境界.突破描述 !== 'string') repairedNpc.境界.突破描述 = '引气入体，感悟天地灵气，踏上仕途第一步';
+        if (typeof repairedNpc.境界.突破描述 !== 'string') repairedNpc.境界.突破描述 = '初入仕途，感悟政理之道，踏上县令第一步';
       }
     } catch (e) {
-      console.warn('[NPC校验] 境界字段修复失败，使用默认值:', e);
+      console.warn('[NPC校验] 官品字段修复失败，使用默认值:', e);
       repairedNpc.境界 = {
-        名称: '凡人',
+        名称: '平民',
         阶段: '',
         当前进度: 0,
         下一级所需: 100,
-        突破描述: '引气入体，感悟天地灵气，踏上仕途第一步'
+        突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
       };
     }
 
@@ -339,7 +339,7 @@ export function validateGameData(
     const loc = (saveData as any)?.角色?.位置;
     if (!loc || typeof loc !== 'object') errors.push('角色.位置 缺失');
     const realm = (saveData as any)?.角色?.属性?.境界;
-    if (!realm || typeof realm !== 'object') errors.push('角色.属性.境界 缺失');
+    if (!realm || typeof realm !== 'object') errors.push('角色.属性.官品 缺失');
   }
 
   return { isValid: errors.length === 0, errors };

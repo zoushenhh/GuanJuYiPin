@@ -17,8 +17,8 @@ import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
 import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { normalizeBackpackCurrencies } from '@/utils/currencySystem';
 
-// 有效的物品类型
-const validTypes: ItemType[] = ['装备', '功法', '方略', '丹药', '材料', '其他'];
+// 有效的物品类型（县令主题：治国方略替代修仙功法）
+const validTypes: ItemType[] = ['装备', '方略', '丹药', '材料', '其他'];
 
 /**
  * 修复并清洗存档数据，确保所有必需字段存在且格式正确
@@ -315,7 +315,7 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
 }
 
 /**
- * 根据官品和阶段生成施政小说风格的晋升描述
+ * 根据官品和阶段生成县令小说风格的晋升描述
  */
 function getDefaultBreakthroughDescription(realmName?: string, stage?: string): string {
   const name = realmName || '凡人';
@@ -405,12 +405,12 @@ function getDefaultBreakthroughDescription(realmName?: string, stage?: string): 
 }
 
 /**
- * 修复境界数据
+ * 修复官品数据（县令主题：境界->官品）
  */
 function repairRealm(realm: any): Realm {
   if (!realm || typeof realm !== 'object') {
     return {
-      名称: "凡人",
+      名称: "平民",
       阶段: "",
       当前进度: 0,
       下一级所需: 100,
@@ -419,7 +419,7 @@ function repairRealm(realm: any): Realm {
   }
 
   // 🔥 修复：保留原有官品数据，只补充缺失字段
-  const name = realm.名称 || "凡人";
+  const name = realm.名称 || "平民";
   const stage = realm.阶段 !== undefined ? realm.阶段 : "";
   const progress = validateNumber(realm.当前进度, 0, 999999999, 0);
   const required = validateNumber(realm.下一级所需, 1, 999999999, 100);
@@ -594,7 +594,7 @@ function validateNumber(value: any, min: number, max: number, defaultValue: numb
 function createDefaultAttributes(): PlayerAttributes {
   return {
     境界: {
-      名称: '凡人',
+      名称: '平民',
       阶段: '',
       当前进度: 0,
       下一级所需: 100,
@@ -635,14 +635,14 @@ function createMinimalSaveDataV3(): SaveData {
     },
     角色: {
       身份: {
-        名字: '无名修士',
+        名字: '无名官员',
         性别: '男',
         出生日期: { 年: 982, 月: 1, 日: 1 },
         种族: '人族',
         世界: '朝天大陆' as any,
         天资: '凡人' as any,
-        出生: '散修',
-        灵根: '五行杂灵根',
+        出生: '平民',
+        灵根: '五行杂才干',
         天赋: [],
         先天六司: { 根骨: 5, 灵性: 5, 悟性: 5, 气运: 5, 魅力: 5, 心性: 5 },
         后天六司: { 根骨: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 },
@@ -660,7 +660,7 @@ function createMinimalSaveDataV3(): SaveData {
     },
     社交: {
       关系: {},
-      宗门: null,
+      衙门: null,
       事件: {
         配置: { 启用随机事件: true, 最小间隔年: 1, 最大间隔年: 10, 事件提示词: '' },
         下次事件时间: null,

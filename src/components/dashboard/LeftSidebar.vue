@@ -22,7 +22,7 @@
             </div>
             <div class="btn-content">
               <span class="btn-text">{{ t('人物属性') }}</span>
-              <span class="btn-desc">{{ t('修为境界状态') }}</span>
+              <span class="btn-desc">{{ t('政绩官品状态') }}</span>
             </div>
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
@@ -40,17 +40,17 @@
         </div>
       </div>
 
-      <!-- 修炼系统区 -->
+      <!-- 施政系统区 -->
       <div class="function-section">
-        <div class="section-title">{{ t('修炼系统') }}</div>
+        <div class="section-title">{{ t('施政系统') }}</div>
         <div class="function-group">
           <button class="function-btn cultivation" @click="handleTechniques">
             <div class="btn-icon">
               <BookOpen :size="18" />
             </div>
             <div class="btn-content">
-              <span class="btn-text">{{ t('功法技能') }}</span>
-              <span class="btn-desc">{{ t('修炼突破晋级') }}</span>
+              <span class="btn-text">{{ t('方略技能') }}</span>
+              <span class="btn-desc">{{ t('晋升晋级') }}</span>
             </div>
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
@@ -138,7 +138,7 @@
               <Home :size="18" />
             </div>
             <div class="btn-content">
-              <span class="btn-text">{{ t('宗门') }}</span>
+              <span class="btn-text">{{ t('衙门') }}</span>
               <span class="btn-desc">{{ t('门派事务管理') }}</span>
             </div>
             <ChevronRight :size="14" class="btn-arrow" />
@@ -234,7 +234,7 @@
               <LogOut :size="18" />
             </div>
             <div class="btn-content">
-              <span class="btn-text">{{ t('返回道途') }}</span>
+              <span class="btn-text">{{ t('返回主菜单') }}</span>
               <span class="btn-desc">{{ t('退出当前游戏') }}</span>
             </div>
           </button>
@@ -414,13 +414,13 @@ const handleBackendAdmin = () => {
 
 const handleBackToMenu = () => {
   uiStore.showRetryDialog({
-    title: t('返回道途'),
+    title: t('返回主菜单'),
     message: t('您想如何退出当前游戏？'),
     confirmText: t('保存并退出'),
     cancelText: t('取消'),
     neutralText: t('不保存直接退出'),
     onConfirm: async () => {
-      console.log('[返回道途] 用户选择保存并退出...');
+      console.log('[返回主菜单] 用户选择保存并退出...');
       try {
         // 使用 gameStateStore 的 saveBeforeExit 保存
         const { useGameStateStore } = await import('@/stores/gameStateStore');
@@ -428,18 +428,18 @@ const handleBackToMenu = () => {
         await gameStateStore.saveBeforeExit();
         toast.success(t('游戏已保存'));
       } catch (error) {
-        console.error('[返回道途] 保存游戏失败:', error);
+        console.error('[返回主菜单] 保存游戏失败:', error);
         toast.error(t('游戏保存失败，但仍会继续退出。'));
       }
       await exitToMenu();
     },
     onNeutral: async () => {
-      console.log('[返回道途] 用户选择不保存直接退出...');
+      console.log('[返回主菜单] 用户选择不保存直接退出...');
       toast.info(t('游戏进度未保存'));
       await exitToMenu(); // 传入 false 表示不保存
     },
     onCancel: () => {
-      console.log('[返回道途] 用户取消操作');
+      console.log('[返回主菜单] 用户取消操作');
     }
   });
 };
@@ -447,15 +447,15 @@ const handleBackToMenu = () => {
 // 封装一个统一的退出函数，避免代码重复
 const exitToMenu = async () => {
   // 🔥 [新架构] 不再需要清理酒馆上下文，数据已在IndexedDB中管理
-  console.log('[返回道途] 准备返回主菜单');
+  console.log('[返回主菜单] 准备返回主菜单');
 
   characterStore.rootState.当前激活存档 = null;
   await characterStore.commitMetadataToStorage();
-  console.log('[返回道途] 已重置激活存档状态');
+  console.log('[返回主菜单] 已重置激活存档状态');
 
   uiStore.stopLoading();
   await router.push('/');
-  console.log('[返回道途] 已跳转至主菜单');
+  console.log('[返回主菜单] 已跳转至主菜单');
 };
 </script>
 
@@ -899,7 +899,7 @@ const exitToMenu = async () => {
   background: rgba(16, 185, 129, 0.12);
 }
 
-/* 修炼系统 - 金色 */
+/* 施政系统 - 金色 */
 .function-btn.cultivation .btn-icon {
   background: rgba(245, 158, 11, 0.08);
   color: rgb(245, 158, 11);

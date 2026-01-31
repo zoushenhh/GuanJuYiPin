@@ -80,7 +80,7 @@
       <!-- 导航 -->
       <div class="navigation-buttons">
         <button @click.prevent="handleBack" type="button" class="btn btn-secondary">
-          {{ store.currentStep === 1 ? $t('返回道途') : $t('上一步') }}
+          {{ store.currentStep === 1 ? $t('返回主菜单') : $t('上一步') }}
         </button>
 
         <!-- 剩余点数显示 -->
@@ -112,12 +112,12 @@
       </div>
     </div>
 
-    <!-- 仙缘信物按钮 - 只在联机模式下点击AI推演时显示 -->
+    <!-- 吏籍凭证按钮 - 只在联机模式下点击AI生成时显示 -->
 
     <RedemptionCodeModal
       :visible="isCodeModalVisible"
       :type="currentAIType"
-      title="使用仙缘信物"
+      title="使用吏籍凭证"
       @close="isCodeModalVisible = false"
       @submit="handleCodeSubmit"
     />
@@ -171,11 +171,11 @@ function normalizeGender(value: unknown): CharacterPreset['data']['gender'] {
 }
 
 onMounted(async () => {
-  // 1. 初始化创世神殿（确保数据已加载）
+  // 1. 初始化县衙档案（确保数据已加载）
   // 单机模式也需要获取云端数据作为备选
   console.log('【角色创建】当前模式:', store.isLocalCreation ? '单机' : '联机');
 
-  // 2. 初始化创世神殿，确保本地和云端数据都加载
+  // 2. 初始化县衙档案，确保本地和云端数据都加载
   await store.initializeStore(store.isLocalCreation ? 'single' : 'cloud');
 
   // 检查是否需要补充云端数据（检查总数据量而不是source标记）
@@ -205,11 +205,11 @@ onMounted(async () => {
       store.characterPayload.character_name = tavernCharacterName;
     } else {
       console.log('【角色创建】无法获取酒馆角色卡名字，使用默认值');
-      store.characterPayload.character_name = store.isLocalCreation ? '无名者' : '修士';
+      store.characterPayload.character_name = store.isLocalCreation ? '无名者' : '官员';
     }
   } catch (error) {
     console.error('【角色创建】获取角色名字时出错:', error);
-    store.characterPayload.character_name = store.isLocalCreation ? '无名者' : '修士';
+    store.characterPayload.character_name = store.isLocalCreation ? '无名者' : '官员';
   }
 });
 
@@ -233,33 +233,33 @@ async function executeCloudAiGeneration(code: string, userPrompt?: string) {
 
   store.startCreation();
   const toastId = `cloud-ai-generate-${type}`;
-  const initialMessage = userPrompt ? '基于你的心愿推演玄妙...' : '天机推演中...';
+  const initialMessage = userPrompt ? '基于你的需求生成内容...' : '正在生成...';
   toast.loading(initialMessage, { id: toastId });
 
   try {
     // 1. 验证兑换码 (可选，后端会做最终验证)
-    toast.loading('正在验证仙缘信物...', { id: toastId });
+    toast.loading('正在验证吏籍凭证...', { id: toastId });
     try {
       // 后端返回完整的 RedemptionCode 对象，验证成功说明可用
       await request<{ id: number; code: string; times_used: number; max_uses: number }>(`/api/v1/redemption/validate/${code}`, { method: 'POST' });
       // 如果请求成功，说明兑换码有效且未过期/未用完
     } catch (error: unknown) {
       // 后端会返回具体错误信息（404=不存在，400=已用完/已过期）
-      const message = error instanceof Error ? error.message : '仙缘信物验证失败';
+      const message = error instanceof Error ? error.message : '吏籍凭证验证失败';
       toast.error(message, { id: toastId });
       store.resetCreationState();
       return;
     }
 
     // 2. 前端调用AI生成
-    toast.loading('已连接天机阁，正在推演...', { id: toastId });
+    toast.loading('正在生成内容...', { id: toastId });
 
     // 构建AI提示词
     const typeNameMap: Record<string, string> = {
       'world': '世界背景',
       'talent_tier': '天资等级',
       'origin': '出身背景',
-      'spirit_root': '灵根',
+      'talent_attribute': '才能',
       'talent': '天赋'
     };
     const typeName = typeNameMap[type] || type;
@@ -276,7 +276,7 @@ async function executeCloudAiGeneration(code: string, userPrompt?: string) {
     });
 
     if (!aiResponse) {
-      toast.error('天机阁未能推演出结果', { id: toastId });
+      toast.error('生成失败', { id: toastId });
       store.resetCreationState();
       return;
     }
@@ -292,13 +292,13 @@ async function executeCloudAiGeneration(code: string, userPrompt?: string) {
         throw new Error('未找到有效JSON');
       }
     } catch {
-      toast.error('天机推演结果格式异常', { id: toastId });
+      toast.error('生成结果格式异常', { id: toastId });
       store.resetCreationState();
       return;
     }
 
     // 3. 保存到云端并消耗兑换码
-    toast.loading('正在记录天机...', { id: toastId });
+    toast.loading('正在保存...', { id: toastId });
 
     const saveResponse = await request<{ message: string; saved_id: number }>('/api/v1/ai/save', {
       method: 'POST',
@@ -310,20 +310,20 @@ async function executeCloudAiGeneration(code: string, userPrompt?: string) {
     });
 
     if (saveResponse) {
-      toast.success(`天机已定！${saveResponse.message}`, { id: toastId });
+      toast.success(`已保存！${saveResponse.message}`, { id: toastId });
       // 刷新数据以显示新生成的内容
       await store.fetchAllCloudData();
     } else {
-      toast.error('记录天机失败', { id: toastId });
+      toast.error('保存失败', { id: toastId });
     }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : '未知错误';
-    if (message.includes('兑换码') || message.includes('信物')) {
+    if (message.includes('兑换码') || message.includes('凭证')) {
       toast.error(message, { id: toastId });
     } else if (message.includes('登录')) {
       toast.error('身份验证失败，请重新登录！', { id: toastId });
     } else {
-      toast.error('天机紊乱：' + message, { id: toastId });
+      toast.error('生成失败：' + message, { id: toastId });
     }
   } finally {
     store.resetCreationState();
@@ -334,7 +334,7 @@ async function executeCloudAiGeneration(code: string, userPrompt?: string) {
 
 // 父组件的AI生成处理器，只响应来自子组件的"联机"请求
 function handleAIGenerateClick() {
-  // 根据当前步骤设置AI推演类型
+  // 根据当前步骤设置AI生成类型
   const typeMap = {
     1: 'world' as const,
     2: 'talent_tier' as const,
@@ -357,13 +357,13 @@ defineExpose({
 })
 
 const stepLabels = computed(() => [
-  t('诸天问道'),
-  t('仙缘初定'),
-  t('转世因果'),
-  t('测灵问道'),
-  t('神通择定'),
-  t('命格天成'),
-  t('窥天算命'),
+  t('选择世界'),
+  t('选择天资'),
+  t('选择出身'),
+  t('选择才能'),
+  t('选择天赋'),
+  t('分配属性'),
+  t('预览确认'),
 ])
 
 const characterDataForPreset = computed(() => ({
@@ -452,17 +452,17 @@ const step3Ref = ref<InstanceType<typeof Step3_OriginSelection> | null>(null)
 const step4Ref = ref<InstanceType<typeof Step4_TalentSelection> | null>(null)
 const step5Ref = ref<InstanceType<typeof Step5_TalentSelection> | null>(null)
 
-// 处理仙缘信物提交 (仅联机模式)
+// 处理吏籍凭证提交 (仅联机模式)
 async function handleCodeSubmit(data: { code: string; prompt?: string }) {
   const token = localStorage.getItem('access_token')
   if (!token) {
-    toast.error('身份凭证缺失，请先登录再使用信物。')
+    toast.error('身份凭证缺失，请先登录再使用凭证。')
     isCodeModalVisible.value = false
     return
   }
 
   if (!data.code || data.code.trim().length < 6) {
-    toast.error('请输入有效的仙缘信物！')
+    toast.error('请输入有效的吏籍凭证！')
     return
   }
 
@@ -501,7 +501,7 @@ async function createCharacter() {
     return;
   }
 
-  // 出身和灵根可以为空（表示随机选择）
+  // 出身和才能可以为空（表示随机选择）
   console.log('[DEBUG] selectedOrigin:', store.selectedOrigin, '(可为空，表示随机出生)');
   console.log('[DEBUG] selectedSpiritRoot:', store.selectedSpiritRoot, '(可为空，表示随机才能)');
 
@@ -538,7 +538,7 @@ async function createCharacter() {
       世界: store.selectedWorld,
       天资: store.selectedTalentTier,
       出生: store.selectedOrigin || '随机出身', // service层会处理字符串
-      灵根: store.selectedSpiritRoot || '随机才能', // service层会处理字符串
+      才能: store.selectedSpiritRoot || '随机才能', // service层会处理字符串
       天赋: store.selectedTalents,
       先天六司: {
         根骨: store.attributes.root_bone,

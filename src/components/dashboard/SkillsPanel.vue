@@ -57,9 +57,9 @@
                 <Moon :size="16" />
                 <span>{{ t('闭关') }}</span>
               </button>
-              <button class="action-btn" @click="showCultivationDialog" :title="t('深修')">
+              <button class="action-btn" @click="showCultivationDialog" :title="t('深研')">
                 <Clock :size="16" />
-                <span>{{ t('深修') }}</span>
+                <span>{{ t('深研') }}</span>
               </button>
               <button v-if="canBreakthrough" class="action-btn warning" @click="attemptBreakthrough" :title="t('突破')">
                 <TrendingUp :size="16" />
@@ -404,7 +404,7 @@ const attemptBreakthrough = async () => {
     type: 'breakthrough',
     itemName: cultivationSkills.value.名称,
     itemType: t('突破'),
-    description: `尝试突破《${cultivationSkills.value.名称}》的当前境界，进入更高层次`,
+    description: `尝试突破《${cultivationSkills.value.名称}》的当前官品，进入更高层次`,
   });
   uiStore.showToast(`尝试突破《${cultivationSkills.value.名称}》`, { type: 'warning' });
 };
@@ -462,10 +462,10 @@ const unequipSkill = async () => {
     cancelText: t('取消'),
     onConfirm: async () => {
       try {
-        // 检查是否有正在从政的功法，且与要卸下的功法匹配
-        const cultivatingId = (gameStateStore.cultivation as any)?.修炼功法?.物品ID;
+        // 检查是否有正在施政的方略，且与要卸下的方略匹配
+        const cultivatingId = (gameStateStore.cultivation as any)?.施政方略?.物品ID;
         if (cultivatingId === skillToUnequip.物品ID) {
-          // 只有当前正在从政这个功法时才停止从政
+          // 只有当前正在施政这个方略时才停止施政
           await enhancedActionQueue.stopCultivation(skillToUnequip as any);
         }
         await characterStore.unequipTechnique(skillToUnequip.物品ID!);

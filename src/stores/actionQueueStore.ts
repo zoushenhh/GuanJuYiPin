@@ -50,7 +50,7 @@ export const useActionQueueStore = defineStore('actionQueue', () => {
       pendingActions.value = pendingActions.value.filter(a => a.type !== 'cultivate');
     }
 
-    // 确保任何时候只有一个感悟大道操作
+    // 确保任何时候只有一个感悟大道操作（感悟治国理论）
     // 如果添加新的感悟操作，则移除所有旧的
     if (newAction.type === 'comprehend') {
       pendingActions.value = pendingActions.value.filter(a => a.type !== 'comprehend');

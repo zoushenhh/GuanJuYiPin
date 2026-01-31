@@ -1,5 +1,5 @@
 /**
- * @fileoverview 角色初始化服务
+ * @fileoverview 角色初始化服务（县令主题）
  * 负责角色创建生成和完整初始化流程，包括AI动态生成。
  */
 
@@ -25,11 +25,11 @@ import { EnhancedWorldGenerator } from '@/utils/worldGeneration/enhancedWorldGen
 import { LOCAL_SPIRIT_ROOTS, LOCAL_ORIGINS } from '@/data/creationData';
 
 /**
- * 判断是否为随机才能（辅助函数）
+ * 判断是否为随机才干（县令主题：才干替代灵根/才能）
  */
 function isRandomTalent(talent: string | object): boolean {
   if (typeof talent === 'string') {
-    return talent === '随机才能' || talent.includes('随机');
+    return talent === '随机才干' || talent.includes('随机');
   }
   return false;
 }
@@ -192,8 +192,8 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
     console.log(`[角色初始化] 临时出生日期(AI可能会重新计算): ${processedBaseInfo.出生日期.年}年${processedBaseInfo.出生日期.月}月${processedBaseInfo.出生日期.日}日 (当前${age}岁)`);
   }
 
-  // 注意：不再在此处理随机才能和随机出生，完全交给 AI 处理
-  // AI 会根据提示词中的引导，创造性地生成独特的才能和出生
+  // 注意：不再在此处理随机才干和随机出生，完全交给 AI 处理
+  // AI 会根据提示词中的引导，创造性地生成独特的才干和出生
   // 这样可以避免固定的套路，每次初始化都会有不同的结果
 
   // 确保后天六司存在，开局默认全为0
@@ -210,10 +210,10 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
   }
 
   if (isRandomTalent(processedBaseInfo.灵根)) {
-    console.log('[才能生成] 检测到随机才能，将由 AI 创造性生成');
-    // 保留"随机才能"字符串，让 AI 处理
+    console.log('[才干生成] 检测到随机才干，将由 AI 创造性生成');
+    // 保留"随机才干"字符串，让 AI 处理
   } else {
-    console.log('[才能生成] 检测到玩家已选择特定才能，将直接使用该才能，不进行随机化处理。');
+    console.log('[才干生成] 检测到玩家已选择特定才干，将直接使用该才干，不进行随机化处理。');
   }
 
   if (typeof processedBaseInfo.出生 === 'string' &&
@@ -730,22 +730,22 @@ function deriveBaseFieldsFromDetails(baseInfo: CharacterBaseInfo): CharacterBase
     console.warn('[数据校准] 警告: 无法找到权威的出身数据。');
   }
 
-  // 4. 才能 (Talent) - 如果AI已生成具体才能，则保留AI生成的
+  // 4. 才干 - 如果AI已生成具体才干，则保留AI生成的
   const authoritativeSpiritRoot = creationStore.selectedSpiritRoot;
-  const hasAIGeneratedSpiritRoot = derivedInfo.灵根 && typeof derivedInfo.灵根 === 'object' && (derivedInfo.灵根 as any).名称 !== '随机才能';
+  const hasAIGeneratedSpiritRoot = derivedInfo.灵根 && typeof derivedInfo.灵根 === 'object' && (derivedInfo.灵根 as any).名称 !== '随机才干';
 
   if (authoritativeSpiritRoot && !hasAIGeneratedSpiritRoot) {
-    console.log(`[数据校准] ✅ 同步用户选择的才能: ${authoritativeSpiritRoot.name} (${authoritativeSpiritRoot.tier})`);
+    console.log(`[数据校准] ✅ 同步用户选择的才干: ${authoritativeSpiritRoot.name} (${authoritativeSpiritRoot.tier})`);
     derivedInfo.灵根 = authoritativeSpiritRoot;
   } else if (hasAIGeneratedSpiritRoot) {
     // 如果用户选择随机，并且一个具体的对象已经存在（由AI或后备逻辑生成），则直接信任和保留它。
-    console.log('[数据校准] ✅ 保留已生成的具体才能:', (derivedInfo.灵根 as SpiritRoot).name);
+    console.log('[数据校准] ✅ 保留已生成的具体才干:', (derivedInfo.灵根 as SpiritRoot).name);
   } else if (creationStore.characterPayload.spirit_root_id === null) {
-    // 仅当没有生成任何具体才能时，才可能需要标记回随机（作为最后的保险措施）
-    console.log('[数据校准] 🎲 用户选择随机才能，但无有效生成值，标记为随机');
-    derivedInfo.灵根 = '随机才能';
+    // 仅当没有生成任何具体才干时，才可能需要标记回随机（作为最后的保险措施）
+    console.log('[数据校准] 🎲 用户选择随机才干，但无有效生成值，标记为随机');
+    derivedInfo.灵根 = '随机才干';
   } else {
-    console.warn('[数据校准] 警告: 无法找到权威的才能数据。');
+    console.warn('[数据校准] 警告: 无法找到权威的才干数据。');
   }
 
   // 5. 天赋 (Talents) - 用户选择的天赋，强制使用不允许修改
@@ -803,24 +803,24 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
   };
 
 
-  // 才能权威覆盖
+  // 才干权威覆盖
   const userChoseRandomSpiritRoot = (typeof baseInfo.灵根 === 'object' && (baseInfo.灵根 as SpiritRoot)?.name?.includes('随机')) ||
                                 (typeof baseInfo.灵根 === 'string' && baseInfo.灵根.includes('随机'));
 
   if (userChoseRandomSpiritRoot) {
-    console.log('[数据最终化] 🎲 用户选择随机才能，使用AI生成的数据');
+    console.log('[数据最终化] 🎲 用户选择随机才干，使用AI生成的数据');
     const aiGeneratedSpiritRoot = (saveData as any).角色?.身份?.灵根;
-    mergedBaseInfo.灵根 = aiGeneratedSpiritRoot || '随机才能'; // Fallback to string
+    mergedBaseInfo.灵根 = aiGeneratedSpiritRoot || '随机才干'; // Fallback to string
 
-    // 验证AI是否正确替换了随机才能
+    // 验证AI是否正确替换了随机才干
     if (typeof mergedBaseInfo.灵根 === 'string' && mergedBaseInfo.灵根.includes('随机')) {
-      console.warn('[数据最终化] ⚠️ 警告：AI未能正确替换随机才能，使用本地数据库生成');
+      console.warn('[数据最终化] ⚠️ 警告：AI未能正确替换随机才干，使用本地数据库生成');
 
       // 🔥 后备逻辑：使用本地数据库随机生成
       const 天资 = baseInfo.天资;
-      let 才能池 = LOCAL_SPIRIT_ROOTS.filter(root => {
-        // 根据天资筛选合适的才能，排除特殊才能(神品、仙品等)
-        // 神品才能应该是极其罕见的,不应该作为随机结果
+      let 才干池 = LOCAL_SPIRIT_ROOTS.filter(root => {
+        // 根据天资筛选合适的才干，排除特殊才干(神品、仙品等)
+        // 神品才干应该是极其罕见的,不应该作为随机结果
         if (天资.name === '废柴' || 天资.name === '凡人') {
           return root.tier === '凡品' || root.tier === '下品';
         } else if (天资.name === '俊杰') {
@@ -835,17 +835,17 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
         }
       });
 
-      if (才能池.length === 0) {
-        // 如果过滤结果为空，使用所有才能
-        才能池 = LOCAL_SPIRIT_ROOTS;
+      if (才干池.length === 0) {
+        // 如果过滤结果为空，使用所有才干
+        才干池 = LOCAL_SPIRIT_ROOTS;
       }
 
-      const 随机才能 = 才能池[Math.floor(Math.random() * 才能池.length)];
-      mergedBaseInfo.灵根 = 随机才能;
-      console.log(`[数据最终化] ✅ 已从本地数据库生成随机才能: ${随机才能.name} (${随机才能.tier})`);
+      const 随机才干 = 才干池[Math.floor(Math.random() * 才干池.length)];
+      mergedBaseInfo.灵根 = 随机才干;
+      console.log(`[数据最终化] ✅ 已从本地数据库生成随机才干: ${随机才干.name} (${随机才干.tier})`);
     }
   } else {
-    console.log(`[数据最终化] ✅ 用户选择特定才能，强制使用用户选择: ${(baseInfo.灵根 as SpiritRoot)?.name}`);
+    console.log(`[数据最终化] ✅ 用户选择特定才干，强制使用用户选择: ${(baseInfo.灵根 as SpiritRoot)?.name}`);
     mergedBaseInfo.灵根 = baseInfo.灵根;
   }
 
@@ -1047,15 +1047,15 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
     const corresponding = items[cultivating.物品ID];
     const ok =
       corresponding &&
-      corresponding.类型 === '功法' &&
+      corresponding.类型 === '方略' &&
       (corresponding.名称 === cultivating.名称 || corresponding.名称) &&
       (corresponding.修炼中 === true || corresponding.已装备 === true);
 
     if (!ok) {
-      console.warn(`[数据校准] 检测到无效的"已失传方略"：角色.修炼.修炼功法 非空，但角色.背包.物品中无对应实体。正在清除无效修炼状态...`);
+      console.warn(`[数据校准] 检测到无效的"已失传治国方略"：角色.修炼.修炼功法 非空，但角色.背包.物品中无对应实体。正在清除无效修炼状态...`);
       if (repairedMigrated.角色?.修炼) repairedMigrated.角色.修炼.修炼功法 = null;
     } else {
-      console.log(`[数据校准] 方略一致性校验通过: "${cultivating.名称}"`);
+      console.log(`[数据校准] 治国方略一致性校验通过: "${cultivating.名称}"`);
     }
   }
 

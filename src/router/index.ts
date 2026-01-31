@@ -60,7 +60,6 @@ import SectManagementContent from '../components/dashboard/components/SectManage
 import SectWarContent from '../components/dashboard/components/SectWarContent.vue';
 import GameVariablePanel from '../components/dashboard/GameVariablePanel.vue';
 import PromptManagementPanel from '../components/dashboard/PromptManagementPanel.vue';
-import OnlineTravelPanel from '../components/dashboard/OnlineTravelPanel.vue';
 import APIManagementPanel from '../components/dashboard/APIManagementPanel.vue';
 
 const routes = [
@@ -215,11 +214,6 @@ const routes = [
         path: 'prompts',
         name: 'Prompts',
         component: PromptManagementPanel,
-      },
-      {
-        path: 'travel',
-        name: 'Travel',
-        component: OnlineTravelPanel,
       },
       {
         path: 'api-management',

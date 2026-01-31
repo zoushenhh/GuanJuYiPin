@@ -25,8 +25,7 @@ export interface SaveMigrationReport {
  */
 export interface SaveDisplayInfo {
   角色名字: string;
-  境界: string;
-  官品?: string; // 县令主题：官品
+  境界: string; // 县令主题：官品/职位
   位置: string;
   游戏时间: GameTime | null;
 }
@@ -38,7 +37,7 @@ export interface SaveDisplayInfo {
 export function extractSaveDisplayInfo(saveData: SaveData | null | undefined): SaveDisplayInfo {
   const defaultInfo: SaveDisplayInfo = {
     角色名字: '未知',
-    境界: '凡人',
+    境界: '平民',
     位置: '未知',
     游戏时间: null,
   };
@@ -64,24 +63,24 @@ export function extractSaveDisplayInfo(saveData: SaveData | null | undefined): S
     角色名字 = anySave.玩家角色状态信息.角色.名字;
   }
 
-  // 提取境界
+  // 提取官品
   let 境界 = defaultInfo.境界;
   if (anySave.角色?.属性?.境界) {
-    // V3 格式
+    // V3 格式（县令主题：境界字段存储官品信息）
     const realmData = anySave.角色.属性.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '凡人');
+    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
   } else if (anySave.属性?.境界) {
     const realmData = anySave.属性.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '凡人');
+    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
   } else if (anySave.状态?.境界) {
     const realmData = anySave.状态.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '凡人');
+    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
   } else if (anySave.玩家角色状态?.境界) {
     const realmData = anySave.玩家角色状态.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '凡人');
+    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
   } else if (anySave.玩家角色状态信息?.境界) {
     const realmData = anySave.玩家角色状态信息.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '凡人');
+    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
   }
 
   // 提取位置
@@ -281,14 +280,14 @@ const buildDefaultWorldInfo = (nowIso: string) => ({
 });
 
 const buildDefaultIdentity = () => ({
-  名字: '无名修士',
+  名字: '无名官员',
   性别: '男',
   出生日期: { 年: 982, 月: 1, 日: 1 },
   种族: '人族',
   世界: '朝天大陆',
   天资: '凡人',
-  出生: '散修',
-  灵根: '五行杂灵根',
+  出生: '平民',
+  灵根: '五行杂才干',
   天赋: [],
   先天六司: { 根骨: 5, 灵性: 5, 悟性: 5, 气运: 5, 魅力: 5, 心性: 5 },
   后天六司: { 根骨: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 },

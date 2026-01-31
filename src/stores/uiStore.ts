@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, shallowRef, computed, type Component } from 'vue';
 import { sanitizeAITextForDisplay, extractTextFromJsonResponse } from '@/utils/textSanitizer';
-import { isBackendConfigured, fetchBackendVersion } from '@/services/backendConfig';
 
 interface RetryDialogConfig {
   title: string;
@@ -89,39 +88,6 @@ export const useUIStore = defineStore('ui', () => {
 
   // 🔥 [流式传输设置] 控制是否启用流式传输（全局持久化）
   const useStreaming = ref(localStorage.getItem('useStreaming') !== 'false'); // 默认开启
-
-  // 🔥 [后端状态管理] 统一管理后端连接状态
-  const backendStatus = ref({
-    configured: isBackendConfigured(),
-    connected: false,
-    lastChecked: 0
-  });
-
-  // 检查后端连接状态
-  const checkBackendConnection = async (): Promise<boolean> => {
-    if (!backendStatus.value.configured) {
-      backendStatus.value.connected = false;
-      return false;
-    }
-
-    try {
-      const version = await fetchBackendVersion();
-      backendStatus.value.connected = !!version;
-      backendStatus.value.lastChecked = Date.now();
-      return backendStatus.value.connected;
-    } catch {
-      backendStatus.value.connected = false;
-      return false;
-    }
-  };
-
-  // 计算属性：后端是否可用（已配置且已连接）
-  const isBackendAvailable = computed(() =>
-    backendStatus.value.configured && backendStatus.value.connected
-  );
-
-  // 计算属性：后端是否已配置（不检查连接状态）
-  const isBackendConfiguredComputed = computed(() => backendStatus.value.configured);
 
   function openCharacterManagement() {
     showCharacterManagement.value = true;
@@ -456,12 +422,6 @@ export const useUIStore = defineStore('ui', () => {
 
     // 暴露用户输入框内容
     userInputText,
-
-    // 🔥 [后端状态管理] 暴露后端状态相关
-    backendStatus,
-    checkBackendConnection,
-    isBackendAvailable,
-    isBackendConfiguredComputed,
 
     // 暴露通用详情弹窗相关
     showDetailModalState,

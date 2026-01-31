@@ -109,7 +109,6 @@ export default (env, argv) => {
         __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false),
         'APP_VERSION': JSON.stringify(packageJson.version),
-        'BACKEND_BASE_URL': JSON.stringify('https://back.ddct.top') //后端路径
       }),
       new HtmlWebpackPlugin({
         template: './index.html',
@@ -152,15 +151,6 @@ export default (env, argv) => {
       compress: true,
       port: 8080,
       hot: true,
-      // 配置代理，解决CORS问题
-      proxy: [
-        {
-          context: ['/api'],
-          target: 'http://localhost:8000',  // 本地后端服务器
-          changeOrigin: true,
-          secure: false,
-        }
-      ],
       // 允许通过任意host访问
       allowedHosts: 'all',
     },
