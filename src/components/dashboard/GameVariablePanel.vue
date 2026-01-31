@@ -110,7 +110,6 @@ const saveDataView = computed(() => {
 
   const activeSlot = characterStore.activeSaveSlot
   const activeProfile = characterStore.activeCharacterProfile
-  const onlineSync = activeProfile?.模式 === '联机' ? activeProfile.存档?.云端同步信息 : undefined
 
   const raw = (gameStateStore.toSaveData() as any) || {}
   const v3 = isSaveDataV3(raw) ? raw : migrateSaveDataToLatest(raw).migrated
@@ -132,12 +131,6 @@ const saveDataView = computed(() => {
     游玩时长: activeSlot?.游戏时长,
     创建时间: activeSlot?.保存时间 ?? undefined,
     更新时间: activeSlot?.最后保存时间 ?? activeSlot?.保存时间 ?? undefined
-  }
-
-  if (onlineSync) {
-    if (!data.系统 || typeof data.系统 !== 'object') data.系统 = {}
-    if (!data.系统.联机 || typeof data.系统.联机 !== 'object') data.系统.联机 = {}
-    data.系统.联机.同步状态 = onlineSync
   }
 
   return data

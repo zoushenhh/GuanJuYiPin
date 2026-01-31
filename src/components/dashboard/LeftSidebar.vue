@@ -207,17 +207,6 @@
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
 
-          <button v-if="isAdmin" class="function-btn admin" @click="handleBackendAdmin">
-            <div class="btn-icon">
-              <Shield :size="18" />
-            </div>
-            <div class="btn-content">
-              <span class="btn-text">{{ t('仙官后台') }}</span>
-              <span class="btn-desc">{{ t('管理员控制台') }}</span>
-            </div>
-            <ChevronRight :size="14" class="btn-arrow" />
-          </button>
-
           <button class="function-btn exit-btn no-arrow" @click="handleBackToMenu">
             <div class="btn-icon">
               <LogOut :size="18" />
@@ -272,7 +261,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Package, User, Users, BookOpen, Zap, Brain, Map, Globe, Save, Settings, LogOut, Compass, Home, Bell, ChevronRight, Database, Clock, FileText, Plug, LayoutGrid, Heart, Shield, Hammer } from 'lucide-vue-next';
+import { Package, User, Users, BookOpen, Zap, Brain, Map, Globe, Save, Settings, LogOut, Compass, Home, Bell, ChevronRight, Database, Clock, FileText, Plug, LayoutGrid, Heart, Hammer } from 'lucide-vue-next';
 import { useCharacterStore } from '@/stores/characterStore';
 import { toast } from '@/utils/toast';
 import { useUIStore } from '@/stores/uiStore';
@@ -376,10 +365,6 @@ const handleAPIManagement = () => {
 
 const handleGameVariables = () => {
   router.push('/game/game-variables');
-};
-
-const handleBackendAdmin = () => {
-  router.push('/game/backend-admin');
 };
 
 const handleBackToMenu = () => {

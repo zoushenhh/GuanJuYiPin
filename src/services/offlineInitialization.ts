@@ -130,7 +130,6 @@ export async function initializeCharacterOffline(
           开局时间: { 年: 1000 - age, 月: 1, 日: 1, 小时: 8, 分钟: 0 },
         },
       },
-      联机: { 模式: '单机', 房间ID: null, 玩家ID: null, 只读路径: ['世界'], 世界曝光: false, 冲突策略: '服务器' },
     },
   };
 

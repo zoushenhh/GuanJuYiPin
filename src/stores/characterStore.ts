@@ -88,8 +88,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
         }
 
         // 3.0 迁移单机模式：兼容旧版本存档结构
-        if (profile.模式 === '单机' && profile.存档 && (!profile.存档列表 || Object.keys(profile.存档列表).length === 0)) {
-          debug.log('角色商店', `🔄 迁移单机角色「${roleNameForLog}」的旧版本存档结构`);
+        if (profile.存档 && (!profile.存档列表 || Object.keys(profile.存档列表).length === 0)) {
+          debug.log('角色商店', `🔄 迁移角色「${roleNameForLog}」的旧版本存档结构`);
 
           // 初始化存档列表
           profile.存档列表 = {};
@@ -131,7 +131,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
           needsSave = true;
         }
 
-        if (profile.模式 === '单机' && profile.存档列表 && !profile.存档列表['时间点存档']) {
+        if (profile.存档列表 && !profile.存档列表['时间点存档']) {
           profile.存档列表['时间点存档'] = {
             存档名: '时间点存档',
             保存时间: null,
@@ -187,7 +187,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
     const profile = activeCharacterProfile.value;
     if (!active || !profile) return null;
 
-    if (profile.模式 === '单机' && profile.存档列表) {
+    if (profile.存档列表) {
       return profile.存档列表[active.存档槽位] || null;
     }
     return null;
@@ -198,7 +198,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
     const profile = activeCharacterProfile.value;
     if (!profile) return [];
 
-    if (profile.模式 === '单机' && profile.存档列表) {
+    if (profile.存档列表) {
       // 为每个存档添加必要的展示信息
       return Object.entries(profile.存档列表).map(([key, slot]) => {
         // 🔥 修复：使用 extractSaveDisplayInfo 兼容旧格式和 V3 格式
@@ -349,7 +349,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       }
 
       // 4. 将修改写回 rootState（触发响应式）
-      if (profile.模式 === '单机' && profile.存档列表) {
+      if (profile.存档列表) {
         // 注意：不再在这里备份到"上次对话"，已改为在发送消息前备份
         rootState.value.角色列表[active.角色ID].存档列表 = {
           ...profile.存档列表,
@@ -464,10 +464,9 @@ export const useCharacterStore = defineStore('characterV3', () => {
         initialSaveData = ensureSaveDataHasTavernNsfw(initialSaveData) as SaveData;
       }
 
-      // 创建单机模式角色
+      // 创建角色
       const now = new Date().toISOString();
       const newProfile: CharacterProfile = {
-        模式: '单机',
         角色: (initialSaveData as any)?.角色?.身份 || authoritativeBaseInfo, // 仅存静态身份信息
         存档列表: {
           '存档1': {
@@ -579,12 +578,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       }
 
       let targetSlot: SaveSlot | undefined | null;
-      if (profile.模式 === '单机') {
-        targetSlot = profile.存档列表?.[slotKey];
-      } else {
-        toast.error('仅支持单机模式');
-        return false;
-      }
+      targetSlot = profile.存档列表?.[slotKey];
 
       if (!targetSlot) {
         debug.error('角色商店', '找不到指定的存档槽位', slotKey);
@@ -922,7 +916,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       const charId = active.角色ID;
       const slotId = active.存档槽位;
 
-      if (profile.模式 === '单机' && profile.存档列表) {
+      if (profile.存档列表) {
         // 创建新的存档列表对象，触发响应式
         rootState.value.角色列表[charId].存档列表 = {
           ...profile.存档列表,
@@ -981,8 +975,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
       debug.log('角色商店', `[直接更新] 保留本地叙事历史数据 (${localNarrativeHistory.length}条)`);
     }
 
-    // 🔥 响应式更新存档数据（仅单机模式）
-    if (profile.模式 === '单机' && profile.存档列表) {
+    // 🔥 响应式更新存档数据
+    if (profile.存档列表) {
       rootState.value.角色列表[charId].存档列表 = {
         ...profile.存档列表,
         [slotId]: {
@@ -1093,8 +1087,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
       // 确保存档数据在内存中也被移除，以保持一致性
       delete slot.存档数据;
 
-      // 5. 将元数据变更写回 rootState 并持久化（仅单机模式）
-      if (profile.模式 === '单机' && profile.存档列表) {
+      // 5. 将元数据变更写回 rootState 并持久化
+      if (profile.存档列表) {
         profile.存档列表[active.存档槽位] = slot;
       }
       await commitMetadataToStorage();
@@ -1117,9 +1111,9 @@ export const useCharacterStore = defineStore('characterV3', () => {
     console.log('[角色商店-删除存档] 开始删除存档:', { charId, slotKey });
 
     const profile = rootState.value.角色列表[charId];
-    if (!profile || profile.模式 !== '单机' || !profile.存档列表) {
-      console.warn('[角色商店-删除存档] 无法删除：角色不存在或非单机模式');
-      toast.error('无法删除存档：角色不存在或非单机模式');
+    if (!profile || !profile.存档列表) {
+      console.warn('[角色商店-删除存档] 无法删除：角色不存在或无存档列表');
+      toast.error('无法删除存档：角色不存在或无存档列表');
       return;
     }
 
@@ -1195,8 +1189,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
    */
   const createNewSave = async (charId: string, saveName: string) => {
     const profile = rootState.value.角色列表[charId];
-    if (!profile || profile.模式 !== '单机') {
-      toast.error('无法创建存档：角色不存在或非单机模式');
+    if (!profile) {
+      toast.error('无法创建存档：角色不存在');
       return;
     }
 
@@ -1409,8 +1403,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
    */
   const renameSave = async (charId: string, oldSlotKey: string, newSaveName: string) => {
     const profile = rootState.value.角色列表[charId];
-    if (!profile || profile.模式 !== '单机' || !profile.存档列表) {
-      toast.error('无法重命名存档：角色不存在或非单机模式');
+    if (!profile || !profile.存档列表) {
+      toast.error('无法重命名存档：角色不存在或无存档列表');
       return;
     }
 
@@ -1481,7 +1475,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
     const charId = active.角色ID;
     const slotId = active.存档槽位;
 
-    if (profile.模式 === '单机' && profile.存档列表) {
+    if (profile.存档列表) {
       rootState.value.角色列表[charId].存档列表 = {
         ...profile.存档列表,
         [slotId]: {
@@ -1621,7 +1615,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       return;
     }
 
-    if (profile.模式 === '单机' && profile.存档列表) {
+    if (profile.存档列表) {
       profile.存档列表 = {};
     }
 
@@ -1666,7 +1660,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
     const profile = activeCharacterProfile.value;
     const active = rootState.value.当前激活存档;
 
-    if (!profile || !active || profile.模式 !== '单机' || !profile.存档列表) {
+    if (!profile || !active || !profile.存档列表) {
       throw new Error('无法执行回滚：无效的存档状态');
     }
 
@@ -1723,7 +1717,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
     }
 
     // 🔥 修复：触发响应式更新
-    if (profile.模式 === '单机' && profile.存档列表) {
+    if (profile.存档列表) {
       rootState.value.角色列表[active.角色ID].存档列表 = {
         ...profile.存档列表,
         [active.存档槽位]: { ...activeSlot }
@@ -1814,11 +1808,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
     }
 
     let targetSlot: SaveSlot | undefined | null;
-    if (profile.模式 === '单机') {
-      targetSlot = profile.存档列表?.[slotKey];
-    } else {
-      targetSlot = profile.存档;
-    }
+    targetSlot = profile.存档列表?.[slotKey];
 
     if (!targetSlot || !targetSlot.存档数据) {
       toast.error('修复失败：找不到存档数据');
@@ -2103,7 +2093,7 @@ const equipTechnique = async (itemId: string) => {
  * @param profileData 从JSON文件解析的角色档案数据（可能包含 _导入存档列表 字段）
  */
 const importCharacter = async (profileData: CharacterProfile & { _导入存档列表?: any[] }) => {
-  if (!profileData || !profileData.角色 || !profileData.模式) {
+  if (!profileData || !profileData.角色) {
     throw new Error('无效的角色文件格式。');
   }
 

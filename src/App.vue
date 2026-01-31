@@ -402,7 +402,7 @@ const handleCreationComplete = async (rawPayload: CharacterCreationPayload) => {
         charId: charId, // 使用外层定义的charId
         baseInfo: baseInfo,
         world: rawPayload.world,
-        mode: rawPayload.mode as '单机' | '联机',
+        mode: '单机' as const,
         age: rawPayload.age,
       };
 
@@ -416,7 +416,7 @@ const handleCreationComplete = async (rawPayload: CharacterCreationPayload) => {
         throw new Error('严重错误：角色创建后无法在角色列表中找到！');
       }
 
-      const slotKey = profile.模式 === '单机' ? '存档1' : '云端修行';
+      const slotKey = '存档1';
       characterStore.rootState.当前激活存档 = { 角色ID: charId, 存档槽位: slotKey };
       await characterStore.commitMetadataToStorage();
 

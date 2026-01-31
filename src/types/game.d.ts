@@ -956,7 +956,8 @@ export type GovernmentOfficeMemberInfo = SectMemberInfo;
 
 // --- MECE短路径：拆分"属性/位置/效果" ---
 // 属性：动态数值（官品/境界、健康、民心/威望、智慧/洞察、任期/寿命、声望等）
-export type PlayerAttributes = Pick<PlayerStatus, '境界' | '声望' | '气血' | '灵气' | '神识' | '寿命'>;
+// 县令主题：使用官品字段（可选）；修仙主题：使用境界字段
+export type PlayerAttributes = Pick<PlayerStatus, '境界' | '官品' | '声望' | '气血' | '灵气' | '神识' | '寿命'>;
 // 位置：空间信息（从 PlayerStatus.位置 提取）
 export type PlayerLocation = PlayerStatus['位置'];
 
@@ -1414,12 +1415,6 @@ export interface CharacterBaseInfo extends AIMetadata {
 // --- 角色档案 (动静合一) ---
 
 export interface CharacterProfile {
-  /**
-   * 游戏模式（县令模拟器：纯单机模式）
-   *
-   * @deprecated "联机"模式已废弃，游戏已改造为纯单机模式。保留此字段仅为兼容旧存档数据。
-   */
-  模式: '单机' | '联机';
   // 角色身份（静态信息，用于列表展示/导出）
   角色: CharacterBaseInfo;
   // 存档列表：纯单机模式，支持多个存档（"存档1", "存档2", ...）

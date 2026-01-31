@@ -43,7 +43,7 @@ export interface CharacterCreationPayload {
   selected_talent_ids: number[];
 }
 
-type DataSource = 'local' | 'custom';
+type DataSource = 'local' | 'custom' | 'cloud';
 type WorldWithSource = World & { source: DataSource };
 type TalentTierWithSource = TalentTier & { source: DataSource };
 type OriginWithSource = Origin & { source: DataSource };
@@ -111,7 +111,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     selected_talent_ids: [],
   });
   const currentStep = ref(1);
-  const isLocalCreation = ref(true);
+  const isLocalCreation = ref(true); // 强制为 true，仅支持本地创建
   const initialGameMessage = ref<string | null>(null);
   const useStreamingStart = ref(true); // 开局是否使用流式传输（默认启用）
 
@@ -402,7 +402,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   async function initializeStore(currentMode: 'single') {
     isLoading.value = true;
     error.value = null;
-    isLocalCreation.value = true;
+    // isLocalCreation 始终为 true，仅支持本地创建
 
     // 初始化时获取用户名字
     try {
@@ -704,16 +704,15 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   function nextStep() { if (currentStep.value < TOTAL_STEPS) currentStep.value++; }
   function prevStep() { if (currentStep.value > 1) currentStep.value--; }
   function goToStep(step: number) { if (step >= 1 && step <= TOTAL_STEPS) currentStep.value = step; }
-  function setMode(newMode: 'single') { isLocalCreation.value = true; }
-  function toggleLocalCreation() { isLocalCreation.value = !isLocalCreation.value; }
+  // 已移除 setMode 和 toggleLocalCreation，仅支持本地创建模式
   function setInitialGameMessage(message: string) { initialGameMessage.value = message; }
 
   // 设置世界生成配置
   function setWorldGenerationConfig(config: Partial<typeof worldGenerationConfig.value>) {
     worldGenerationConfig.value = { ...worldGenerationConfig.value, ...config };
   }
-  async function resetOnExit() { await resetCharacter(); isLocalCreation.value = true; }
-  async function startLocalCreation() { await resetCharacter(); isLocalCreation.value = true; }
+  async function resetOnExit() { await resetCharacter(); }
+  async function startLocalCreation() { await resetCharacter(); }
 
   // ========== 创建流程状态管理函数 ==========
   function startCreation() {
@@ -759,7 +758,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     removeWorld, removeTalentTier, removeOrigin, removeSpiritRoot, removeTalent, // 导出删除函数
     updateWorld, updateTalentTier, updateOrigin, updateSpiritRoot, updateTalent, getItemById, // 导出编辑函数
     selectWorld, selectTalentTier, selectOrigin, selectSpiritRoot, toggleTalent, setAttribute,
-    resetCharacter, nextStep, prevStep, goToStep, setMode, toggleLocalCreation, setInitialGameMessage, setWorldGenerationConfig,
+    resetCharacter, nextStep, prevStep, goToStep, setInitialGameMessage, setWorldGenerationConfig,
     resetOnExit, startLocalCreation, persistCustomData,
     setAIGeneratedSpiritRoot,
     setAIGeneratedOrigin,

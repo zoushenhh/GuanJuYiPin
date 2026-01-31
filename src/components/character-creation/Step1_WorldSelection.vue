@@ -9,7 +9,6 @@
         <!-- 顶部功能按钮 -->
         <div class="top-actions-container">
           <button
-            v-if="store.isLocalCreation"
             @click="isCustomModalVisible = true"
             class="action-item shimmer-on-hover"
           >
@@ -24,10 +23,7 @@
           <div v-if="worldsList.length === 0" class="no-worlds-message">
             <div class="no-worlds-icon">🌌</div>
             <div class="no-worlds-text">
-              {{ store.isLocalCreation ? $t('暂无本地世界数据') : $t('暂无云端世界数据') }}
-            </div>
-            <div v-if="!store.isLocalCreation" class="no-worlds-hint">
-              {{ $t('请检查网络连接或联系管理员') }}
+              {{ $t('暂无世界数据') }}
             </div>
           </div>
           <div v-else
@@ -284,22 +280,12 @@ watch(worldConfig, (newConfig) => {
 const worldsList = computed(() => {
   const allWorlds = store.creationData.worlds;
   console.log("【世界选择】所有世界数据:", allWorlds);
-  console.log("【世界选择】当前模式:", store.isLocalCreation ? '本地' : '联机');
 
-  if (store.isLocalCreation) {
-    const availableWorlds = allWorlds.filter(world =>
-      world.source === 'local' || world.source === 'cloud'
-    );
-    console.log("【世界选择】单机模式可用世界列表:", availableWorlds);
-    return availableWorlds;
-  } else {
-    const cloudWorlds = allWorlds.filter(world =>
-      world.source === 'cloud'
-    );
-    console.log("【世界选择】联机模式云端世界列表:", cloudWorlds);
-    console.log("【世界选择】云端世界数量:", cloudWorlds.length);
-    return cloudWorlds;
-  }
+  const availableWorlds = allWorlds.filter(world =>
+    world.source === 'local' || world.source === 'cloud'
+  );
+  console.log("【世界选择】可用世界列表:", availableWorlds);
+  return availableWorlds;
 });
 
 // 根据 types/index.ts 中的 World 接口定义字段
@@ -342,11 +328,7 @@ async function handleCustomSubmit(data: any) {
 }
 
 function handleAIGenerate() {
-  if (store.isLocalCreation) {
-    isAIPromptModalVisible.value = true;
-  } else {
-    emit('ai-generate');
-  }
+  isAIPromptModalVisible.value = true;
 }
 
 async function handleAIPromptSubmit(userPrompt: string) {

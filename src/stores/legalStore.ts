@@ -20,6 +20,7 @@ import type {
   VerdictResult,
   JudgementAbility,
   JudgementAbilityInput,
+  JudgementSkillLevel,
   ClueType,
   ClueReliability,
 } from '@/types/legal';

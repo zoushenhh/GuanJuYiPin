@@ -259,15 +259,6 @@ const normalizeMemory = (value: unknown): SaveDataV3['社交']['记忆'] => {
   };
 };
 
-const buildDefaultOnline = (): SaveDataV3['系统']['联机'] => ({
-  模式: '单机',
-  房间ID: null,
-  玩家ID: null,
-  只读路径: ['世界'],
-  世界曝光: false,
-  冲突策略: '服务器',
-});
-
 const buildDefaultWorldInfo = (nowIso: string) => ({
   世界名称: '朝天大陆',
   大陆信息: [],
@@ -407,11 +398,6 @@ export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; 
     source.历史?.叙事 ??
     (source.叙事历史 ? source.叙事历史 : source.对话历史 ? source.对话历史 : []);
 
-  const online =
-    source.系统?.联机 ??
-    source.联机 ??
-    buildDefaultOnline();
-
   const identity = (isPlainObject(flatCharacter) ? (flatCharacter as any) : buildDefaultIdentity()) as any;
   const migrated: SaveDataV3 = {
     元数据: {
@@ -457,7 +443,6 @@ export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; 
       行动队列: source.系统?.行动队列 ?? source.行动队列 ?? undefined,
       历史: { 叙事: Array.isArray(narrative) ? narrative : [] },
       扩展: source.系统?.扩展 ?? source.扩展 ?? {},
-      联机: isPlainObject(online) ? { ...buildDefaultOnline(), ...(online as any) } : buildDefaultOnline(),
     },
   };
 

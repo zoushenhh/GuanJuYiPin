@@ -25,7 +25,7 @@ import { normalizeBackpackCurrencies } from '@/utils/currencySystem';
  * 有效的物品类型（县令主题：主要类型）
  * 注意：'丹药' 保留用于向后兼容旧存档，新代码应使用 '药品'
  */
-const validTypes: ItemType[] = ['装备', '方略', '丹药', '药品', '材料', '其他'];
+const validTypes: (ItemType | LegacyItemType)[] = ['装备', '方略', '丹药', '药品', '材料', '其他'];
 
 /**
  * 扩展物品类型（包含旧值，用于向后兼容旧存档数据）
@@ -623,10 +623,12 @@ function repairItem(item: Item): Item {
   }
 
   // 规范化物品类型（功法→方略，丹药→药品）
-  if (typeof repaired.类型 === 'string') {
-    repaired.类型 = normalizeItemType(repaired.类型);
+  const itemType = (repaired as any).类型;
+  if (typeof itemType === 'string') {
+    (repaired as any).类型 = normalizeItemType(itemType);
   } else {
-    repaired.类型 = '其他';
+    // @ts-ignore - 类型推断问题，使用默认值
+    (repaired as any).类型 = '其他';
   }
 
   return repaired;
@@ -827,7 +829,6 @@ function createMinimalSaveDataV3(): SaveData {
       行动队列: { actions: [] },
       历史: { 叙事: [] },
       扩展: {},
-      联机: { 模式: '单机', 房间ID: null, 玩家ID: null, 只读路径: ['世界'], 世界曝光: false, 冲突策略: '服务器' },
     },
   } as any;
 }

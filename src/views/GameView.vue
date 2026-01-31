@@ -147,7 +147,7 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { useGameStateStore } from '@/stores/gameStateStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useRouter, useRoute } from 'vue-router';
-import { X, Package, User, Brain, Users, BookOpen, Zap, Settings, Save, Map, Scroll, Bell, Home, Box, Users2, Database, RefreshCw, FlaskConical, Trash2, BarChart3, Coins, FileText, Plug, Globe, Hammer, Building2, Swords, ClipboardList, Shield } from 'lucide-vue-next';
+import { X, Package, User, Brain, Users, BookOpen, Zap, Settings, Save, Map, Scroll, Bell, Home, Box, Users2, Database, RefreshCw, FlaskConical, Trash2, BarChart3, Coins, FileText, Plug, Globe, Hammer, Building2, Swords, ClipboardList } from 'lucide-vue-next';
 import { panelBus, type PanelAction } from '@/utils/panelBus';
 import { detectSectMigration } from '@/utils/sectMigration';
 import TopBar from '@/components/dashboard/TopBar.vue'
@@ -222,12 +222,12 @@ const panelRoutes = new Set([
   'Inventory', 'CharacterDetails', 'Memory', 'Relationships',
   'Cultivation', 'Techniques', 'ThousandDao', 'Settings', 'Save', 'WorldMap',
   'Events', 'Crafting', 'Sect', 'SectOverview', 'SectMembers', 'SectManagement', 'SectLibrary', 'SectTasks', 'SectContribution', 'SectWar', 'GameVariables',
-  'Prompts', 'APIManagement', 'BackendAdminPanel'
+  'Prompts', 'APIManagement'
 ]);
 
 // 不需要角色数据就能访问的面板（设置类）
 const noDataRequiredRoutes = new Set([
-  'Settings', 'Prompts', 'APIManagement', 'BackendAdminPanel'
+  'Settings', 'Prompts', 'APIManagement'
 ]);
 
 // 右侧相关面板（应该影响右侧收缩按钮）
@@ -261,8 +261,7 @@ const panelTitles: Record<string, { title: string; icon: IconComponent }> = {
   SectWar: { title: '衙门竞争', icon: Swords },
   GameVariables: { title: '游戏变量', icon: Database },
   Prompts: { title: '提示词管理', icon: FileText },
-  APIManagement: { title: 'API管理', icon: Plug },
-  BackendAdminPanel: { title: '仙官后台', icon: Shield }
+  APIManagement: { title: 'API管理', icon: Plug }
 };
 
 const isPanelOpen = computed(() => {

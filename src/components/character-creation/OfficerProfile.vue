@@ -1,5 +1,5 @@
 <template>
-  <div class="character-management-panel" :class="{ fullscreen: isFullscreen }">
+  <div class="officer-profile-panel" :class="{ fullscreen: isFullscreen }">
     <VideoBackground v-if="isFullscreen" />
 
     <!-- 自定义对话框 -->
@@ -410,9 +410,9 @@
             </div>
 
             <div class="detail-section">
-              <h4>{{ $t('先天六司') }}</h4>
+              <h4>{{ $t('六房能力图') }}</h4>
               <div class="attributes-display">
-                <HexagonChart
+                <SixOfficesChart
                   v-if="detailsCharacter.角色.先天六司"
                   :stats="convertToStats(detailsCharacter.角色.先天六司)"
                   :size="150"
@@ -448,7 +448,7 @@
 import { computed, ref, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCharacterStore } from '@/stores/characterStore';
-import HexagonChart from '@/components/common/HexagonChart.vue';
+import SixOfficesChart from '@/components/common/SixOfficesChart.vue';
 import VideoBackground from '@/components/common/VideoBackground.vue';
 import { ArrowLeft, Upload, History, Clock, Star, Wrench } from 'lucide-vue-next';
 import LegacySaveMigrationModal from './LegacySaveMigrationModal.vue';
@@ -1346,8 +1346,8 @@ const handleImportFile = async (event: Event) => {
 </script>
 
 <style scoped>
-/* Unified style tokens for Character Management */
-.character-management-panel {
+/* Unified style tokens for Officer Profile - Ancient Government Style (水墨官府) */
+.officer-profile-panel {
   --cm-radius-sm: 6px;
   --cm-radius-md: 8px;
   --cm-radius-lg: 12px;
@@ -1368,6 +1368,12 @@ const handleImportFile = async (event: Event) => {
   --cm-save-count-minw: 36px;
   --cm-save-count-count-font: 1.05rem;
   --cm-save-count-label-font: 0.7rem;
+
+  /* Ancient government style colors (古代官府风格) */
+  --gov-ink-black: #2c2c2c;
+  --gov-paper-bg: #f5f2eb;
+  --gov-seal-red: #b73e3e;
+  --gov-border-ink: rgba(44, 44, 44, 0.15);
 }
 /* 基础样式重置 */
 * {
@@ -1485,7 +1491,7 @@ const handleImportFile = async (event: Event) => {
 }
 
 /* 主容器样式 */
-.character-management-panel {
+.officer-profile-panel {
   width: 100%;
   height: 100%;
   background: var(--color-background);
@@ -1496,7 +1502,7 @@ const handleImportFile = async (event: Event) => {
   position: relative;
 }
 
-.character-management-panel.fullscreen {
+.officer-profile-panel.fullscreen {
   background: var(--color-background);
 }
 
@@ -2900,7 +2906,7 @@ const handleImportFile = async (event: Event) => {
     display: flex;
   }
 
-  .character-management-panel {
+  .officer-profile-panel {
     height: 100%;
     overflow: hidden;
   }
@@ -3390,7 +3396,7 @@ const handleImportFile = async (event: Event) => {
     min-height: 40px;
   }
 
-  .character-management-panel {
+  .officer-profile-panel {
     height: 100%;
     overflow: hidden;
   }
@@ -3517,7 +3523,7 @@ const handleImportFile = async (event: Event) => {
 }
 
 /* ========== 深色玻璃拟态风格适配 ========== */
-[data-theme='dark'] .character-management-panel {
+[data-theme='dark'] .officer-profile-panel {
   background: rgb(30, 41, 59);
 }
 
@@ -4024,5 +4030,116 @@ const handleImportFile = async (event: Event) => {
 [data-theme='dark'] .loading-spinner {
   border-color: rgba(147, 197, 253, 0.2);
   border-top-color: #93c5fd;
+}
+
+/* ============================================
+   Ancient Government Style Enhancements (古代官府风格)
+   水墨风格 - 纸张纹理与墨色边框
+   ============================================ */
+
+/* 官府印章风格标识 */
+.officer-profile-panel .char-avatar {
+  background: linear-gradient(135deg, #8b4513, #a0522d);
+  border: 2px solid rgba(139, 69, 19, 0.4);
+  box-shadow: 0 3px 8px rgba(139, 69, 19, 0.25);
+}
+
+/* 官府文件纹理 - 存档卡片 */
+.officer-profile-panel .save-card,
+.officer-profile-panel .character-card {
+  background: linear-gradient(
+    to bottom,
+    rgba(245, 242, 235, 0.95),
+    rgba(240, 237, 230, 0.92)
+  );
+  border: 1px solid rgba(92, 92, 92, 0.2);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+
+/* 纸张纹理叠加 */
+.officer-profile-panel .save-card::before,
+.officer-profile-panel .character-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' /%3E%3CfeColorMatrix type='saturate' values='0' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.4;
+  border-radius: inherit;
+}
+
+/* 墨色文字阴影增强 */
+.officer-profile-panel .char-name,
+.officer-profile-panel .save-name,
+.officer-profile-panel .panel-title {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 官府印章风格按钮 */
+.officer-profile-panel .btn-save-action.import,
+.officer-profile-panel .btn-header-action.import {
+  border-color: rgba(139, 69, 19, 0.3);
+  color: #8b4513;
+}
+
+.officer-profile-panel .btn-save-action.import:hover,
+.officer-profile-panel .btn-header-action.import:hover {
+  background: rgba(139, 69, 19, 0.08);
+  border-color: #a0522d;
+}
+
+/* 活跃状态 - 印章红 */
+.officer-profile-panel .character-card.active,
+.officer-profile-panel .save-card.has-data {
+  border-left: 3px solid var(--gov-seal-red);
+}
+
+/* 墨色分割线 */
+.officer-profile-panel .grid-container::before {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(44, 44, 44, 0.15) 20%,
+    rgba(44, 44, 44, 0.15) 80%,
+    transparent
+  );
+}
+
+/* 暗色主题适配 */
+[data-theme='dark'] .officer-profile-panel .save-card,
+[data-theme='dark'] .officer-profile-panel .character-card {
+  background: linear-gradient(
+    to bottom,
+    rgba(41, 51, 72, 0.9),
+    rgba(35, 45, 65, 0.88)
+  );
+  border-color: rgba(180, 180, 180, 0.15);
+}
+
+[data-theme='dark'] .officer-profile-panel .char-avatar {
+  background: linear-gradient(135deg, #5d4e37, #6b5a45);
+  border-color: rgba(139, 119, 101, 0.4);
+}
+
+/* 六房能力图容器增强 */
+.officer-profile-panel .attributes-display {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(245, 242, 235, 0.5) 0%,
+    transparent 70%
+  );
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+[data-theme='dark'] .officer-profile-panel .attributes-display {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(41, 51, 72, 0.5) 0%,
+    transparent 70%
+  );
 }
 </style>

@@ -1,6 +1,85 @@
 // src/types/index.ts
 // 仙途 by 千夜 | github.com/qianye60 | CC BY-NC-SA 4.0
 
+// ============================================================================
+// Phase 1: 新类型系统导出（县令主题）
+// ============================================================================
+
+// 县令核心类型
+export type {
+  Magistrate,
+  MagistrateBackground,
+  MagistrateStatus,
+  StatusEffect,
+  StatusEffectType,
+  MeritRecord,
+  MeritGrade,
+  MeritEntry,
+  MeritSource,
+  GovernanceAbility,
+  OfficialRecord,
+  OfficialRank,
+  Relationship,
+  RelationshipType,
+} from './magistrate.d';
+
+// 县治状态类型
+export type {
+  CountyState,
+  LocationInfo,
+  TerrainType,
+  ClimateType,
+  TrafficLevel,
+  PopulationStats,
+  PopulationComposition,
+  PopulationDensity,
+  Treasury,
+  TreasuryRecord,
+  TaxRate,
+  Infrastructure,
+  InfrastructureLevel,
+  SpecialFacility,
+  FacilityType,
+  Specialty,
+  SpecialtyType,
+  SpecialtyQuality,
+  CountyEvent,
+  CountyEventType,
+  EventSeverity,
+  EventImpact,
+  DevelopmentTrend,
+  TrendData,
+  TrendDirection,
+  GovernanceRating,
+  RatingLevel,
+  RatingDetails,
+} from './county.d';
+
+// 官阶品级系统类型
+export type {
+  OfficialRank as RankOfficialRank,
+  RankTier,
+  RankInfo,
+  RankPermissions,
+  PromotionRequirement,
+  AssessmentItem,
+  PromotionResult,
+  HonorTitle,
+  HonorTitleType,
+  TitleEffect,
+  DemotionReason,
+  DismissalReason,
+  DemotionRecord,
+  DismissalRecord,
+} from './official-ranks';
+
+// 导出官阶配置
+export { RANK_CONFIG, getRankOrder, compareRanks, getNextRank, isMagistrateRank } from './official-ranks';
+
+// ============================================================================
+// 旧类型系统导出（已废弃，标记 @deprecated）
+// ============================================================================
+
 // 从 game.d.ts 导出 TechniqueItem 类型以修复编译错误
 export type { TechniqueItem } from './game.d';
 import type { SaveDataV3 } from './saveSchemaV3';
@@ -29,7 +108,7 @@ export interface World {
   name: string;
   era?: string | null;
   description?: string | null;
-  source?: 'local' | 'cloud';
+  source?: 'local' | 'custom' | 'cloud';
 }
 
 export interface TalentTier {
@@ -39,9 +118,14 @@ export interface TalentTier {
   total_points: number;
   rarity: number;
   color: string;
-  source?: 'local' | 'cloud';
+  source?: 'local' | 'custom' | 'cloud';
 }
 
+/**
+ * @deprecated 使用 MagistrateBackground 替代
+ * 旧术语：出身
+ * 新术语：县令出身背景
+ */
 export interface Origin {
   id: number;
   name: string;
@@ -49,10 +133,16 @@ export interface Origin {
   talent_cost: number;
   attribute_modifiers?: Record<string, number> | null;
   rarity: number;
-  source?: 'local' | 'cloud';
+  source?: 'local' | 'custom' | 'cloud';
   background_effects?: { type: string; description: string }[];
 }
 
+/**
+ * @deprecated 使用 MagistrateBackground 替代
+ * 旧术语：灵根
+ * 新术语：县令出身背景
+ * 术语映射：SpiritRoot (灵根) -> Background (出身背景)
+ */
 export interface SpiritRoot {
   id: number;
   name: string;
@@ -63,7 +153,7 @@ export interface SpiritRoot {
   base_multiplier: number;
   talent_cost: number;
   rarity?: number;
-  source?: 'local' | 'cloud';
+  source?: 'local' | 'custom' | 'cloud';
 }
 
 // --- 全新存档与游戏状态结构 ---
@@ -76,7 +166,7 @@ export interface Talent {
   rarity: number;
   tier_id?: number | null;
   tier?: TalentTier | null;
-  source?: 'local' | 'cloud';
+  source?: 'local' | 'custom' | 'cloud';
   effects?: Array<{
     类型: string;
     目标?: string;
@@ -86,16 +176,28 @@ export interface Talent {
   }>;
 }
 
+/**
+ * @deprecated 使用 Magistrate 替代
+ * 旧术语：角色游戏状态
+ * 新术语：县令状态
+ *
+ * 术语映射：
+ * - hp/health -> 健康
+ * - mana/法力 -> 威望
+ * - spirit/神识 -> 心境
+ * - lifespan/寿元 -> 任期/寿命
+ * - root_bone/根骨 -> 精力
+ */
 export interface CharacterGameState {
   mapData: any;
   talents: Talent[];
   reputation: number;
   titles: string[];
-  hp?: number; hp_max?: number;
-  mana?: number; mana_max?: number;
-  spirit?: number; spirit_max?: number;
-  lifespan?: number; lifespan_max?: number;
-  root_bone?: number;
+  hp?: number; hp_max?: number;         // @deprecated -> 健康
+  mana?: number; mana_max?: number;     // @deprecated -> 威望
+  spirit?: number; spirit_max?: number; // @deprecated -> 心境
+  lifespan?: number; lifespan_max?: number; // @deprecated -> 任期/寿命
+  root_bone?: number;                   // @deprecated -> 精力
   spirituality?: number;
   comprehension?: number;
   fortune?: number;
@@ -138,6 +240,12 @@ export interface Inventory {
   currency: Currency;
 }
 
+/**
+ * @deprecated 使用 Magistrate 替代
+ * 旧术语：角色/修仙者
+ * 新术语：县令
+ * 术语映射：Cultivator/Player -> Magistrate (县令)
+ */
 export interface Character {
   id: number;
   character_name: string;
@@ -148,56 +256,64 @@ export interface Character {
   reputation: number;
 
   // --- 先天六司 (永不改变) ---
-  root_bone: number;
-  spirituality: number;
-  comprehension: number;
-  fortune: number;
-  charm: number;
-  temperament: number;
+  // @deprecated 使用 Magistrate.先天六司
+  root_bone: number;      // 旧术语：根骨 -> 新术语：精力
+  spirituality: number;   // 保留（灵性）
+  comprehension: number;  // 保留（悟性）
+  fortune: number;        // 保留（气运）
+  charm: number;          // 保留（魅力）
+  temperament: number;    // 保留（心性）
 
   // --- 创角选择 (永不改变) ---
   world?: World | null;
   talent_tier?: TalentTier | null;
-  origin?: Origin | null;
-  spirit_root?: SpiritRoot | null;
+  origin?: Origin | null;          // @deprecated 使用 Magistrate.出身
+  spirit_root?: SpiritRoot | null;  // @deprecated 使用 Magistrate.出身
 
   // --- 动态可变属性 (用于游戏状态) ---
-  realm?: string;
-  hp?: number; hp_max?: number;
-  mana?: number; mana_max?: number;
-  spirit?: number; spirit_max?: number;
-  lifespan?: number; lifespan_max?: number;
+  realm?: string;         // @deprecated 使用 Magistrate.官品
+  hp?: number; hp_max?: number;  // @deprecated 使用 Magistrate.健康
+  mana?: number; mana_max?: number;  // @deprecated 使用 Magistrate.威望
+  spirit?: number; spirit_max?: number;  // @deprecated 使用 Magistrate.心境
+  lifespan?: number; lifespan_max?: number;  // @deprecated 使用 Magistrate.寿命/任期
 }
 
 /**
- * 【新】统一的角色数据类型，用于各处流转
+ * @deprecated 使用 Magistrate 替代
+ * 【旧】统一的角色数据类型，用于各处流转
  * 包含了来源信息和可选的游戏状态预览
  */
 export type CharacterData = Character & {
-  source: 'local' | 'cloud';
+  source: 'local' | 'custom' | 'cloud';
   gameState?: CharacterGameState;
 };
 
 /**
+ * @deprecated 使用 Magistrate 替代
  * 角色创建时的载荷类型
+ *
+ * 术语映射：
+ * - origin -> 出身背景
+ * - spiritRoot -> 出身背景
+ * - root_bone -> 精力
+ * - mode: '联机' -> 已移除（纯单机模式）
  */
 export interface CharacterCreationPayload {
   charId: string;
   characterName: string;
   world: World;
   talentTier: TalentTier;
-  origin: Origin | null;  // 允许为null，表示随机出身
-  spiritRoot: SpiritRoot | null;  // 允许为null，表示随机灵根
+  origin: Origin | null;  // @deprecated 使用 MagistrateBackground
+  spiritRoot: SpiritRoot | null;  // @deprecated 使用 MagistrateBackground
   talents: Talent[];
   baseAttributes: {
-    root_bone: number;
+    root_bone: number;       // @deprecated -> 精力
     spirituality: number;
     comprehension: number;
     fortune: number;
     charm: number;
     temperament: number;
   };
-  mode: '单机' | '联机';
   age: number;
   gender: string;
   race?: string;  // 种族字段（可选，默认为'人族'）
@@ -205,11 +321,15 @@ export interface CharacterCreationPayload {
 
 // --- 创角自定义数据结构 ---
 
+/**
+ * @deprecated 使用新的县令类型系统
+ * 创角自定义数据结构
+ */
 export type DADCustomData = {
   worlds: World[];
   talentTiers: TalentTier[];
-  origins: Origin[];
-  spiritRoots: SpiritRoot[];
+  origins: Origin[];        // @deprecated 使用 MagistrateBackground
+  spiritRoots: SpiritRoot[]; // @deprecated 使用 MagistrateBackground
   talents: Talent[];
 };
 // src/types/index.ts

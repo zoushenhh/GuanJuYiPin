@@ -37,17 +37,6 @@ export interface SaveMetaV3 {
   时间: GameTime;
 }
 
-/** @deprecated 联机模式已废弃，保留此类型仅用于旧存档兼容性 */
-export interface OnlineStateV3 {
-  模式: '单机' | '联机';
-  房间ID?: string | null;
-  玩家ID?: string | null;
-  服务器版本?: number;
-  最后同步时间?: string | null;
-  只读路径: string[];
-  世界曝光?: boolean;
-  冲突策略?: '服务器' | '客户端' | '合并' | string;
-}
 
 export interface RelationshipEdgeV3 {
   from: string;
@@ -151,6 +140,5 @@ export interface SaveDataV3 {
     行动队列?: ActionQueue;
     历史?: { 叙事?: GameMessage[] };
     扩展?: Record<string, unknown>;
-    联机?: OnlineStateV3;
   };
 }

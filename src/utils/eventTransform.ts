@@ -44,6 +44,9 @@ export type MagistrateEventType =
   | '冤案'      // 冤假错案
   | '天灾'      // 自然灾害
   | '人祸'      // 人为祸患
+  | '污点'      // 政治污点
+  | '祥瑞'      // 祥瑞之兆
+  | '盗匪'      // 盗匪作乱
   | '其他';     // 其他事件
 
 /**
@@ -66,17 +69,19 @@ export const EVENT_TYPE_MAPPING: Record<CultivationEventType, MagistrateEventTyp
  */
 export const REVERSE_EVENT_TYPE_MAPPING: Record<MagistrateEventType, CultivationEventType> = {
   '京察': '渡劫',
-  '污点': '心魔',
+  '巡视': '其他',
   '微服': '秘境',
   '剿匪': '妖兽',
   '科举': '宗门大比',
   '诗会': '宗门大比',
   '著书': '炼丹',
   '收藏': '炼器',
-  '祥瑞': '异宝',
   '冤案': '其他',
   '天灾': '其他',
   '人祸': '其他',
+  '污点': '心魔',
+  '祥瑞': '异宝',
+  '盗匪': '妖兽',
   '其他': '其他',
 } as const;
 
@@ -298,14 +303,3 @@ export function transformEventScene(sceneDescription: string): string {
 
   return transformed;
 }
-
-// ============================================================================
-// 导出
-// ============================================================================
-
-export {
-  EVENT_TYPE_MAPPING,
-  REVERSE_EVENT_TYPE_MAPPING,
-  TERM_REPLACEMENTS,
-  EVENT_SCENE_TRANSFORMS,
-};

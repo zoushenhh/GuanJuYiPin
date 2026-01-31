@@ -92,9 +92,23 @@ export function useGameData() {
   const characterName = computed(() => gameState.character?.名字 || '未知');
 
   /**
-   * 当前境界
+   * 当前境界（修仙主题）
    */
   const currentRealm = computed(() => gameState.attributes?.境界?.名称 || '凡人');
+
+  /**
+   * 当前官品（县令主题）
+   */
+  const currentRank = computed(() => {
+    const rank = gameState.attributes?.官品;
+    if (typeof rank === 'object' && rank !== null) {
+      return rank.名称 || '九品';
+    }
+    if (typeof rank === 'string') {
+      return rank;
+    }
+    return '九品';
+  });
 
   /**
    * 当前位置
@@ -155,6 +169,74 @@ export function useGameData() {
    */
   const advanceTime = (minutes: number) => {
     gameState.advanceGameTime(minutes);
+  };
+
+  /**
+   * 批阅公文获得政绩（县令主题）
+   * @param count 批阅公文数量
+   * @returns 政绩增加量
+   */
+  const reviewDocuments = (count: number = 1) => {
+    // 获取当前政绩方略
+    const cultivation = gameState.cultivation as any;
+    const strategy = cultivation?.政绩方略;
+
+    // 计算基础政绩增长
+    const baseMeritGain = 1; // 每份公文基础政绩
+
+    // 方略加成
+    let strategyBonus = 1;
+    if (strategy) {
+      const quality = strategy.品质 || '凡';
+      const proficiency = strategy.政绩进度 || strategy.熟练度 || 0;
+      const qualityBonusMap: Record<string, number> = {
+        '凡': 1,
+        '黄品': 1.2,
+        '玄品': 1.5,
+        '地品': 1.8,
+        '天品': 2.2,
+        '仙品': 2.5,
+      };
+      const baseBonus = qualityBonusMap[quality] || 1;
+      strategyBonus = baseBonus * (1 + proficiency / 100);
+    }
+
+    // 六司加成
+    const character = gameState.character;
+    const innateAttrs = character?.先天六司;
+    let sixSiBonus = 1;
+    if (innateAttrs) {
+      const weightedSum =
+        (innateAttrs.根骨 || 0) * 0.25 +
+        (innateAttrs.灵性 || 0) * 0.25 +
+        (innateAttrs.悟性 || 0) * 0.20 +
+        (innateAttrs.心性 || 0) * 0.15 +
+        (innateAttrs.气运 || 0) * 0.10 +
+        (innateAttrs.魅力 || 0) * 0.05;
+      sixSiBonus = 0.5 + (weightedSum / 10) * 0.15;
+    }
+
+    // 计算最终政绩增长
+    const finalMeritGain = Math.floor(baseMeritGain * strategyBonus * sixSiBonus * count);
+
+    // 更新政绩
+    if (gameState.attributes) {
+      const currentRank = gameState.attributes.官品 as any;
+      if (currentRank && typeof currentRank === 'object') {
+        const newProgress = (currentRank.当前进度 || 0) + finalMeritGain;
+        const maxProgress = currentRank.下一级所需 || 100;
+        currentRank.当前进度 = Math.min(newProgress, maxProgress);
+        currentRank.政绩进度 = Math.floor((newProgress / maxProgress) * 100);
+      }
+    }
+
+    // 推进时间（每份公文耗时1小时）
+    gameState.advanceGameTime(60 * count);
+
+    return {
+      政绩增加: finalMeritGain,
+      新进度: (gameState.attributes?.官品 as any)?.政绩进度 || 0,
+    };
   };
 
   // ==================== 保存相关方法 ====================
@@ -225,6 +307,7 @@ export function useGameData() {
     // 衍生数据
     characterName,
     currentRealm,
+    currentRank,
     currentLocation,
     spiritStones,
     inventoryItemCount,
@@ -235,6 +318,7 @@ export function useGameData() {
     updateInventory,
     updateRelationship,
     advanceTime,
+    reviewDocuments,
 
     // 保存方法
     saveAfterConversation,

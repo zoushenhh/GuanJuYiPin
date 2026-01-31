@@ -643,7 +643,12 @@ ${assembledPrompt}
 ${coreStatusSummary}
 ${vectorMemorySection ? `\n${vectorMemorySection}\n` : ''}
 # 游戏状态
-你正在官场世界《县令》中扮演GM。以下是当前完整游戏存档(JSON格式):
+你是宋朝县令模拟器的 AI 师爷，负责根据县治状态生成符合历史逻辑的突发事件、为玩家提供政务决策建议、生成符合宋代官场风格的判词和公文、模拟 NPC 的对话。
+
+时代背景：北宋时期，玩家担任某县县令
+核心资源：人口、库银、民心、治安
+
+以下是当前完整游戏存档(JSON格式):
 ${stateJsonString}
 `.trim();
 
@@ -1782,36 +1787,35 @@ ${step1Text}
     // 则自动补全加入状态，让后续宗门系统（成员/藏经阁/任务等）可直接使用。
     try {
       const currentSectName = String((saveData as any)?.社交?.宗门?.成员信息?.宗门名称 || '').trim();
-        if (!currentSectName) {
-          const playerName = String((saveData as any)?.角色?.身份?.名字 || '').trim();
-          const factions = (saveData as any)?.世界?.信息?.势力信息;
+      if (!currentSectName) {
+        const playerName = String((saveData as any)?.角色?.身份?.名字 || '').trim();
+        const factions = (saveData as any)?.世界?.信息?.势力信息;
 
-          if (playerName && Array.isArray(factions)) {
-            const matchLeader = (f: any): boolean => {
-              const leader =
-                (typeof f?.领导层?.宗主 === 'string' ? f.领导层.宗主 : '') ||
-                (typeof f?.leadership?.宗主 === 'string' ? f.leadership.宗主 : '') ||
-                (typeof f?.宗主 === 'string' ? f.宗主 : '');
-              return typeof leader === 'string' && leader.trim() === playerName;
+        if (playerName && Array.isArray(factions)) {
+          const matchLeader = (f: any): boolean => {
+            const leader =
+              (typeof f?.领导层?.宗主 === 'string' ? f.领导层.宗主 : '') ||
+              (typeof f?.leadership?.宗主 === 'string' ? f.leadership.宗主 : '') ||
+              (typeof f?.宗主 === 'string' ? f.宗主 : '');
+            return typeof leader === 'string' && leader.trim() === playerName;
+          };
+
+          const ownedSect = factions.find(matchLeader);
+          if (ownedSect && typeof ownedSect === 'object' && typeof ownedSect.名称 === 'string' && ownedSect.名称.trim()) {
+            const { createJoinedSectState } = await import('@/utils/sectSystemFactory');
+            const { sectSystem, memberInfo } = createJoinedSectState(ownedSect, { nowIso: new Date().toISOString() });
+
+            // 玩家创建宗门：默认给最高职位（避免"创建了宗门但自己只是外门弟子"的违和感）
+            memberInfo.职位 = '宗主';
+            memberInfo.贡献 = Math.max(0, Number(memberInfo.贡献 || 0));
+
+            if (!(saveData as any).社交) (saveData as any).社交 = {};
+            (saveData as any).社交.宗门 = {
+              ...(sectSystem as any),
+              成员信息: memberInfo,
             };
 
-            const ownedSect = factions.find(matchLeader);
-            if (ownedSect && typeof ownedSect === 'object' && typeof ownedSect.名称 === 'string' && ownedSect.名称.trim()) {
-              const { createJoinedSectState } = await import('@/utils/sectSystemFactory');
-              const { sectSystem, memberInfo } = createJoinedSectState(ownedSect, { nowIso: new Date().toISOString() });
-
-              // 玩家创建宗门：默认给最高职位（避免“创建了宗门但自己只是外门弟子”的违和感）
-              memberInfo.职位 = '宗主';
-              memberInfo.贡献 = Math.max(0, Number(memberInfo.贡献 || 0));
-
-              if (!(saveData as any).社交) (saveData as any).社交 = {};
-              (saveData as any).社交.宗门 = {
-                ...(sectSystem as any),
-                成员信息: memberInfo,
-              };
-
-              console.log(`[AI双向系统] 已自动初始化宗门系统：${ownedSect.名称}（玩家=宗主）`);
-            }
+            console.log(`[AI双向系统] 已自动初始化宗门系统：${ownedSect.名称}（玩家=宗主）`);
           }
         }
       }
