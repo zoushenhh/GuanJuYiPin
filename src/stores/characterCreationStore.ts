@@ -433,10 +433,10 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
           savedData = potentialData;
           console.log("【创世神殿】成功加载自定义数据:", {
             worlds: savedData.worlds.length,
-            backgrounds: savedData.talentTiers.length,
-            aptitudes: savedData.origins.length,
-            postHeavens: savedData.spiritRoots.length,
-            abilities: savedData.talents.length
+            backgrounds: savedData.backgrounds.length,
+            aptitudes: savedData.aptitudes.length,
+            postHeavens: savedData.postHeavens.length,
+            abilities: savedData.abilities.length
           });
         }
       } catch (error) {
@@ -452,10 +452,10 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
       };
 
       const savedCustomWorlds = savedData.worlds.map(w => migrateDataSource(w, 'custom'));
-      const savedCustomTalentTiers = savedData.talentTiers.map(t => migrateDataSource(t, 'custom'));
-      const savedCustomOrigins = savedData.origins.map(o => migrateDataSource(o, 'custom'));
-      const savedCustomSpiritRoots = savedData.spiritRoots.map(s => migrateDataSource(s, 'custom'));
-      const savedCustomTalents = savedData.talents.map(t => migrateDataSource(t, 'custom'));
+      const savedCustomBackgrounds = savedData.backgrounds.map(t => migrateDataSource(t, 'custom'));
+      const savedCustomAptitudes = savedData.aptitudes.map(o => migrateDataSource(o, 'custom'));
+      const savedCustomPostHeavens = savedData.postHeavens.map(s => migrateDataSource(s, 'custom'));
+      const savedCustomAbilities = savedData.abilities.map(t => migrateDataSource(t, 'custom'));
 
       // 合并本地数据和自定义数据
       const merge = <T extends { id: number }>(local: T[], custom: T[]): T[] => {
@@ -466,10 +466,10 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
       };
 
       creationData.value.worlds = merge(localWorlds, savedCustomWorlds);
-      creationData.value.backgrounds = merge(localTalentTiers, savedCustomTalentTiers);
-      creationData.value.aptitudes = merge(localOrigins, savedCustomOrigins);
-      creationData.value.postHeavens = merge(localSpiritRoots, savedCustomSpiritRoots);
-      creationData.value.abilities = merge(localTalents, savedCustomTalents);
+      creationData.value.backgrounds = merge(localTalentTiers, savedCustomBackgrounds);
+      creationData.value.aptitudes = merge(localOrigins, savedCustomAptitudes);
+      creationData.value.postHeavens = merge(localSpiritRoots, savedCustomPostHeavens);
+      creationData.value.abilities = merge(localTalents, savedCustomAbilities);
     } catch (e) {
       console.error("加载数据失败:", e);
       error.value = "加载数据失败";
@@ -526,7 +526,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   }
   
   // --- 新增：删除功能 ---
-  type CreationDataType = 'worlds' | 'talentTiers' | 'origins' | 'spiritRoots' | 'talents';
+  type CreationDataType = 'worlds' | 'backgrounds' | 'aptitudes' | 'postHeavens' | 'abilities';
 
   async function removeItem(type: CreationDataType, id: number) {
     const index = creationData.value[type].findIndex(item => item.id === id);
@@ -604,10 +604,10 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   }
 
   const removeWorld = async (id: number) => await removeItem('worlds', id);
-  const removeTalentTier = async (id: number) => await removeItem('talentTiers', id);
-  const removeOrigin = async (id: number) => await removeItem('origins', id);
-  const removeSpiritRoot = async (id: number) => await removeItem('spiritRoots', id);
-  const removeTalent = async (id: number) => await removeItem('talents', id);
+  const removeTalentTier = async (id: number) => await removeItem('backgrounds', id);
+  const removeOrigin = async (id: number) => await removeItem('aptitudes', id);
+  const removeSpiritRoot = async (id: number) => await removeItem('postHeavens', id);
+  const removeTalent = async (id: number) => await removeItem('abilities', id);
 
   // --- 新增：编辑功能 ---
   function updateItem<T extends { id: number }>(type: CreationDataType, id: number, updatedData: Partial<T>) {
@@ -624,10 +624,10 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   }
 
   const updateWorld = (id: number, data: Partial<World>) => updateItem('worlds', id, data);
-  const updateTalentTier = (id: number, data: Partial<TalentTier>) => updateItem('talentTiers', id, data);
-  const updateOrigin = (id: number, data: Partial<Origin>) => updateItem('origins', id, data);
-  const updateSpiritRoot = (id: number, data: Partial<SpiritRoot>) => updateItem('spiritRoots', id, data);
-  const updateTalent = (id: number, data: Partial<Talent>) => updateItem('talents', id, data);
+  const updateTalentTier = (id: number, data: Partial<TalentTier>) => updateItem('backgrounds', id, data);
+  const updateOrigin = (id: number, data: Partial<Origin>) => updateItem('aptitudes', id, data);
+  const updateSpiritRoot = (id: number, data: Partial<SpiritRoot>) => updateItem('postHeavens', id, data);
+  const updateTalent = (id: number, data: Partial<Talent>) => updateItem('abilities', id, data);
 
   // 获取单个项目数据（用于编辑时填充表单）
   const getItemById = <T extends { id: number }>(type: CreationDataType, id: number): T | null => {

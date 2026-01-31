@@ -730,20 +730,20 @@ function deriveBaseFieldsFromDetails(baseInfo: CharacterBaseInfo): CharacterBase
     console.warn('[数据校准] 警告: 无法找到权威的天资数据。');
   }
 
-  // 4. 后天 - 如果AI已生成具体后天，则保留AI生成的
+  // 4. 后天 (灵根) - 如果AI已生成具体后天，则保留AI生成的
   const authoritativePostHeaven = creationStore.selectedPostHeaven;
-  const hasAIGeneratedPostHeaven = derivedInfo.后天 && typeof derivedInfo.后天 === 'object' && (derivedInfo.后天 as any).名称 !== '随机后天';
+  const hasAIGeneratedPostHeaven = derivedInfo.灵根 && typeof derivedInfo.灵根 === 'object' && (derivedInfo.灵根 as any).名称 !== '随机后天';
 
   if (authoritativePostHeaven && !hasAIGeneratedPostHeaven) {
     console.log(`[数据校准] ✅ 同步用户选择的后天: ${authoritativePostHeaven.name} (${authoritativePostHeaven.tier})`);
-    derivedInfo.后天 = authoritativePostHeaven;
+    derivedInfo.灵根 = authoritativePostHeaven;
   } else if (hasAIGeneratedPostHeaven) {
     // 如果用户选择随机，并且一个具体的对象已经存在（由AI或后备逻辑生成），则直接信任和保留它。
-    console.log('[数据校准] ✅ 保留已生成的具体后天:', (derivedInfo.后天 as SpiritRoot).name);
+    console.log('[数据校准] ✅ 保留已生成的具体后天:', (derivedInfo.灵根 as SpiritRoot).name);
   } else if (creationStore.characterPayload.spirit_root_id === null) {
     // 仅当没有生成任何具体后天时，才可能需要标记回随机（作为最后的保险措施）
     console.log('[数据校准] 🎲 用户选择随机后天，但无有效生成值，标记为随机');
-    derivedInfo.后天 = '随机后天';
+    derivedInfo.灵根 = '随机后天';
   } else {
     console.warn('[数据校准] 警告: 无法找到权威的后天数据。');
   }

@@ -421,10 +421,10 @@ export const useCharacterStore = defineStore('characterV3', () => {
     const authoritativeBaseInfo: CharacterBaseInfo = {
       ...baseInfo, // 保留玩家输入的名字、性别等
       世界: creationStore.selectedWorld!,
-      出身: creationStore.selectedBackground!,
-      天资: creationStore.selectedAptitude || '随机天资',
-      后天: creationStore.selectedPostHeaven || '随机后天',
-      能力: creationStore.selectedAbilities,
+      天资: creationStore.selectedBackground || '随机天资' as any,
+      出生: creationStore.selectedAptitude || '随机天资' as any,
+      灵根: creationStore.selectedPostHeaven || '随机后天' as any,
+      天赋: creationStore.selectedAbilities,
       // 确保后天六司存在且初始化为0（开局默认全为0）
       后天六司: baseInfo.后天六司 || {
         根骨: 0,
