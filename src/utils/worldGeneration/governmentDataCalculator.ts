@@ -7,9 +7,9 @@ export interface GovernmentCalculationData {
   名称: string;
   类型: string;
   等级: string;
-  主官修为?: string;
-  最强修为?: string;
-  长老数量?: number;
+  主官政绩?: string;
+  最强政绩?: string;
+  高级官吏数量?: number;
   核心下属数?: number;
   内门下属数?: number;
   外门下属数?: number;
@@ -21,19 +21,19 @@ export interface CalculatedGovernmentData {
 }
 
 /**
- * 境界实力映射表 - 用于计算战力
+ * 官品实力映射表 - 用于计算战力
  */
-const _REALM_POWER_MAP: Record<string, number> = {
-  '练气初期': 5, '练气中期': 8, '练气后期': 12, '练气圆满': 15, '练气极境': 18,
-  '筑基初期': 20, '筑基中期': 25, '筑基后期': 30, '筑基圆满': 35, '筑基极境': 40,
-  '金丹初期': 45, '金丹中期': 52, '金丹后期': 60, '金丹圆满': 68, '金丹极境': 75,
-  '元婴初期': 80, '元婴中期': 88, '元婴后期': 95, '元婴圆满': 102, '元婴极境': 110,
-  '化神初期': 115, '化神中期': 125, '化神后期': 135, '化神圆满': 145, '化神极境': 155,
-  '炼虚初期': 160, '炼虚中期': 170, '炼虚后期': 180, '炼虚圆满': 190, '炼虚极境': 200,
-  '合体初期': 210, '合体中期': 225, '合体后期': 240, '合体圆满': 255, '合体极境': 270,
-  '渡劫初期': 280, '渡劫中期': 310, '渡劫后期': 340, '渡劫圆满': 370, '渡劫极境': 400,
-  '练气': 10, '筑基': 25, '金丹': 55, '元婴': 90, '化神': 130,
-  '炼虚': 175, '合体': 235, '渡劫': 325
+const _OFFICIAL_RANK_POWER_MAP: Record<string, number> = {
+  '九品初期': 5, '九品中期': 8, '九品后期': 12, '九品圆满': 15, '九品极境': 18,
+  '八品初期': 20, '八品中期': 25, '八品后期': 30, '八品圆满': 35, '八品极境': 40,
+  '七品初期': 45, '七品中期': 52, '七品后期': 60, '七品圆满': 68, '七品极境': 75,
+  '六品初期': 80, '六品中期': 88, '六品后期': 95, '六品圆满': 102, '六品极境': 110,
+  '五品初期': 115, '五品中期': 125, '五品后期': 135, '五品圆满': 145, '五品极境': 155,
+  '四品初期': 160, '四品中期': 170, '四品后期': 180, '四品圆满': 190, '四品极境': 200,
+  '三品初期': 210, '三品中期': 225, '三品后期': 240, '三品圆满': 255, '三品极境': 270,
+  '二品初期': 280, '二品中期': 310, '二品后期': 340, '二品圆满': 370, '二品极境': 400,
+  '九品': 10, '八品': 25, '七品': 55, '六品': 90, '五品': 130,
+  '四品': 175, '三品': 235, '二品': 325
 };
 
 /**
@@ -56,16 +56,16 @@ const _GOVERNMENT_LEVEL_MULTIPLIER: Record<string, number> = {
  * 衙门类型修正系数
  */
 const GOVERNMENT_TYPE_MODIFIER: Record<string, number> = {
-  '修仙衙门': 1.0,
-  '正道衙门': 1.0,
-  '魔道衙门': 1.1,
-  '魔道势力': 1.1,
-  '修仙世家': 0.9,
+  '地方衙门': 1.0,
+  '清流派': 1.0,
+  '贪腐派': 1.1,
+  '贪腐势力': 1.1,
+  '官宦世家': 0.9,
   '世家': 0.9,
   '商会': 0.7,
   '商会组织': 0.7,
   '中立衙门': 0.85,
-  '散修联盟': 0.75
+  '平民联盟': 0.75
 };
 
 /**
@@ -73,28 +73,28 @@ const GOVERNMENT_TYPE_MODIFIER: Record<string, number> = {
  */
 function calculateGovernmentPower(data: GovernmentCalculationData): number {
   let baseScore = 0;
-  const maxRealm = data.最强修为 || data.主官修为 || '';
-  
-  if (maxRealm.includes('练气')) baseScore = 5;
-  else if (maxRealm.includes('筑基')) baseScore = 15;
-  else if (maxRealm.includes('金丹')) baseScore = 25;
-  else if (maxRealm.includes('元婴')) baseScore = 35;
-  else if (maxRealm.includes('化神')) baseScore = 45;
-  else if (maxRealm.includes('炼虚')) baseScore = 55;
-  else if (maxRealm.includes('合体')) baseScore = 65;
-  else if (maxRealm.includes('渡劫')) baseScore = 75;
+  const maxRank = data.最强政绩 || data.主官政绩 || '';
+
+  if (maxRank.includes('九品')) baseScore = 5;
+  else if (maxRank.includes('八品')) baseScore = 15;
+  else if (maxRank.includes('七品')) baseScore = 25;
+  else if (maxRank.includes('六品')) baseScore = 35;
+  else if (maxRank.includes('五品')) baseScore = 45;
+  else if (maxRank.includes('四品')) baseScore = 55;
+  else if (maxRank.includes('三品')) baseScore = 65;
+  else if (maxRank.includes('二品')) baseScore = 75;
   else baseScore = 20;
-  
-  const elderCount = data.长老数量 || 0;
+
+  const seniorOfficialCount = data.高级官吏数量 || 0;
   const totalMembers = (data.核心下属数 || 0) + (data.内门下属数 || 0) + (data.外门下属数 || 0);
   
   let scaleScore = 0;
-  if (elderCount >= 50) scaleScore += 15;
-  else if (elderCount >= 30) scaleScore += 12;
-  else if (elderCount >= 20) scaleScore += 10;
-  else if (elderCount >= 10) scaleScore += 7;
-  else if (elderCount >= 5) scaleScore += 4;
-  else scaleScore += Math.max(0, elderCount);
+  if (seniorOfficialCount >= 50) scaleScore += 15;
+  else if (seniorOfficialCount >= 30) scaleScore += 12;
+  else if (seniorOfficialCount >= 20) scaleScore += 10;
+  else if (seniorOfficialCount >= 10) scaleScore += 7;
+  else if (seniorOfficialCount >= 5) scaleScore += 4;
+  else scaleScore += Math.max(0, seniorOfficialCount);
   
   if (totalMembers >= 10000) scaleScore += 10;
   else if (totalMembers >= 5000) scaleScore += 8;
@@ -127,15 +127,15 @@ function calculateGovernmentPower(data: GovernmentCalculationData): number {
   
   let typeBonus = 0;
   switch (data.类型) {
-    case '魔道衙门':
-    case '魔道势力':
+    case '贪腐派':
+    case '贪腐势力':
       typeBonus = 3;
       break;
-    case '正道衙门':
-    case '修仙衙门':
+    case '清流派':
+    case '地方衙门':
       typeBonus = 1;
       break;
-    case '修仙世家':
+    case '官宦世家':
     case '世家':
       typeBonus = -1;
       break;
@@ -143,19 +143,19 @@ function calculateGovernmentPower(data: GovernmentCalculationData): number {
     case '商会组织':
       typeBonus = -3;
       break;
-    case '散修联盟':
+    case '平民联盟':
       typeBonus = -2;
       break;
     default:
       typeBonus = 0;
   }
-  
+
   let finalScore = baseScore + scaleScore + levelBonus + typeBonus;
-  
-  if (maxRealm.includes('渡劫')) finalScore = Math.max(finalScore, 85);
-  else if (maxRealm.includes('合体')) finalScore = Math.max(finalScore, 75);
-  else if (maxRealm.includes('炼虚')) finalScore = Math.max(finalScore, 65);
-  else if (maxRealm.includes('化神')) finalScore = Math.max(finalScore, 55);
+
+  if (maxRank.includes('二品')) finalScore = Math.max(finalScore, 85);
+  else if (maxRank.includes('三品')) finalScore = Math.max(finalScore, 75);
+  else if (maxRank.includes('四品')) finalScore = Math.max(finalScore, 65);
+  else if (maxRank.includes('五品')) finalScore = Math.max(finalScore, 55);
   
   return Math.min(100, Math.max(1, Math.round(finalScore)));
 }
@@ -190,10 +190,10 @@ function calculateGovernmentReputation(data: GovernmentCalculationData): number 
   const typeBonus = GOVERNMENT_TYPE_MODIFIER[data.类型] || 1.0;
   
   let scaleBonus = 0;
-  const elderCount = data.长老数量 || 0;
-  if (elderCount >= 10) scaleBonus += 3;
-  else if (elderCount >= 5) scaleBonus += 2;
-  else if (elderCount >= 3) scaleBonus += 1;
+  const seniorOfficialCount = data.高级官吏数量 || 0;
+  if (seniorOfficialCount >= 10) scaleBonus += 3;
+  else if (seniorOfficialCount >= 5) scaleBonus += 2;
+  else if (seniorOfficialCount >= 3) scaleBonus += 1;
   
   const randomFactor = 0.8 + Math.random() * 0.4;
   const finalReputation = Math.round((baseReputation * typeBonus + scaleBonus) * randomFactor);

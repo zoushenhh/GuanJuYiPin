@@ -28,9 +28,9 @@ export interface MemoryFormatConfig {
 export const MEMORY_FORMAT_PRESETS: MemoryFormatConfig[] = [
   {
     id: 'cultivation_start',
-    name: '修仙开局记忆',
+    name: '县令开局记忆',
     description: '适用于角色初始化时的完整记忆记录',
-    titleFormat: '【{title}·修仙开局】',
+    titleFormat: '【{title}·县令开局】',
     isDefault: true,
     sections: [
       {
@@ -72,7 +72,7 @@ export const MEMORY_FORMAT_PRESETS: MemoryFormatConfig[] = [
         key: 'special',
         description: '觉醒、传承等重要经历',
         placeholder: [
-          '灵根觉醒/天赋显现的具体时刻',
+          '入仕初心/天赋显现的具体时刻',
           '重要传承物品的获得过程（如有）',
           '改变命运的关键事件'
         ]
@@ -84,7 +84,7 @@ export const MEMORY_FORMAT_PRESETS: MemoryFormatConfig[] = [
         description: '心理状态和情感倾向',
         placeholder: [
           '当前的心境状态和性格倾向',
-          '对未来修仙道路的期待或担忧',
+          '对未来仕途发展的期待或担忧',
           '内心深处的愿望和恐惧'
         ]
       }
@@ -92,9 +92,9 @@ export const MEMORY_FORMAT_PRESETS: MemoryFormatConfig[] = [
   },
   {
     id: 'adventure_memory',
-    name: '历练记忆',
-    description: '适用于游戏中的冒险和历练记录',
-    titleFormat: '【{title}·历练感悟】',
+    name: '任职记忆',
+    description: '适用于游戏中的政务和任职记录',
+    titleFormat: '【{title}·任职感悟】',
     sections: [
       {
         icon: '⚔️',
