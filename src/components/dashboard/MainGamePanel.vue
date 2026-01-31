@@ -597,23 +597,9 @@ const isTavernEnvFlag = isTavernEnv();
 const enhancedActionQueue = EnhancedActionQueueManager.getInstance();
 const bidirectionalSystem = AIBidirectionalSystem;
 
-const isOnlineTraveling = computed(() => {
-  const online = gameStateStore.onlineState as any;
-  return online?.模式 === '联机' && !!online?.房间ID;
-});
-
-const travelingTooltip = computed(() => {
-  if (!isOnlineTraveling.value) return '';
-  const online = gameStateStore.onlineState as any;
-  const sessionId = online?.房间ID ? String(online.房间ID) : '';
-  const owner = online?.穿越目标?.主人用户名 ? String(online.穿越目标.主人用户名) : '';
-  const worldId = online?.穿越目标?.世界ID != null ? String(online.穿越目标.世界ID) : '';
-  const parts = ['联机穿越中'];
-  if (owner) parts.push(`目标：${owner}`);
-  if (worldId) parts.push(`世界#${worldId}`);
-  if (sessionId) parts.push(`会话#${sessionId}`);
-  return parts.join(' · ');
-});
+// 单机模式：联机穿越功能已移除
+const isOnlineTraveling = computed(() => false);
+const travelingTooltip = computed(() => '');
 
 const openEventsPanel = () => {
   router.push('/game/events');

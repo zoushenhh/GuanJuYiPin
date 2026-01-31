@@ -1274,18 +1274,9 @@ ${step1Text}
             if (changeSummary) note += `。状态变更：${changeSummary}`;
             if (snippet) note += `。异动概述：${snippet}`;
 
-            const { appendTravelNote } = await import('@/services/onlineTravel');
-            await appendTravelNote(sessionId, note, {
-              place,
-              action,
-              snippet,
-              changes: relevantChanges.slice(0, 10).map((c) => ({
-                key: c?.key,
-                action: c?.action,
-                oldValue: c?.oldValue,
-                newValue: c?.newValue,
-              })),
-            });
+            // 单机模式不支持联机穿越功能，移除 appendTravelNote 调用
+            // const { appendTravelNote } = await import('@/services/onlineTravel');
+            // await appendTravelNote(sessionId, note, {...});
           }
         } catch (e) {
           console.warn('[AI双向系统] travel note append failed', e);
@@ -2004,8 +1995,9 @@ ${step1Text}
               const trimmed = note.trim();
               if (trimmed) {
                 const safeNote = trimmed.slice(0, 600);
-                const { appendTravelNote } = await import('@/services/onlineTravel');
-                await appendTravelNote(sessionId, safeNote, meta);
+                // const { appendTravelNote } = await import('@/services/onlineTravel');
+                // await appendTravelNote(sessionId, safeNote, meta);
+                // 单机模式不支持联机穿越功能
                 onlineLogPosted = true;
               }
             }

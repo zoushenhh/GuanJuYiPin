@@ -570,8 +570,6 @@ import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
 import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { createDadBundle, unwrapDadBundle } from '@/utils/dadBundle';
 import type { SaveDataV3 } from '@/types/saveSchemaV3';
-import { verifyStoredToken } from '@/services/request';
-import { isBackendConfigured } from '@/services/backendConfig';
 
 interface Props {
   fullscreen?: boolean;
@@ -779,14 +777,10 @@ const handleSelect = async (charId: string, slotKey: string, hasData: boolean) =
   console.log('选择存档:', charId, slotKey, hasData);
   const character = characterStore.rootState.角色列表[charId];
 
-  // 联机模式：先检测登录状态
-  if (character?.模式 === '联机' && isBackendConfigured()) {
-    const tokenValid = await verifyStoredToken();
-    if (!tokenValid) {
-      toast.warning('联机模式需要登录，正在跳转...');
-      router.push('/login');
-      return;
-    }
+  // 联机模式检查已移除 - 仅支持单机模式
+  if (character?.模式 === '联机') {
+    toast.error('仅支持单机模式');
+    return;
   }
 
   if (hasData) {

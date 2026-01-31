@@ -100,11 +100,8 @@
         :is="Component"
         @start-creation="handleStartCreation"
         @show-character-list="handleShowCharacterList"
-        @go-to-login="handleGoToLogin"
         @back="handleBack"
         @creation-complete="handleCreationComplete"
-        @loggedIn="handleLoggedIn"
-        @login="handleGoToLogin"
         @show-help="showHelp"
       />
     </router-view>
@@ -263,7 +260,7 @@ const displayVersion = computed(() => APP_VERSION);
 // --- 路由与视图管理 ---
 const router = useRouter();
 const route = useRoute();
-type ViewName = 'ModeSelection' | 'CharacterCreation' | 'Login' | 'CharacterManagement' | 'GameView';
+type ViewName = 'ModeSelection' | 'CharacterCreation' | 'CharacterManagement' | 'GameView';
 
 // 判断是否在游戏界面（包括所有游戏子路由）
 const isInGameView = computed(() => {
@@ -278,7 +275,6 @@ const switchView = (viewName: ViewName) => {
   const routeMap: Record<ViewName, string> = {
     ModeSelection: '/',
     CharacterCreation: '/creation',
-    Login: '/login',
     CharacterManagement: '/management',
     GameView: '/game',
   };
@@ -317,25 +313,6 @@ const handleShowCharacterList = () => {
 const handleBack = () => {
   creationStore.resetCharacter();
   switchView('ModeSelection');
-};
-
-const handleLoggedIn = () => {
-  isLoggedIn.value = true;
-  switchView('ModeSelection');
-};
-
-const handleGoToLogin = () => {
-  toast.info('仅支持单机模式');
-};
-
-const openWorkshop = (close: () => void) => {
-  toast.info('创意工坊不可用');
-  close();
-};
-
-const openAccountCenter = (close: () => void) => {
-  toast.info('账号中心不可用');
-  close();
 };
 
 const handleCreationComplete = async (rawPayload: CharacterCreationPayload) => {

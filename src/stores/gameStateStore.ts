@@ -275,9 +275,10 @@ export const useGameStateStore = defineStore('gameState', {
 
       const deepCopy = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
-      // V3 保存的元数据/联机/设置也读入到 store（用于后续保存回写）
+      // V3 保存的元数据/设置也读入到 store（用于后续保存回写）
       this.saveMeta = v3?.元数据 ? deepCopy(v3.元数据) : null;
-      this.onlineState = v3?.系统?.联机 ? deepCopy(v3.系统.联机) : null;
+      // 固定为单机模式，不从存档读取联机状态
+      this.onlineState = { 模式: '单机', 房间ID: null, 玩家ID: null };
       this.userSettings = v3?.系统?.设置 ? deepCopy(v3.系统.设置) : null;
       const normalizeQualitySuffix = (obj: any, field: string) => {
         if (!obj || typeof obj !== 'object') return;

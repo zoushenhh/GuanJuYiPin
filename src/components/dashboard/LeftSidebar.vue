@@ -104,17 +104,6 @@
             </div>
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
-
-          <button class="function-btn quest" v-if="isOnlineMode" @click="handleOnlinePlay">
-            <div class="btn-icon">
-              <Globe :size="18" />
-            </div>
-            <div class="btn-content">
-              <span class="btn-text">{{ t('穿越') }}</span>
-              <span class="btn-desc">{{ t('进入他人世界') }}</span>
-            </div>
-            <ChevronRight :size="14" class="btn-arrow" />
-          </button>
         </div>
       </div>
 
@@ -174,7 +163,7 @@
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
 
-          <button class="function-btn system" v-if="!isOnlineMode" @click="handleGameVariables">
+          <button class="function-btn system" @click="handleGameVariables">
             <div class="btn-icon">
               <Database :size="18" />
             </div>
@@ -288,7 +277,6 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { toast } from '@/utils/toast';
 import { useUIStore } from '@/stores/uiStore';
 import { useI18n } from '@/i18n';
-import { isBackendConfigured, fetchBackendVersion } from '@/services/backendConfig';
 
 const router = useRouter();
 const characterStore = useCharacterStore();
@@ -296,13 +284,9 @@ const uiStore = useUIStore();
 const { t, currentLanguage } = useI18n();
 
 // 版本号相关
-const backendReady = ref(false);
 const showSponsorModal = ref(false);
-const backendVersion = ref<string | null>(null);
 
-const displayVersion = computed(() => (
-  backendReady.value ? (backendVersion.value ?? '同步中') : APP_VERSION
-));
+const displayVersion = computed(() => APP_VERSION);
 
 // 实时北京时间
 const currentRealTime = ref('');
@@ -322,15 +306,6 @@ const updateRealTime = () => {
 onMounted(async () => {
   updateRealTime();
   timeInterval = window.setInterval(updateRealTime, 1000);
-
-  // 获取后端版本
-  if (isBackendConfigured()) {
-    const version = await fetchBackendVersion();
-    if (version) {
-      backendReady.value = true;
-      backendVersion.value = version;
-    }
-  }
 });
 
 onUnmounted(() => {
@@ -343,6 +318,9 @@ onUnmounted(() => {
 const activeCharacter = computed(() => characterStore.activeCharacterProfile);
 const isOnlineMode = computed(() => activeCharacter.value?.模式 === '联机');
 const isAdmin = computed(() => localStorage.getItem('is_admin') === 'true');
+
+// 移除联机模式相关代码
+// const isOnlineMode = computed(() => activeCharacter.value?.模式 === '联机');
 
 const handleSaveGame = async () => {
   router.push('/game/save');
@@ -388,9 +366,10 @@ const handleWorldMap = () => {
   router.push('/game/world-map');
 };
 
-const handleOnlinePlay = () => {
-  router.push('/game/travel');
-};
+// 移除联机穿越相关代码
+// const handleOnlinePlay = () => {
+//   router.push('/game/travel');
+// };
 
 const handlePrompts = () => {
   router.push('/game/prompts');

@@ -7,11 +7,11 @@
         <div class="header-top">
           <!-- 左侧：模式指示 -->
           <div class="mode-indicator">
-            {{ store.isLocalCreation ? $t('单机模式') : $t('联机模式') }}
+            {{ $t('单机模式') }}
           </div>
 
-          <!-- 右侧：云端同步按钮（仅单机模式显示） -->
-          <div v-if="store.isLocalCreation" class="cloud-sync-container">
+          <!-- 右侧：云端同步按钮 -->
+          <div class="cloud-sync-container">
             <CloudDataSync @sync-completed="onSyncCompleted" variant="compact" size="small" />
             <StorePreSeting
               variant="compact"
@@ -141,11 +141,9 @@ import Step5_TalentSelection from '../components/character-creation/Step5_Talent
 import Step6_AttributeAllocation from '../components/character-creation/Step6_AttributeAllocation.vue'
 import Step7_Preview from '../components/character-creation/Step7_Preview.vue'
 import RedemptionCodeModal from '../components/character-creation/RedemptionCodeModal.vue'
-import { request, verifyStoredToken } from '../services/request'
 import { toast } from '../utils/toast'
 import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import { getCurrentCharacterName } from '../utils/tavern';
-import { isBackendConfigured } from '@/services/backendConfig';
 import { useI18n } from '../i18n';
 import type { CharacterPreset } from '@/utils/presetManager';
 
@@ -172,32 +170,12 @@ function normalizeGender(value: unknown): CharacterPreset['data']['gender'] {
 
 onMounted(async () => {
   // 1. 初始化县衙档案（确保数据已加载）
-  // 单机模式也需要获取云端数据作为备选
-  console.log('【角色创建】当前模式:', store.isLocalCreation ? '单机' : '联机');
+  console.log('【角色创建】单机模式初始化');
 
-  // 2. 初始化县衙档案，确保本地和云端数据都加载
-  await store.initializeStore(store.isLocalCreation ? 'single' : 'cloud');
+  // 2. 初始化县衙档案
+  await store.initializeStore('single');
 
-  // 检查是否需要补充云端数据（检查总数据量而不是source标记）
-  const totalWorlds = store.creationData.worlds.length;
-  const totalTalents = store.creationData.talents.length;
-
-  console.log('【角色创建】当前数据量:');
-  console.log('- 总世界数量:', totalWorlds);
-  console.log('- 总天赋数量:', totalTalents);
-
-  // 在联机模式下，如果数据量明显不足（小于等于本地数据量），尝试获取云端数据
-  if (!store.isLocalCreation && (totalWorlds <= 3 || totalTalents <= 5)) {
-    console.log('【角色创建】联机模式下数据量不足，尝试获取云端数据...');
-
-    await store.fetchAllCloudData();
-
-    console.log('【角色创建】云端数据获取完成，最终数据量:');
-    console.log('- 总世界数量:', store.creationData.worlds.length);
-    console.log('- 总天赋数量:', store.creationData.talents.length);
-  }
-
-  // 2. 获取角色名字 - 自动从酒馆获取，无需用户输入
+  // 3. 获取角色名字 - 自动从酒馆获取，无需用户输入
   try {
     const tavernCharacterName = await getCurrentCharacterName();
     if (tavernCharacterName) {
@@ -205,11 +183,11 @@ onMounted(async () => {
       store.characterPayload.character_name = tavernCharacterName;
     } else {
       console.log('【角色创建】无法获取酒馆角色卡名字，使用默认值');
-      store.characterPayload.character_name = store.isLocalCreation ? '无名者' : '官员';
+      store.characterPayload.character_name = '无名者';
     }
   } catch (error) {
     console.error('【角色创建】获取角色名字时出错:', error);
-    store.characterPayload.character_name = store.isLocalCreation ? '无名者' : '官员';
+    store.characterPayload.character_name = '无名者';
   }
 });
 
@@ -217,138 +195,14 @@ onUnmounted(() => {
   store.resetOnExit();
 });
 
-// 此函数只处理联机模式的AI生成（需要消耗信物）
-async function executeCloudAiGeneration(code: string, userPrompt?: string) {
-  let type = ''
-  switch (store.currentStep) {
-    case 1: type = 'world'; break
-    case 2: type = 'talent_tier'; break
-    case 3: type = 'origin'; break
-    case 4: type = 'spirit_root'; break
-    case 5: type = 'talent'; break
-    default:
-      toast.error('当前步骤不支持AI生成！')
-      return
-  }
-
-  store.startCreation();
-  const toastId = `cloud-ai-generate-${type}`;
-  const initialMessage = userPrompt ? '基于你的需求生成内容...' : '正在生成...';
-  toast.loading(initialMessage, { id: toastId });
-
-  try {
-    // 1. 验证兑换码 (可选，后端会做最终验证)
-    toast.loading('正在验证吏籍凭证...', { id: toastId });
-    try {
-      // 后端返回完整的 RedemptionCode 对象，验证成功说明可用
-      await request<{ id: number; code: string; times_used: number; max_uses: number }>(`/api/v1/redemption/validate/${code}`, { method: 'POST' });
-      // 如果请求成功，说明兑换码有效且未过期/未用完
-    } catch (error: unknown) {
-      // 后端会返回具体错误信息（404=不存在，400=已用完/已过期）
-      const message = error instanceof Error ? error.message : '吏籍凭证验证失败';
-      toast.error(message, { id: toastId });
-      store.resetCreationState();
-      return;
-    }
-
-    // 2. 前端调用AI生成
-    toast.loading('正在生成内容...', { id: toastId });
-
-    // 构建AI提示词
-    const typeNameMap: Record<string, string> = {
-      'world': '世界背景',
-      'talent_tier': '天资等级',
-      'origin': '出身背景',
-      'talent_attribute': '才能',
-      'talent': '天赋'
-    };
-    const typeName = typeNameMap[type] || type;
-    const prompt = userPrompt || `请为官场游戏生成一个${typeName}选项，包含name、description等字段，返回JSON格式`;
-
-    // 使用前端aiService生成内容
-    const { aiService } = await import('@/services/aiService');
-    const aiResponse = await aiService.generate({
-      ordered_prompts: [
-        { role: 'system', content: `你是一个官场游戏内容生成器。请根据用户要求生成${typeName}内容，返回有效的JSON对象。` },
-        { role: 'user', content: prompt }
-      ],
-      usageType: 'main'
-    });
-
-    if (!aiResponse) {
-      toast.error('生成失败', { id: toastId });
-      store.resetCreationState();
-      return;
-    }
-
-    // 解析AI生成的内容
-    let generatedContent;
-    try {
-      // 尝试从响应中提取JSON
-      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        generatedContent = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('未找到有效JSON');
-      }
-    } catch {
-      toast.error('生成结果格式异常', { id: toastId });
-      store.resetCreationState();
-      return;
-    }
-
-    // 3. 保存到云端并消耗兑换码
-    toast.loading('正在保存...', { id: toastId });
-
-    const saveResponse = await request<{ message: string; saved_id: number }>('/api/v1/ai/save', {
-      method: 'POST',
-      body: JSON.stringify({
-        code: code,
-        type: type,
-        content: generatedContent
-      }),
-    });
-
-    if (saveResponse) {
-      toast.success(`已保存！${saveResponse.message}`, { id: toastId });
-      // 刷新数据以显示新生成的内容
-      await store.fetchAllCloudData();
-    } else {
-      toast.error('保存失败', { id: toastId });
-    }
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : '未知错误';
-    if (message.includes('兑换码') || message.includes('凭证')) {
-      toast.error(message, { id: toastId });
-    } else if (message.includes('登录')) {
-      toast.error('身份验证失败，请重新登录！', { id: toastId });
-    } else {
-      toast.error('生成失败：' + message, { id: toastId });
-    }
-  } finally {
-    store.resetCreationState();
-    // 确保toast在非成功路径也被关闭
-    setTimeout(() => toast.hide(toastId), 3000);
-  }
+// 单机模式下不支持联机兑换码功能
+async function executeCloudAiGeneration(_code: string, _userPrompt?: string) {
+  toast.error('单机模式下不支持兑换码功能');
 }
 
-// 父组件的AI生成处理器，只响应来自子组件的"联机"请求
+// AI生成处理器（单机模式由子组件自行处理）
 function handleAIGenerateClick() {
-  // 根据当前步骤设置AI生成类型
-  const typeMap = {
-    1: 'world' as const,
-    2: 'talent_tier' as const,
-    3: 'origin' as const,
-    4: 'spirit_root' as const,
-    5: 'talent' as const
-  };
-
-  currentAIType.value = typeMap[store.currentStep as keyof typeof typeMap] || 'world';
-
-  if (!store.isLocalCreation) {
-    isCodeModalVisible.value = true
-  }
-  // 本地模式的点击事件由子组件自行处理，此处无需操作
+  // 单机模式：本地模式的点击事件由子组件自行处理，此处无需操作
 }
 
 // 暴露给步骤组件调用
@@ -509,17 +363,10 @@ async function createCharacter() {
   store.startCreation();
 
   if (!store.isLocalCreation) {
-    if (!isBackendConfigured()) {
-      toast.error('联机模式需要先配置后端服务器地址');
-      store.resetCreationState();
-      return;
-    }
-    const tokenOk = await verifyStoredToken();
-    if (!tokenOk) {
-      toast.error('联机模式需要先登录');
-      store.resetCreationState();
-      return;
-    }
+    // 移除联机模式相关检查
+    toast.error('仅支持单机模式');
+    store.resetCreationState();
+    return;
   }
 
   console.log('[DEBUG] 数据校验通过，开始创建角色');
