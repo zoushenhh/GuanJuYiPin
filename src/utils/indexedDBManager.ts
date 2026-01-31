@@ -361,7 +361,7 @@ export async function loadSaveData(
           console.log(`【乾坤宝库-IDB】SaveData 已加载 (${characterId}/${slotId})`);
           resolve(result.data as SaveData);
         } else {
-          // 兼容：联机存档槽位历史上使用过 “存档” / “云端修行” 两种 key
+          // 兼容：存档槽位历史上使用过 "存档" / "云端修行" 两种 key
           // - v3.7.x 常见：存档
           // - v4.0+ 常见：云端修行
           const alias =

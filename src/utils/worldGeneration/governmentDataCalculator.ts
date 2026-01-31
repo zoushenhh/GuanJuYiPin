@@ -7,147 +7,156 @@ export interface GovernmentCalculationData {
   名称: string;
   类型: string;
   等级: string;
-  县令政绩?: string;
-  最强政绩?: string;
-  幕僚数量?: number;
-  核心吏员数?: number;
-  正式吏员数?: number;
-  临时雇员数?: number;
+  主官修为?: string;
+  最强修为?: string;
+  长老数量?: number;
+  核心下属数?: number;
+  内门下属数?: number;
+  外门下属数?: number;
 }
 
 export interface CalculatedGovernmentData {
   声望值: number;
-  综合实力: number;
+  综合战力: number;
 }
 
 /**
- * 官品实力映射表 - 用于计算实力
+ * 境界实力映射表 - 用于计算战力
  */
-const _RANK_POWER_MAP: Record<string, number> = {
-  '九品下': 5, '九品中': 8, '九品上': 12, '九品': 15,
-  '八品下': 20, '八品中': 25, '八品上': 30, '八品': 35,
-  '七品下': 45, '七品中': 52, '七品上': 60, '七品': 68,
-  '六品下': 80, '六品中': 88, '六品上': 95, '六品': 102,
-  '五品下': 115, '五品中': 125, '五品上': 135, '五品': 145,
-  '四品下': 160, '四品中': 170, '四品上': 180, '四品': 190,
-  '三品下': 210, '三品中': 225, '三品上': 240, '三品': 255,
-  '二品下': 280, '二品中': 310, '二品上': 340, '二品': 370,
-  '一品': 400
+const _REALM_POWER_MAP: Record<string, number> = {
+  '练气初期': 5, '练气中期': 8, '练气后期': 12, '练气圆满': 15, '练气极境': 18,
+  '筑基初期': 20, '筑基中期': 25, '筑基后期': 30, '筑基圆满': 35, '筑基极境': 40,
+  '金丹初期': 45, '金丹中期': 52, '金丹后期': 60, '金丹圆满': 68, '金丹极境': 75,
+  '元婴初期': 80, '元婴中期': 88, '元婴后期': 95, '元婴圆满': 102, '元婴极境': 110,
+  '化神初期': 115, '化神中期': 125, '化神后期': 135, '化神圆满': 145, '化神极境': 155,
+  '炼虚初期': 160, '炼虚中期': 170, '炼虚后期': 180, '炼虚圆满': 190, '炼虚极境': 200,
+  '合体初期': 210, '合体中期': 225, '合体后期': 240, '合体圆满': 255, '合体极境': 270,
+  '渡劫初期': 280, '渡劫中期': 310, '渡劫后期': 340, '渡劫圆满': 370, '渡劫极境': 400,
+  '练气': 10, '筑基': 25, '金丹': 55, '元婴': 90, '化神': 130,
+  '炼虚': 175, '合体': 235, '渡劫': 325
 };
 
 /**
  * 衙门等级基础倍数
  */
 const _GOVERNMENT_LEVEL_MULTIPLIER: Record<string, number> = {
-  '府级': 1.2,
-  '州级': 1.0,
-  '县级': 0.8,
-  '镇级': 0.6,
-  '村级': 0.4
+  '超级': 1.2,
+  '超级衙门': 1.2,
+  '一流': 1.0,
+  '一流衙门': 1.0,
+  '二流': 0.8,
+  '二流衙门': 0.8,
+  '三流': 0.6,
+  '三流衙门': 0.6,
+  '末流': 0.4,
+  '末流衙门': 0.4
 };
 
 /**
  * 衙门类型修正系数
  */
 const GOVERNMENT_TYPE_MODIFIER: Record<string, number> = {
-  '知县衙门': 1.0,
-  '行政衙门': 1.0,
-  '军事衙门': 1.1,
-  '世袭衙门': 0.9,
-  '商业衙门': 0.7,
+  '修仙衙门': 1.0,
+  '正道衙门': 1.0,
+  '魔道衙门': 1.1,
+  '魔道势力': 1.1,
+  '修仙世家': 0.9,
+  '世家': 0.9,
+  '商会': 0.7,
+  '商会组织': 0.7,
   '中立衙门': 0.85,
-  '民间组织': 0.75
+  '散修联盟': 0.75
 };
 
 /**
- * 计算衙门综合实力 - 重新设计更合理的评分系统
+ * 计算衙门综合战力 - 重新设计更合理的评分系统
  */
 function calculateGovernmentPower(data: GovernmentCalculationData): number {
   let baseScore = 0;
-  const maxRank = data.最强政绩 || data.县令政绩 || '';
-
-  if (maxRank.includes('九品')) baseScore = 5;
-  else if (maxRank.includes('八品')) baseScore = 15;
-  else if (maxRank.includes('七品')) baseScore = 25;
-  else if (maxRank.includes('六品')) baseScore = 35;
-  else if (maxRank.includes('五品')) baseScore = 45;
-  else if (maxRank.includes('四品')) baseScore = 55;
-  else if (maxRank.includes('三品')) baseScore = 65;
-  else if (maxRank.includes('二品')) baseScore = 75;
+  const maxRealm = data.最强修为 || data.主官修为 || '';
+  
+  if (maxRealm.includes('练气')) baseScore = 5;
+  else if (maxRealm.includes('筑基')) baseScore = 15;
+  else if (maxRealm.includes('金丹')) baseScore = 25;
+  else if (maxRealm.includes('元婴')) baseScore = 35;
+  else if (maxRealm.includes('化神')) baseScore = 45;
+  else if (maxRealm.includes('炼虚')) baseScore = 55;
+  else if (maxRealm.includes('合体')) baseScore = 65;
+  else if (maxRealm.includes('渡劫')) baseScore = 75;
   else baseScore = 20;
-
-  const advisorCount = data.幕僚数量 || 0;
-  const totalMembers = (data.核心吏员数 || 0) + (data.正式吏员数 || 0) + (data.临时雇员数 || 0);
-
+  
+  const elderCount = data.长老数量 || 0;
+  const totalMembers = (data.核心下属数 || 0) + (data.内门下属数 || 0) + (data.外门下属数 || 0);
+  
   let scaleScore = 0;
-  if (advisorCount >= 50) scaleScore += 15;
-  else if (advisorCount >= 30) scaleScore += 12;
-  else if (advisorCount >= 20) scaleScore += 10;
-  else if (advisorCount >= 10) scaleScore += 7;
-  else if (advisorCount >= 5) scaleScore += 4;
-  else scaleScore += Math.max(0, advisorCount);
-
+  if (elderCount >= 50) scaleScore += 15;
+  else if (elderCount >= 30) scaleScore += 12;
+  else if (elderCount >= 20) scaleScore += 10;
+  else if (elderCount >= 10) scaleScore += 7;
+  else if (elderCount >= 5) scaleScore += 4;
+  else scaleScore += Math.max(0, elderCount);
+  
   if (totalMembers >= 10000) scaleScore += 10;
   else if (totalMembers >= 5000) scaleScore += 8;
   else if (totalMembers >= 2000) scaleScore += 6;
   else if (totalMembers >= 1000) scaleScore += 4;
   else if (totalMembers >= 500) scaleScore += 2;
   else scaleScore += Math.max(0, Math.floor(totalMembers / 250));
-
+  
   let levelBonus = 0;
   switch (data.等级) {
-    case '府级':
-    case '府级衙门':
+    case '超级':
+    case '超级衙门':
       levelBonus = 10;
       break;
-    case '州级':
-    case '州级衙门':
+    case '一流':
+    case '一流衙门':
       levelBonus = 7;
       break;
-    case '县级':
-    case '县级衙门':
+    case '二流':
+    case '二流衙门':
       levelBonus = 4;
       break;
-    case '镇级':
-    case '镇级衙门':
+    case '三流':
+    case '三流衙门':
       levelBonus = 2;
       break;
     default:
       levelBonus = 0;
   }
-
+  
   let typeBonus = 0;
   switch (data.类型) {
-    case '军事衙门':
-    case '武衙门':
+    case '魔道衙门':
+    case '魔道势力':
       typeBonus = 3;
       break;
-    case '行政衙门':
-    case '知县衙门':
+    case '正道衙门':
+    case '修仙衙门':
       typeBonus = 1;
       break;
-    case '世袭衙门':
-    case '家族衙门':
+    case '修仙世家':
+    case '世家':
       typeBonus = -1;
       break;
-    case '商业衙门':
-    case '商税衙门':
+    case '商会':
+    case '商会组织':
       typeBonus = -3;
       break;
-    case '民间组织':
+    case '散修联盟':
       typeBonus = -2;
       break;
     default:
       typeBonus = 0;
   }
-
+  
   let finalScore = baseScore + scaleScore + levelBonus + typeBonus;
-
-  if (maxRank.includes('二品')) finalScore = Math.max(finalScore, 85);
-  else if (maxRank.includes('三品')) finalScore = Math.max(finalScore, 75);
-  else if (maxRank.includes('四品')) finalScore = Math.max(finalScore, 65);
-  else if (maxRank.includes('五品')) finalScore = Math.max(finalScore, 55);
-
+  
+  if (maxRealm.includes('渡劫')) finalScore = Math.max(finalScore, 85);
+  else if (maxRealm.includes('合体')) finalScore = Math.max(finalScore, 75);
+  else if (maxRealm.includes('炼虚')) finalScore = Math.max(finalScore, 65);
+  else if (maxRealm.includes('化神')) finalScore = Math.max(finalScore, 55);
+  
   return Math.min(100, Math.max(1, Math.round(finalScore)));
 }
 
@@ -156,39 +165,39 @@ function calculateGovernmentPower(data: GovernmentCalculationData): number {
  */
 function calculateGovernmentReputation(data: GovernmentCalculationData): number {
   let baseReputation = 5;
-
+  
   switch (data.等级) {
-    case '府级':
-    case '府级衙门':
+    case '超级':
+    case '超级衙门':
       baseReputation = 25;
       break;
-    case '州级':
-    case '州级衙门':
+    case '一流':
+    case '一流衙门':
       baseReputation = 20;
       break;
-    case '县级':
-    case '县级衙门':
+    case '二流':
+    case '二流衙门':
       baseReputation = 15;
       break;
-    case '镇级':
-    case '镇级衙门':
+    case '三流':
+    case '三流衙门':
       baseReputation = 10;
       break;
     default:
       baseReputation = 5;
   }
-
+  
   const typeBonus = GOVERNMENT_TYPE_MODIFIER[data.类型] || 1.0;
-
+  
   let scaleBonus = 0;
-  const advisorCount = data.幕僚数量 || 0;
-  if (advisorCount >= 10) scaleBonus += 3;
-  else if (advisorCount >= 5) scaleBonus += 2;
-  else if (advisorCount >= 3) scaleBonus += 1;
-
+  const elderCount = data.长老数量 || 0;
+  if (elderCount >= 10) scaleBonus += 3;
+  else if (elderCount >= 5) scaleBonus += 2;
+  else if (elderCount >= 3) scaleBonus += 1;
+  
   const randomFactor = 0.8 + Math.random() * 0.4;
   const finalReputation = Math.round((baseReputation * typeBonus + scaleBonus) * randomFactor);
-
+  
   return Math.min(30, Math.max(0, finalReputation));
 }
 
@@ -198,7 +207,7 @@ function calculateGovernmentReputation(data: GovernmentCalculationData): number 
 export function calculateGovernmentData(data: GovernmentCalculationData): CalculatedGovernmentData {
   return {
     声望值: calculateGovernmentReputation(data),
-    综合实力: calculateGovernmentPower(data)
+    综合战力: calculateGovernmentPower(data)
   };
 }
 
@@ -206,8 +215,8 @@ export function calculateGovernmentData(data: GovernmentCalculationData): Calcul
  * 批量计算多个衙门数据
  */
 export function batchCalculateGovernmentData(governmentList: GovernmentCalculationData[]): (GovernmentCalculationData & CalculatedGovernmentData)[] {
-  return governmentList.map(gov => ({
-    ...gov,
-    ...calculateGovernmentData(gov)
+  return governmentList.map(government => ({
+    ...government,
+    ...calculateGovernmentData(government)
   }));
 }

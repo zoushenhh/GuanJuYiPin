@@ -70,11 +70,11 @@
         </div>
       </div>
 
-      <!-- 境界状态 -->
-      <div class="cultivation-section">
+      <!-- 官品状态 -->
+      <div class="rank-section">
         <h3 class="section-title">
           <Star :size="14" class="section-icon" />
-          <span>{{ t('境界状态') }}</span>
+          <span>{{ t('官品状态') }}</span>
         </h3>
         <div class="realm-display">
           <div class="realm-info">
@@ -85,7 +85,7 @@
           <div v-if="isRealmProgressAvailable" class="realm-progress">
             <div class="progress-bar">
               <div
-                class="progress-fill cultivation"
+                class="progress-fill rank"
                 :class="getRealmProgressClass()"
                 :style="{ width: realmProgressPercent + '%' }"
               ></div>
@@ -207,7 +207,7 @@ import { useGameStateStore } from '@/stores/gameStateStore';
 import { useUIStore } from '@/stores/uiStore';
 import type { StatusEffect } from '@/types/game.d.ts';
 import { formatRealmWithStage } from '@/utils/realmUtils';
-import { calculateAgeFromBirthdate } from '@/utils/lifespanCalculator';
+import { calculateAgeFromBirthdate } from '@/utils/termCalculator';
 import { useI18n } from '@/i18n';
 
 const { t } = useI18n();

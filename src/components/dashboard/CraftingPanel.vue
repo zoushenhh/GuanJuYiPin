@@ -2,8 +2,8 @@
   <div class="crafting-panel">
     <div class="toolbar">
       <div class="title">
-        <span class="title-text">炼制工坊</span>
-        <span class="meta">· {{ craftingType === '炼丹' ? '丹炉' : '器炉' }}</span>
+        <span class="title-text">政务工坊</span>
+        <span class="meta">· {{ craftingType === '炼丹' ? '丹炉' : '冶炼炉' }}</span>
       </div>
 
       <div class="toolbar-actions">
@@ -13,7 +13,7 @@
         </button>
         <button class="mode-btn" :class="{ active: craftingType === '炼器' }" @click="craftingType = '炼器'">
           <Hammer :size="14" />
-          <span>炼器</span>
+          <span>冶炼</span>
         </button>
         <div class="simulation-toggle" title="开启后：点击开始炼制会先进行推演并弹窗确认">
           <span class="toggle-text">成功率推演</span>
@@ -27,7 +27,7 @@
 
     <div class="content">
       <div class="crafting-area">
-        <div class="craft-grid" aria-label="炼制槽位">
+        <div class="craft-grid" aria-label="政务槽位">
           <!-- 第一行：1 2 3 -->
           <button
             v-for="slot in slots.slice(0, 3)"
@@ -56,7 +56,7 @@
             <template v-else>
               <div class="slot-empty">
                 <div class="slot-index">{{ slot.slotId }}</div>
-                <div class="slot-hint">放入材料</div>
+                <div class="slot-hint">放入资源</div>
               </div>
             </template>
           </button>
@@ -89,12 +89,12 @@
             <template v-else>
               <div class="slot-empty">
                 <div class="slot-index">{{ slot.slotId }}</div>
-                <div class="slot-hint">放入材料</div>
+                <div class="slot-hint">放入资源</div>
               </div>
             </template>
           </button>
 
-          <div class="furnace-cell" aria-label="炼制炉">
+          <div class="furnace-cell" aria-label="政务炉">
             <div class="furnace-icon">
               <component :is="craftingType === '炼丹' ? Flame : Hammer" :size="24" />
             </div>
@@ -127,7 +127,7 @@
             <template v-else>
               <div class="slot-empty">
                 <div class="slot-index">{{ slot.slotId }}</div>
-                <div class="slot-hint">放入材料</div>
+                <div class="slot-hint">放入资源</div>
               </div>
             </template>
           </button>
@@ -415,7 +415,7 @@ type FormationOption = {
 const FORMATIONS: Record<CraftingType, FormationOption[]> = {
   炼丹: [
     { id: 'none', name: '无阵', desc: '不布阵，省力但更吃手感。', extraManaPercent: 0, extraSpiritPercent: 0 },
-    { id: 'stable', name: '稳灵阵', desc: '稳住灵力流转，容错更高。', extraManaPercent: 4, extraSpiritPercent: 2 },
+    { id: 'stable', name: '稳政阵', desc: '稳定政务流转，容错更高。', extraManaPercent: 4, extraSpiritPercent: 2 },
     { id: 'gather', name: '聚灵阵', desc: '聚拢灵气，适合药力凝聚。', extraManaPercent: 8, extraSpiritPercent: 3 },
     { id: 'focus', name: '凝神阵', desc: '凝神守一，适合控火与细节推衍。', extraManaPercent: 4, extraSpiritPercent: 8 },
     { id: 'condense', name: '凝丹阵', desc: '专注于成丹瞬间的凝结，风险也更集中。', extraManaPercent: 10, extraSpiritPercent: 10 },
@@ -425,8 +425,8 @@ const FORMATIONS: Record<CraftingType, FormationOption[]> = {
   ],
   炼器: [
     { id: 'none', name: '无阵', desc: '不布阵，靠锻打与心神掌控。', extraManaPercent: 0, extraSpiritPercent: 0 },
-    { id: 'stable', name: '稳灵阵', desc: '稳住灵力灌注，减少走火与裂纹。', extraManaPercent: 4, extraSpiritPercent: 2 },
-    { id: 'gather', name: '聚灵阵', desc: '提高灵力供给，利于材质融合。', extraManaPercent: 8, extraSpiritPercent: 3 },
+    { id: 'stable', name: '稳政阵', desc: '稳定政务灌注，减少失误与偏差。', extraManaPercent: 4, extraSpiritPercent: 2 },
+    { id: 'gather', name: '聚政阵', desc: '提高政务供给，利于政策融合。', extraManaPercent: 8, extraSpiritPercent: 3 },
     { id: 'focus', name: '凝神阵', desc: '加强神识操控，利于刻纹与成型。', extraManaPercent: 4, extraSpiritPercent: 8 },
     { id: 'temper', name: '淬器阵', desc: '专用于淬火定型，成器更锋，但更耗心神。', extraManaPercent: 10, extraSpiritPercent: 10 },
     { id: 'forge', name: '锻纹阵', desc: '加速刻纹与铭刻，适合复杂器胚。', extraManaPercent: 8, extraSpiritPercent: 12 },
@@ -784,13 +784,13 @@ const finalizeCrafting = async (needById?: Map<string, number>, materialSnapshot
   const eventDesc = String(parsed?.eventDesc ?? '').trim();
 
   const newItemId = `craft_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  const finalType: Item['类型'] = success ? (craftingType.value === '炼丹' ? '丹药' : '装备') : '其他';
+  const finalType: Item['类型'] = success ? (craftingType.value === '炼丹' ? '丹药' : '公文') : '其他';
   const quality = resultQuality.quality;
   const grade = Number(resultQuality.grade);
 
   const name =
     String(parsed?.itemName ?? '').trim() ||
-    (success ? (craftingType.value === '炼丹' ? '灵丹' : '法宝') : (craftingType.value === '炼丹' ? '废丹' : '炉渣'));
+    (success ? (craftingType.value === '炼丹' ? '灵丹' : '公文') : (craftingType.value === '炼丹' ? '废丹' : '废料'));
   const desc =
     String(parsed?.itemDesc ?? '').trim() ||
     `品质：${quality}·${getGradeText(grade)}(${grade})`;

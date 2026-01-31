@@ -122,22 +122,13 @@ const editingOrigin = ref<Origin | null>(null)
 const filteredOrigins = computed(() => {
   const allOrigins = store.creationData.origins;
   console.log("【出身选择】所有出身数据:", allOrigins);
-  console.log("【出身选择】当前模式:", store.isLocalCreation ? '本地' : '联机');
 
-  if (store.isLocalCreation) {
-    const availableOrigins = allOrigins.filter(origin =>
-      origin.source === 'local' || origin.source === 'cloud'
-    );
-    console.log("【出身选择】单机模式可用出身列表:", availableOrigins);
-    return availableOrigins;
-  } else {
-    const cloudOrigins = allOrigins.filter(origin =>
-      origin.source === 'cloud'
-    );
-    console.log("【出身选择】联机模式出身列表:", cloudOrigins);
-    console.log("【出身选择】云端出身数量:", cloudOrigins.length);
-    return cloudOrigins;
-  }
+  // 单机模式：显示本地和云端数据
+  const availableOrigins = allOrigins.filter(origin =>
+    origin.source === 'local' || origin.source === 'cloud'
+  );
+  console.log("【出身选择】可用出身列表:", availableOrigins);
+  return availableOrigins;
 });
 
 // 先天属性选项 - 出身影响的是先天属性

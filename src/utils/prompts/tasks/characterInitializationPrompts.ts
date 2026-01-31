@@ -4,7 +4,7 @@
  * 开局流程：世界生成 → 角色初始化（本文件）
  */
 
-import type { World, TalentTier, Origin, SpiritRoot, Talent } from '@/types';
+import type { World, TalentTier, Origin, TalentAptitude, Talent } from '@/types';
 import type { WorldInfo, WorldMapConfig, SystemConfig } from '@/types/game';
 import { SAVE_DATA_STRUCTURE, stripNsfwContent } from '../definitions/dataDefinitions';
 import { assembleSystemPrompt } from '../promptAssembler';
@@ -177,7 +177,7 @@ const RESOURCE_RANGES = `
 ### 物品与装备
 - **数量限制**: 1-5件，宁缺毋滥。
 - **品质限制**: 初始物品必须以**凡品**为主。严禁开局直接给予"地品"、"天品"甚至"神品"宝物（除非选择了顶级"天选之人"类出身，且必须有剧情铺垫）。
-- **策略**: 0-2部。大多数凡人开局不应自带策略，需在剧情中获取或加入组织后获得。
+- **方略**: 0-2部。大多数凡人开局不应自带方略，需在剧情中获取或加入组织后获得。
 
 ### NPC与关系
 - **数量**: 0-3个（必须是剧情中产生深刻羁绊的重要人物，路人甲不要生成关系）。
@@ -245,7 +245,7 @@ export function buildCharacterSelectionsSummary(
     world: World;
     talentTier: TalentTier;
     origin: Origin | string;
-    spiritRoot: SpiritRoot | string;
+    spiritRoot: TalentAptitude | string;
     talents: Talent[];
     attributes: Record<string, number>;
     difficultyPrompt?: string; // 难度提示词
@@ -299,7 +299,7 @@ ${talentTier.name}: ${talentTier.description}
 ${originIsObj ? (origin as Origin).name : origin}: ${originIsObj ? (origin as Origin).description : '(随机，需AI生成)'}
 
 ## 根基
-${spiritRootIsObj ? `${(spiritRoot as SpiritRoot).name} (${(spiritRoot as SpiritRoot).tier})` : spiritRoot}: ${spiritRootIsObj ? (spiritRoot as SpiritRoot).description : '(随机，需AI生成)'}
+${spiritRootIsObj ? `${(spiritRoot as TalentAptitude).name} (${(spiritRoot as TalentAptitude).tier})` : spiritRoot}: ${spiritRootIsObj ? (spiritRoot as TalentAptitude).description : '(随机，需AI生成)'}
 
 ## 天赋
 ${talentsList}
@@ -345,7 +345,7 @@ ${worldContext?.systemSettings?.nsfwMode ? `- **NSFW模式**: 已开启
 
 ## 输出要求
 严格遵循系统的JSON输出规则：
-- 不要输出 \`<thinking>\` / 思维链 / 任何推理过程标签
+- 不要输出 &lt;thinking&gt; 或思维链或任何推理过程标签
 - 正文写入 JSON 的 "text" 字段（不要再输出 "<narrative>" 等标签）
 - 行动选项写入 JSON 的 "action_options" 字段（5个）
 `.trim();

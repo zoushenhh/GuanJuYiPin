@@ -176,7 +176,7 @@ import { sendChat } from '@/utils/chatBus';
 import { generateWithRawPrompt } from '@/utils/tavernCore';
 import { parseJsonSmart } from '@/utils/jsonExtract';
 import { aiService } from '@/services/aiService';
-import { detectPlayerSectLeadership } from '@/utils/sectLeadershipUtils';
+import { detectPlayerGovernmentLeadership } from '@/utils/governmentLeadershipUtils';
 import type { WorldFaction, WorldInfo } from '@/types/game';
 
 const gameStateStore = useGameStateStore();
@@ -197,7 +197,7 @@ const allSects = computed(() => {
 
 // 检测玩家宗门领导地位
 const leaderInfo = computed(() => {
-  return detectPlayerSectLeadership(
+  return detectPlayerGovernmentLeadership(
     playerName.value,
     allSects.value,
     gameStateStore.sectMemberInfo
@@ -214,7 +214,7 @@ const memberTabs = [
 
 // 玩家衙门信息
 const playerSectInfo = computed(() => gameStateStore.sectMemberInfo);
-const playerSectName = computed(() => leaderInfo.value.sectName || playerSectInfo.value?.宗门名称 || '未加入衙门');
+const playerSectName = computed(() => leaderInfo.value.officeName || playerSectInfo.value?.宗门名称 || '未加入衙门');
 const playerPosition = computed(() => leaderInfo.value.position || playerSectInfo.value?.职位 || '散修');
 const playerContribution = computed(() => playerSectInfo.value?.贡献 || 0);
 const playerReputation = computed(() => playerSectInfo.value?.声望 || 0);

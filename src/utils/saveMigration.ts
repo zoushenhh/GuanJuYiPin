@@ -3,42 +3,37 @@ import type { SaveDataV3 } from '@/types/saveSchemaV3';
 import { normalizeBackpackCurrencies } from '@/utils/currencySystem';
 
 export type SaveMigrationIssue =
-  | 'legacy-root-keys'
   | 'missing-required-keys'
   | 'invalid-structure';
 
 export interface SaveMigrationDetection {
   needsMigration: boolean;
   issues: SaveMigrationIssue[];
-  legacyKeysFound: string[];
 }
 
 export interface SaveMigrationReport {
-  legacyKeysFound: string[];
-  removedLegacyKeys: string[];
   warnings: string[];
 }
 
 /**
- * 从存档数据中提取显示信息（兼容V3和旧格式）
- * 用于存档列表显示，无需完整迁移
+ * 从存档数据中提取显示信息（仅支持V3格式）
+ * 用于存档列表显示
  */
 export interface SaveDisplayInfo {
   角色名字: string;
-  境界: string; // 县令主题：官品/职位
-  官品?: string; // 县令主题字段（与境界保持同步）
+  官品: string; // 县令主题：官品/职位
+  官品?: string; // 县令主题字段（与官品保持同步）
   位置: string;
   游戏时间: GameTime | null;
 }
 
 /**
- * 从任意格式的存档数据中提取显示信息
- * 兼容 V3 格式和所有旧格式
+ * 从V3格式的存档数据中提取显示信息
  */
 export function extractSaveDisplayInfo(saveData: SaveData | null | undefined): SaveDisplayInfo {
   const defaultInfo: SaveDisplayInfo = {
     角色名字: '未知',
-    境界: '平民',
+    官品: '平民',
     位置: '未知',
     游戏时间: null,
   };
@@ -65,23 +60,11 @@ export function extractSaveDisplayInfo(saveData: SaveData | null | undefined): S
   }
 
   // 提取官品
-  let 境界 = defaultInfo.境界;
-  if (anySave.角色?.属性?.境界) {
-    // V3 格式（县令主题：境界字段存储官品信息）
-    const realmData = anySave.角色.属性.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
-  } else if (anySave.属性?.境界) {
-    const realmData = anySave.属性.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
-  } else if (anySave.状态?.境界) {
-    const realmData = anySave.状态.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
-  } else if (anySave.玩家角色状态?.境界) {
-    const realmData = anySave.玩家角色状态.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
-  } else if (anySave.玩家角色状态信息?.境界) {
-    const realmData = anySave.玩家角色状态信息.境界;
-    境界 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
+  let 官品 = defaultInfo.官品;
+  if (anySave.角色?.属性?.官品) {
+    // V3 格式（县令主题：官品信息）
+    const realmData = anySave.角色.属性.官品;
+    官品 = typeof realmData === 'string' ? realmData : (realmData?.名称 || realmData?.name || '平民');
   }
 
   // 提取位置
@@ -119,32 +102,9 @@ export function extractSaveDisplayInfo(saveData: SaveData | null | undefined): S
     游戏时间 = coerceTime(anySave.游戏时间);
   }
 
-  return { 角色名字, 境界, 官品: 境界, 位置, 游戏时间 };
+  return { 角色名字, 官品, 官品: 官品, 位置, 游戏时间 };
 }
 
-const LEGACY_ROOT_KEYS = [
-  '状态',
-  '玩家角色状态',
-  '玩家角色状态信息',
-  '玩家角色信息',
-  '角色基础信息',
-  '玩家角色基础信息',
-  '修行状态',
-  '状态效果',
-  '叙事历史',
-  '对话历史',
-  '任务系统',
-  '事件系统',
-  '宗门系统',
-  '世界信息',
-  '人物关系',
-  '装备栏',
-  '游戏时间',
-  '三千大道',
-  '修炼功法',
-  '掌握技能',
-  '身体部位开发',
-] as const;
 
 const REQUIRED_V3_KEYS = ['元数据', '角色', '社交', '世界', '系统'] as const;
 
@@ -194,31 +154,22 @@ export function detectLegacySaveData(saveData: SaveData | null | undefined): Sav
     return {
       needsMigration: true,
       issues: ['invalid-structure'],
-      legacyKeysFound: [],
     };
   }
 
   const anySave = saveData as any;
 
   if (isSaveDataV3(saveData)) {
-    return { needsMigration: false, issues: [], legacyKeysFound: [] };
+    return { needsMigration: false, issues: [] };
   }
-
-  const legacyKeysFound = [
-    ...LEGACY_ROOT_KEYS.filter((k) => k in anySave),
-    // “短路径平铺结构”也视为旧结构（需要迁移到 5 领域 V3）
-    ...(anySave.属性 || anySave.位置 || anySave.背包 || anySave.时间 ? ['短路径平铺'] : []),
-  ] as string[];
 
   const missingRequired = REQUIRED_V3_KEYS.filter((k) => !(k in anySave));
   const issues: SaveMigrationIssue[] = [];
-  if (legacyKeysFound.length > 0) issues.push('legacy-root-keys');
   if (missingRequired.length > 0) issues.push('missing-required-keys');
 
   return {
     needsMigration: issues.length > 0,
     issues,
-    legacyKeysFound,
   };
 }
 
@@ -285,13 +236,11 @@ const buildDefaultIdentity = () => ({
   后天六司: { 根骨: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 },
 });
 
-export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; report: SaveMigrationReport } {
+export function migrateSaveDataToV3(raw: SaveData): { migrated: SaveDataV3; report: SaveMigrationReport } {
   const sourceRaw = deepClone(raw ?? ({} as any)) as any;
   const source = stripAIFieldsDeep(sourceRaw) as any;
 
   const report: SaveMigrationReport = {
-    legacyKeysFound: [],
-    removedLegacyKeys: [],
     warnings: [],
   };
 
@@ -299,14 +248,12 @@ export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; 
     const normalized = deepClone(source) as any;
     if (!isPlainObject(normalized.社交)) normalized.社交 = {};
     normalized.社交.记忆 = normalizeMemory(normalized.社交.记忆);
-    // V3 兜底：旧版本可能仍然只有“灵石”字段而未初始化“货币”结构
+    // 货币系统初始化
     if (normalized?.角色?.背包 && typeof normalized.角色.背包 === 'object') {
       normalizeBackpackCurrencies(normalized.角色.背包);
     }
     return { migrated: normalized as SaveDataV3, report };
   }
-
-  report.legacyKeysFound = LEGACY_ROOT_KEYS.filter((k) => k in source) as string[];
 
   const nowIso = new Date().toISOString();
 
@@ -322,12 +269,12 @@ export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; 
   const legacyStatusObj = isPlainObject(legacyStatusLike) ? legacyStatusLike : ({} as any);
 
   const flatAttributes = {
-    境界: (legacyStatusObj as any).境界 ?? null,
+    官品: (legacyStatusObj as any).官品 ?? null,
     声望: (legacyStatusObj as any).声望 ?? 0,
     气血: (legacyStatusObj as any).气血 ?? { 当前: 100, 上限: 100 },
     灵气: (legacyStatusObj as any).灵气 ?? { 当前: 50, 上限: 50 },
     神识: (legacyStatusObj as any).神识 ?? { 当前: 30, 上限: 30 },
-    寿命: (legacyStatusObj as any).寿命 ?? { 当前: 18, 上限: 80 },
+    任期: (legacyStatusObj as any).任期 ?? { 当前: 18, 上限: 80 },
   };
 
   const effectsCandidate =
@@ -355,15 +302,15 @@ export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; 
     source.装备 ?? source.装备栏 ?? { 装备1: null, 装备2: null, 装备3: null, 装备4: null, 装备5: null, 装备6: null };
 
   const flatTechniqueSystem =
-    source.功法 ??
+    source.方略 ??
     {
-      当前功法ID: null,
-      功法进度: {},
-      功法套装: { 主修: null, 辅修: [] },
+      当前方略ID: null,
+      方略进度: {},
+      方略套装: { 主修: null, 辅修: [] },
     };
 
   const flatCultivation =
-    source.修炼 ?? (source.修炼功法 !== undefined ? { 修炼功法: source.修炼功法 } : { 修炼功法: null });
+    source.施政 ?? (source.施政方略 !== undefined ? { 施政方略: source.施政方略 } : { 施政方略: null });
 
   const flatDao = source.大道 ?? source.三千大道 ?? { 大道列表: {} };
   const flatSkills =
@@ -418,8 +365,8 @@ export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; 
       身体: source.身体 ?? (source.身体部位开发 ? { 部位开发: source.身体部位开发 } : undefined),
       背包: flatInventory,
       装备: flatEquipment,
-      功法: flatTechniqueSystem,
-      修炼: flatCultivation,
+      方略: flatTechniqueSystem,
+      施政: flatCultivation,
       方略: flatTechniqueSystem,
       施政: flatCultivation,
       大道: flatDao,
@@ -446,11 +393,7 @@ export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; 
     },
   };
 
-  // 清除旧key：迁移后的对象严格只保留新字段
-  for (const key of LEGACY_ROOT_KEYS) {
-    if (key in source) report.removedLegacyKeys.push(String(key));
-  }
-
+  
   // 最小校验与告警
   for (const key of REQUIRED_V3_KEYS) {
     if (!(key in migrated as any)) report.warnings.push(`迁移后缺少必填字段：${String(key)}`);

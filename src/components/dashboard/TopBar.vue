@@ -19,7 +19,7 @@
             <span class="spirit-icon">✧</span>
             <span class="spirit-glow"></span>
           </span>
-          <span class="spirit-label">{{ t('灵气') }}</span>
+          <span class="spirit-label">{{ t('民心') }}</span>
           <span class="spirit-value">{{ spiritDensity }}</span>
           <span class="spirit-bar">
             <span class="spirit-bar-fill" :style="{ width: spiritDensity + '%' }"></span>
@@ -90,7 +90,7 @@ const currentLocation = computed(() => {
 
 const spiritDensity = computed(() => {
   try {
-    return gameStateStore.location?.灵气浓度 || 0
+    return gameStateStore.location?.民心支持度 || gameStateStore.location?.灵气浓度 || 0
   } catch (e) {
     return 0
   }
@@ -107,11 +107,11 @@ const spiritDensityClass = computed(() => {
 
 const spiritDensityTooltip = computed(() => {
   const density = spiritDensity.value
-  if (density >= 80) return t('灵气充沛 - 极佳修炼环境')
-  if (density >= 60) return t('灵气浓郁 - 良好修炼环境')
-  if (density >= 40) return t('灵气适中 - 普通修炼环境')
-  if (density >= 20) return t('灵气稀薄 - 修炼困难')
-  return t('灵气枯竭 - 难以修炼')
+  if (density >= 80) return t('民心充沛 - 极佳施政环境')
+  if (density >= 60) return t('民心浓郁 - 良好施政环境')
+  if (density >= 40) return t('民心适中 - 普通施政环境')
+  if (density >= 20) return t('民心稀薄 - 施政困难')
+  return t('民心枯竭 - 难以施政')
 })
 
 const gameTime = computed(() => {
@@ -121,12 +121,12 @@ const gameTime = computed(() => {
       const minutes = getMinutes(time)
       const formattedMinutes = minutes.toString().padStart(2, '0')
       const formattedHours = time.小时.toString().padStart(2, '0')
-      return `${t('仙道')}${time.年}${t('年')}${time.月}${t('月')}${time.日}${t('日')} ${formattedHours}:${formattedMinutes}`
+      return `${t('官场')}${time.年}${t('年')}${time.月}${t('月')}${time.日}${t('日')} ${formattedHours}:${formattedMinutes}`
     }
-    return `${t('仙道')}${t('元年')}1${t('月')}1${t('日')} 00:00`
+    return `${t('官场')}${t('元年')}1${t('月')}1${t('日')} 00:00`
   } catch (e) {
     console.error('[TopBar] Error getting gameTime:', e)
-    return `${t('仙道')}${t('元年')}1${t('月')}1${t('日')} 00:00`
+    return `${t('官场')}${t('元年')}1${t('月')}1${t('日')} 00:00`
   }
 })
 

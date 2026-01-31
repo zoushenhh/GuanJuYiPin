@@ -17,7 +17,7 @@ import { createEmptyThousandDaoSystem } from '@/data/thousandDaoData';
 import { buildCharacterInitializationPrompt, buildCharacterSelectionsSummary } from '@/utils/prompts/tasks/characterInitializationPrompts';
 import { validateGameData } from '@/utils/dataValidation';
 import { repairSaveData } from '@/utils/dataRepair';
-import { migrateSaveDataToLatest } from '@/utils/saveMigration';
+import { migrateSaveDataToV3 } from '@/utils/saveMigration';
 // 移除未使用的旧生成器导入,改用增强版生成器
 // import { WorldGenerationConfig } from '@/utils/worldGeneration/gameWorldConfig';
 import { EnhancedWorldGenerator } from '@/utils/worldGeneration/enhancedWorldGenerator';
@@ -117,34 +117,34 @@ export function calculateInitialAttributes(baseInfo: CharacterBaseInfo, age: num
   const 悟性 = Number(先天六司?.悟性 ?? 0);
 
   // 基础属性计算公式
-  const 初始气血 = 100 + 根骨 * 10;
-  const 初始体力 = 50 + 灵性 * 5;
-  const 初始心力 = 30 + 悟性 * 3;
+  const 初始健康 = 100 + 根骨 * 10;
+  const 初始活力 = 50 + 灵性 * 5;
+  const 初始智慧 = 30 + 悟性 * 3;
 
-  // -- 寿命计算逻辑 --
-  const 基础寿命 = 80; // 平民基础寿命
-  const 根骨寿命系数 = 5; // 每点根骨增加5年寿命
-  const 最大寿命 = 基础寿命 + 根骨 * 根骨寿命系数;
+  // -- 任期计算逻辑 --
+  const 基础任期 = 80; // 平民基础寿命
+  const 根骨任期系数 = 5; // 每点根骨增加5年任期
+  const 最大任期 = 基础任期 + 根骨 * 根骨任期系数;
 
-  console.log(`[角色初始化] 属性计算: 气血=${初始气血}, 体力=${初始体力}, 心力=${初始心力}, 年龄=${age}/${最大寿命}`);
+  console.log(`[角色初始化] 属性计算: 健康=${初始健康}, 活力=${初始活力}, 智慧=${初始智慧}, 年龄=${age}/${最大任期}`);
   console.log(`[角色初始化] 先天六司: 根骨=${根骨}, 灵性=${灵性}, 悟性=${悟性}`);
 
   return {
-    境界: {
+    官品: {
       名称: "平民",
       阶段: "",
       当前进度: 0,
       下一级所需: 100,
-      突破描述: "入仕为官，处理政务，踏上为官第一步"
+      晋升描述: "入仕为官，处理政务，踏上为官第一步"
     },
     声望: 0, // 声望应该是数字类型
     位置: {
       描述: "位置生成失败" // 标记为错误状态而不是默认值
     },
-    气血: { 当前: 初始气血, 上限: 初始气血 },
-    灵气: { 当前: 初始体力, 上限: 初始体力 },
-    神识: { 当前: 初始心力, 上限: 初始心力 },
-    寿命: { 当前: age, 上限: 最大寿命 }
+    健康: { 当前: 初始健康, 上限: 初始健康 },
+    活力: { 当前: 初始活力, 上限: 初始活力 },
+    智慧: { 当前: 初始智慧, 上限: 初始智慧 },
+    任期: { 当前: age, 上限: 最大任期 }
   };
 }
 
@@ -228,7 +228,7 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
     境界: playerStatus.境界,
     声望: playerStatus.声望,
     气血: playerStatus.气血,
-    灵气: playerStatus.灵气,
+    活力: playerStatus.活力,
     神识: playerStatus.神识,
     寿命: playerStatus.寿命,
   };
@@ -245,17 +245,17 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
     时间: { 年: age, 月: 1, 日: 1, 小时: Math.floor(Math.random() * 12) + 6, 分钟: Math.floor(Math.random() * 60) },
     背包: { 钱财: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} },
     装备: { 装备1: null, 装备2: null, 装备3: null, 装备4: null, 装备5: null, 装备6: null },
-    功法: {
-      当前功法ID: null,
-      功法进度: {},
-      功法套装: { 主修: null, 辅修: [] },
+    方略: {
+      当前方略ID: null,
+      方略进度: {},
+      方略套装: { 主修: null, 辅修: [] },
     },
-    修炼: {
+    施政: {
       专研内容: null,
     },
     大道: createEmptyThousandDaoSystem(),
     技能: { 掌握技能: [], 装备栏: [], 冷却: {} },
-    宗门: undefined,
+    衙门: undefined,
     事件: {
       配置: {
         启用随机事件: true,
@@ -329,7 +329,7 @@ async function generateWorld(baseInfo: CharacterBaseInfo, world: World): Promise
   console.log('[世界生成] 用户配置的世界规模:', {
     主要势力: userWorldConfig.majorFactionsCount,
     地点总数: userWorldConfig.totalLocations,
-    秘境数量: userWorldConfig.secretRealmsCount,
+    机遇数量: userWorldConfig.secretRealmsCount,
     大陆数量: userWorldConfig.continentCount,
     仅生成大陆: userWorldConfig.generateOnlyContinents
   });

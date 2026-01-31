@@ -68,7 +68,7 @@ import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Home, Users, BookOpen, Coins, Building2, Swords, ClipboardList, Crown, Building } from 'lucide-vue-next';
 import { useGameStateStore } from '@/stores/gameStateStore';
- import { detectPlayerSectLeadership, isLeaderPosition } from '@/utils/sectLeadershipUtils';
+ import { detectPlayerGovernmentLeadership, isLeaderPosition } from '@/utils/governmentLeadershipUtils';
 import type { WorldFaction, WorldInfo } from '@/types/game';
 
 const route = useRoute();
@@ -87,7 +87,7 @@ const allSects = computed(() => {
 
 // 检测玩家衙门领导地位
 const leaderInfo = computed(() => {
-  return detectPlayerSectLeadership(
+  return detectPlayerGovernmentLeadership(
     playerName.value,
     allSects.value,
     gameStateStore.sectMemberInfo
@@ -99,7 +99,7 @@ const leaderInfo = computed(() => {
    if (fromMember) return fromMember;
    const fromSystem = String((gameStateStore.sectSystem as any)?.当前宗门 || '').trim();
    if (fromSystem) return fromSystem;
-   return String(leaderInfo.value.sectName || '').trim();
+   return String(leaderInfo.value.officeName || '').trim();
  });
 const playerRole = computed(() => {
   if (leaderInfo.value.isLeader && leaderInfo.value.position) return leaderInfo.value.position;
@@ -111,7 +111,7 @@ const playerJoinDate = computed(() => gameStateStore.sectMemberInfo?.加入日�
 
 // 判断是否已加入衙门（或是衙门领导）
  const hasJoinedSect = computed(() => {
-   return !!(String(gameStateStore.sectMemberInfo?.宗门名称 || '').trim() || String((gameStateStore.sectSystem as any)?.当前宗门 || '').trim() || String(leaderInfo.value.sectName || '').trim());
+   return !!(String(gameStateStore.sectMemberInfo?.宗门名称 || '').trim() || String((gameStateStore.sectSystem as any)?.当前宗门 || '').trim() || String(leaderInfo.value.officeName || '').trim());
  });
 
 // 判断是否为衙门高层

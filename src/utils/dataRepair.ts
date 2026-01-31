@@ -13,7 +13,7 @@
 import type { SaveData, Item, NpcProfile, GameTime, Realm, PlayerAttributes, PlayerLocation, ItemType, LegacyItemType, RankLevel } from '@/types/game';
 import type { GradeType } from '@/data/itemQuality';
 import { cloneDeep } from 'lodash';
-import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
+import { isSaveDataV3, migrateSaveDataToV3 } from '@/utils/saveMigration';
 import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { normalizeBackpackCurrencies } from '@/utils/currencySystem';
 
@@ -116,7 +116,7 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
     }
 
     // 统一入口：非V3一律先迁移到V3（迁移后只保留V3结构）
-    const migrated = isSaveDataV3(saveData) ? (saveData as any) : migrateSaveDataToLatest(saveData as any).migrated;
+    const migrated = isSaveDataV3(saveData) ? (saveData as any) : migrateSaveDataToV3(saveData as any).migrated;
     const repaired = cloneDeep(migrated) as any;
 
     // 运行期校验（允许轻微修复，但结构必须是 V3 五领域）

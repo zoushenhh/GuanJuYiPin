@@ -121,21 +121,14 @@ const editingTier = ref<TalentTier | null>(null)
 const filteredTalentTiers = computed(() => {
   const allTiers = store.creationData.talentTiers;
   console.log("【天资选择】所有天资数据:", allTiers);
-  console.log("【天资选择】当前模式:", store.isLocalCreation ? '本地' : '联机');
   console.log("【天资选择】数据明细:", allTiers.map(t => ({ name: t.name, source: t.source, id: t.id })));
-  
-  if (store.isLocalCreation) {
-    const availableTiers = allTiers.filter(tier =>
-      tier.source === 'local' || tier.source === 'cloud'
-    );
-    console.log("【天资选择】单机模式可用天资列表:", availableTiers);
-    return availableTiers.sort((a, b) => a.total_points - b.total_points);
-  } else {
-    const availableTiers = allTiers.length > 0 ? allTiers : [];
-    console.log("【天资选择】联机模式天资列表:", availableTiers);
-    console.log("【天资选择】联机模式天资数量:", availableTiers.length);
-    return availableTiers.sort((a, b) => a.total_points - b.total_points);
-  }
+
+  // 单机模式：显示本地和云端数据
+  const availableTiers = allTiers.filter(tier =>
+    tier.source === 'local' || tier.source === 'cloud'
+  );
+  console.log("【天资选择】可用天资列表:", availableTiers);
+  return availableTiers.sort((a, b) => a.total_points - b.total_points);
 });
 
 // 根据 types/index.ts 中的 TalentTier 接口定义字段

@@ -96,7 +96,7 @@ import { computed, ref } from 'vue'
 import { ArrowDownToLine, Download, Upload, UserPlus, Wrench, X } from 'lucide-vue-next'
 import { toast } from '@/utils/toast'
 import { createDadBundle, unwrapDadBundle } from '@/utils/dadBundle'
-import { detectLegacySaveData, isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration'
+import { detectLegacySaveData, isSaveDataV3, migrateSaveDataToV3 } from '@/utils/saveMigration'
 import { validateSaveDataV3 } from '@/utils/saveValidationV3'
 import { useCharacterStore } from '@/stores/characterStore'
 

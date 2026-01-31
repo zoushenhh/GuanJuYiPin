@@ -93,10 +93,6 @@ export function validateSaveDataV3(saveData: SaveData): SaveValidationResult {
   if (!isPlainObject(anySave.社交?.记忆)) errors.push('社交.记忆 必填且必须是对象');
 
   if (!isPlainObject(anySave.世界?.信息)) errors.push('世界.信息 必填且必须是对象');
-  if (!isPlainObject(anySave.系统?.联机)) errors.push('系统.联机 必填且必须是对象');
-
-  const roPaths = anySave.系统?.联机?.只读路径;
-  if (!Array.isArray(roPaths)) errors.push('系统.联机.只读路径 必填且必须是数组');
 
   return { isValid: errors.length === 0, errors, warnings };
 }

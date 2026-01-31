@@ -16,10 +16,10 @@ import { ensureSaveDataHasTavernNsfw } from '@/utils/nsfw';
 import { initializeCharacter } from '@/services/characterInitialization';
 import { validateGameData } from '@/utils/dataValidation';
 import { getAIDataRepairSystemPrompt } from '@/utils/prompts/tasks/dataRepairPrompts';
-import { updateLifespanFromGameTime, updateNpcLifespanFromGameTime } from '@/utils/lifespanCalculator'; // <-- 导入寿命计算工具
+import { updateTermFromGameTime, updateNpcTermFromGameTime } from '@/utils/termCalculator'; // <-- 导入任期计算工具
 import { updateMasteredSkills } from '@/utils/masteredSkillsCalculator'; // <-- 导入掌握技能计算工具
 import { updateStatusEffects } from '@/utils/statusEffectManager'; // <-- 导入状态效果管理工具
-import { detectLegacySaveData, isSaveDataV3, migrateSaveDataToLatest, extractSaveDisplayInfo } from '@/utils/saveMigration';
+import { detectLegacySaveData, isSaveDataV3, migrateSaveDataToV3, extractSaveDisplayInfo } from '@/utils/saveMigration';
 import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { useGameStateStore } from '@/stores/gameStateStore';
 import SaveMigrationModal from '@/components/dashboard/components/SaveMigrationModal.vue';
@@ -281,7 +281,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
     try {
       // 1. 先更新年龄信息
       try {
-        const 更新后年龄 = updateLifespanFromGameTime(slot.存档数据);
+        const 更新后年龄 = updateTermFromGameTime(slot.存档数据);
         debug.log('角色商店', `[同步] 自动更新玩家年龄: ${更新后年龄}岁`);
 
         // 更新所有NPC的年龄（添加安全检查，避免访问已删除的NPC）
@@ -303,7 +303,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
 
             try {
               if (slot.存档数据) {
-                updateNpcLifespanFromGameTime(npcProfile, gameTime);
+                updateNpcTermFromGameTime(npcProfile, gameTime);
                 npcCount++;
               }
             } catch (npcError) {
@@ -852,7 +852,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
 
       // 根据时间自动更新寿命（年龄）- 用于实时显示
       try {
-        const 更新后年龄 = updateLifespanFromGameTime(saveData);
+        const 更新后年龄 = updateTermFromGameTime(saveData);
         debug.log('角色商店', `[同步] 自动更新玩家年龄: ${更新后年龄}岁`);
 
         // 更新所有NPC的年龄
@@ -861,7 +861,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
           Object.values((saveData as any).社交.关系 as Record<string, any>).forEach((npc) => {
             const npcProfile = npc as NpcProfile;
             if (npcProfile && typeof npcProfile === 'object') {
-              updateNpcLifespanFromGameTime(npcProfile, (saveData as any).元数据.时间);
+              updateNpcTermFromGameTime(npcProfile, (saveData as any).元数据.时间);
               npcCount++;
             }
           });
@@ -1032,7 +1032,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       console.log('[11] toSaveData()返回的角色.背包.银两数据:', (currentSaveData as any).角色?.背包?.银两)
 
       // 2. 自动更新年龄、技能等派生数据
-      updateLifespanFromGameTime(currentSaveData);
+      updateTermFromGameTime(currentSaveData);
       {
         const updatedSkills = updateMasteredSkills(currentSaveData);
         // 同步到当前内存态，避免"已掌握技能"UI需要重载才更新
@@ -1058,7 +1058,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       if ((currentSaveData as any).社交?.关系 && (currentSaveData as any).元数据?.时间) {
         Object.values((currentSaveData as any).社交.关系).forEach((npc) => {
           if (npc && typeof npc === 'object') {
-            updateNpcLifespanFromGameTime(npc as NpcProfile, (currentSaveData as any).元数据.时间);
+            updateNpcTermFromGameTime(npc as NpcProfile, (currentSaveData as any).元数据.时间);
           }
         });
       }
@@ -1328,11 +1328,11 @@ export const useCharacterStore = defineStore('characterV3', () => {
 
       // 2. 自动更新年龄
       try {
-        updateLifespanFromGameTime(currentSaveData);
+        updateTermFromGameTime(currentSaveData);
         if ((currentSaveData as any).社交?.关系 && (currentSaveData as any).元数据?.时间) {
           Object.values((currentSaveData as any).社交.关系).forEach((npc) => {
             if (npc && typeof npc === 'object') {
-              updateNpcLifespanFromGameTime(npc as NpcProfile, (currentSaveData as any).元数据.时间);
+              updateNpcTermFromGameTime(npc as NpcProfile, (currentSaveData as any).元数据.时间);
             }
           });
         }

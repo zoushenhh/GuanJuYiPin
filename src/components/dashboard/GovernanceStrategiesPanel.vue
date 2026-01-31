@@ -8,7 +8,7 @@
         </div>
         <div class="stats-info">
           <span class="stats-value">{{ unlockedDaosCount }}</span>
-          <span class="stats-label">已悟大道</span>
+          <span class="stats-label">已领悟理念</span>
         </div>
       </div>
       <div class="stats-card">
@@ -17,14 +17,14 @@
         </div>
         <div class="stats-info">
           <span class="stats-value">{{ formatNumber(totalDaoExperience) }}</span>
-          <span class="stats-label">总悟道值</span>
+          <span class="stats-label">总理念值</span>
         </div>
       </div>
       <div class="stats-actions">
-        <button class="action-btn-icon" @click="openDaoExplore" title="探索新道">
+        <button class="action-btn-icon" @click="openDaoExplore" title="探索新理念">
           <Compass :size="18" />
         </button>
-        <button class="action-btn-icon" @click="startMeditation" title="冥想感悟">
+        <button class="action-btn-icon" @click="startMeditation" title="思考感悟">
           <Moon :size="18" />
         </button>
       </div>
@@ -56,7 +56,7 @@
 
     <!-- 主内容区 -->
     <div class="dao-content" :class="{ 'has-detail': selectedDao && selectedDaoProgress }">
-      <!-- 无大道时的快速入门 -->
+      <!-- 无理念时的快速入门 -->
       <div v-if="unlockedDaosCount === 0" class="dao-empty">
         <div class="empty-illustration">
           <div class="empty-icon-wrapper">
@@ -68,16 +68,16 @@
             <div class="ring ring-3"></div>
           </div>
         </div>
-        <h3 class="empty-title">尚未领悟任何大道</h3>
-        <p class="empty-desc">天地法则蕴含无穷奥秘，静心感悟方能窥见一二</p>
+        <h3 class="empty-title">尚未领悟任何理念</h3>
+        <p class="empty-desc">治国之道蕴含无穷智慧，静心参悟方能窥见一二</p>
         <div class="quick-actions">
           <button class="action-btn primary" @click="comprehendFromSkill">
             <BookOpen :size="16" />
-            从功法领悟
+            从方略领悟
           </button>
           <button class="action-btn secondary" @click="comprehendFromNature">
             <Sparkles :size="16" />
-            观天地悟道
+            阅典籍悟道
           </button>
         </div>
       </div>
@@ -123,17 +123,17 @@
 
           <!-- 快捷操作 -->
           <div class="dao-card-actions" @click.stop>
-            <button class="dao-action-btn cultivate" @click="cultivateDao(daoName)" title="感悟">
+            <button class="dao-action-btn cultivate" @click="cultivateDao(daoName)" title="学习">
               <Zap :size="14" />
             </button>
-            <button class="dao-action-btn meditate" @click="meditateDao(daoName)" title="参悟">
+            <button class="dao-action-btn meditate" @click="meditateDao(daoName)" title="参研">
               <Moon :size="14" />
             </button>
             <button
               v-if="canBreakthroughDao(daoName)"
               class="dao-action-btn breakthrough"
               @click="attemptDaoBreakthrough(daoName)"
-              title="突破"
+              title="晋升"
             >
               <TrendingUp :size="14" />
             </button>
@@ -202,7 +202,7 @@
 
           <!-- 阶段进度轨道 -->
           <div class="stage-progress-section" v-if="getDaoData(selectedDao)?.阶段列表?.length">
-            <h4 class="section-title">修炼阶段</h4>
+            <h4 class="section-title">施政阶段</h4>
             <div class="stage-timeline">
               <div
                 v-for="(stage, index) in getDaoData(selectedDao)?.阶段列表"
@@ -233,11 +233,11 @@
               <span>突破指引</span>
             </div>
             <div class="guide-content">
-              <p class="guide-desc">当前悟道值已达到突破要求，可尝试突破至下一阶段</p>
+              <p class="guide-desc">当前政绩已达到晋升要求，可尝试晋升至下一阶段</p>
               <ul class="guide-tips">
                 <li>确保状态良好，无负面效果干扰</li>
-                <li>选择灵气充沛之地进行突破</li>
-                <li>准备护道丹药以防万一</li>
+                <li>选择政务平稳之地进行晋升</li>
+                <li>准备政务预案以防万一</li>
               </ul>
               <div class="breakthrough-chance">
                 <span class="chance-label">预估成功率:</span>

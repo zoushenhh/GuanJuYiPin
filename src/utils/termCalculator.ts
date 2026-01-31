@@ -1,5 +1,3 @@
-
-
 export interface GameTime {
   年: number;
   月: number;
@@ -45,17 +43,17 @@ export function calculateBirthdateFromAge(currentAge: number, currentTime: GameT
 
 /**
  * 从SaveData中计算当前年龄（玩家）
- * 注意：不再自动更新 寿命.当前，年龄应该通过出生日期实时计算
+ * 注意：不再自动更新 任期信息，年龄应该通过出生日期实时计算
  * @param saveData 存档数据
  * @returns 计算得到的年龄
  */
-export function updateLifespanFromGameTime(saveData: any): number {
+export function updateTermFromGameTime(saveData: any): number {
   const currentTime = saveData?.元数据?.时间 ?? { 年: 1, 月: 1, 日: 1, 小时: 8, 分钟: 0 };
   const identity = saveData?.角色?.身份 ?? null;
 
   if (!identity || typeof identity !== 'object') return 0;
 
-  // 如果没有出生日期，按默认年龄18推算（只补全出生日期，不写“年龄”冗余字段）
+  // 如果没有出生日期，按默认年龄18推算（只补全出生日期，不写"年龄"冗余字段）
   if (!identity.出生日期) {
     const defaultAge = 18;
     identity.出生日期 = calculateBirthdateFromAge(defaultAge, currentTime);
@@ -72,7 +70,7 @@ export function updateLifespanFromGameTime(saveData: any): number {
  * @param globalGameTime 当前游戏时间
  * @returns NPC当前年龄
  */
-export function updateNpcLifespanFromGameTime(npcData: any, globalGameTime: GameTime): number {
+export function updateNpcTermFromGameTime(npcData: any, globalGameTime: GameTime): number {
   const currentTime = globalGameTime || { 年: 1, 月: 1, 日: 1, 小时: 8, 分钟: 0 };
 
   const baseInfo = npcData;
@@ -84,7 +82,7 @@ export function updateNpcLifespanFromGameTime(npcData: any, globalGameTime: Game
 
     baseInfo.出生日期 = birthdate;
 
-    
+
     return currentAge;
   }
 

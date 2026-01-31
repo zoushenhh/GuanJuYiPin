@@ -4,7 +4,7 @@ import type { SaveData, MasteredSkill, TechniqueItem } from '@/types/game';
 import { debug } from './debug';
 
 /**
- * 根据背包中功法的修炼进度，自动计算已掌握的技能列表
+ * 根据背包中方略的施政进度，自动计算已掌握的技能列表
  * @param saveData 存档数据
  * @returns 已掌握的技能数组
  */
@@ -20,36 +20,36 @@ export function calculateMasteredSkills(saveData: SaveData): MasteredSkill[] {
     return masteredSkills;
   }
 
-  // 统一扫描背包中的全部功法，汇总所有已掌握的技能
+  // 统一扫描背包中的全部方略，汇总所有已掌握的技能
 
   // 遍历背包中的所有物品
   for (const [itemId, item] of Object.entries(itemsMap as Record<string, any>)) {
-    // 只处理功法类型的物品
-    if ((item as any)?.类型 !== '功法') {
+    // 只处理方略类型的物品
+    if ((item as any)?.类型 !== '方略') {
       continue;
     }
 
     const technique = item as TechniqueItem;
 
-    // 检查功法是否有技能定义
-    if (!technique.功法技能 || typeof technique.功法技能 !== 'object') {
-      debug.log('掌握技能计算', `功法 ${technique.名称} 没有技能定义`);
+    // 检查方略是否有技能定义
+    if (!technique.方略技能 || typeof technique.方略技能 !== 'object') {
+      debug.log('掌握技能计算', `方略 ${technique.名称} 没有技能定义`);
       continue;
     }
 
-    // 获取当前功法的修炼进度
-    const currentProgress = technique.修炼进度 || 0;
+    // 获取当前方略的施政进度
+    const currentProgress = technique.施政进度 || 0;
 
-    debug.log('掌握技能计算', `检查功法 ${technique.名称}，修炼进度: ${currentProgress}`);
+    debug.log('掌握技能计算', `检查方略 ${technique.名称}，施政进度: ${currentProgress}`);
 
-    // 🔥 修复：功法技能是数组，不是对象
+    // 🔥 修复：方略技能是数组，不是对象
     // 初始化已解锁技能数组
     if (!technique.已解锁技能) {
       technique.已解锁技能 = [];
     }
 
-    // 遍历功法的所有技能（数组）
-    for (const skill of technique.功法技能) {
+    // 遍历方略的所有技能（数组）
+    for (const skill of technique.方略技能) {
       const skillName = skill.技能名称;
       // 获取技能解锁所需的熟练度阈值
       const unlockThreshold = skill.熟练度要求 || 0;
@@ -58,7 +58,7 @@ export function calculateMasteredSkills(saveData: SaveData): MasteredSkill[] {
 
       // 判断是否已解锁该技能
       if (currentProgress >= unlockThreshold) {
-        // 🔥 同步更新功法的已解锁技能数组
+        // 🔥 同步更新方略的已解锁技能数组
         if (!technique.已解锁技能.includes(skillName)) {
           technique.已解锁技能.push(skillName);
           debug.log('掌握技能计算', `  ✅ 添加到已解锁技能: ${skillName}`);

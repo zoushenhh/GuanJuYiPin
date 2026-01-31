@@ -57,7 +57,7 @@
         </button>
         <div class="fullscreen-title">
           <h1>{{ $t('续前世因缘') }}</h1>
-          <p>{{ $t('择一法身，入道重修') }}</p>
+          <p>{{ $t('择一法身，入仕为官') }}</p>
         </div>
       </div>
 
@@ -94,7 +94,7 @@
       <div v-if="Object.keys(characterStore.rootState.角色列表).length === 0" class="empty-state">
         <div class="empty-icon"><Star :size="32" /></div>
         <h2>{{ $t('道途未启') }}</h2>
-        <p>{{ $t('尚未创建任何法身，请返回道途开启修仙之旅') }}</p>
+        <p>{{ $t('尚未创建任何法身，请返回道途开启为官之旅') }}</p>
         <div class="empty-actions">
           <button @click="goBack" class="btn-create">{{ $t('踏上仕途') }}</button>
           <button @click="importCharacter" class="btn-import">{{ $t('导入角色') }}</button>
@@ -458,7 +458,7 @@ import { formatRealmWithStage } from '@/utils/realmUtils';
 import { toast } from '@/utils/toast';
 import { isTavernEnv } from '@/utils/tavern';
 import { ensureSaveDataHasTavernNsfw } from '@/utils/nsfw';
-import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
+import { isSaveDataV3, migrateSaveDataToV3 } from '@/utils/saveMigration';
 import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { createDadBundle, unwrapDadBundle } from '@/utils/dadBundle';
 import type { SaveDataV3 } from '@/types/saveSchemaV3';
@@ -831,7 +831,7 @@ const normalizeSaveDataV3 = (saveData: unknown): SaveDataV3 | null => {
   if (!saveData || typeof saveData !== 'object') return null;
   try {
     const raw = saveData as any;
-    return (isSaveDataV3(raw) ? raw : migrateSaveDataToLatest(raw).migrated) as SaveDataV3;
+    return (isSaveDataV3(raw) ? raw : migrateSaveDataToV3(raw).migrated) as SaveDataV3;
   } catch (error) {
     console.warn('[CharacterManagement] 存档格式转换失败（旧版存档兼容性问题）:', error);
     // 返回 null，让 UI 显示默认值而不是崩溃
@@ -990,7 +990,7 @@ const exportCharacter = async (charId: string) => {
     // 🔥 修复：从 IndexedDB 加载所有存档的完整数据
     const { loadSaveData } = await import('@/utils/indexedDBManager');
 
-    // 🔥 统一结构：单机和联机都使用存档列表，过滤掉"上次对话"
+    // 🔥 统一结构：使用存档列表，过滤掉"上次对话"
     const saveSlots = Object.values(character.存档列表 || {})
       .filter(save => save.存档名 !== '上次对话') as SaveSlot[];
 
@@ -1021,7 +1021,7 @@ const exportCharacter = async (charId: string) => {
       // 🔥 兼容旧格式：尝试迁移，如果失败则使用原始数据
       let exportSaveData = rawSaveData;
       try {
-        const v3SaveData = isSaveDataV3(rawSaveData as any) ? rawSaveData : migrateSaveDataToLatest(rawSaveData as any).migrated;
+        const v3SaveData = isSaveDataV3(rawSaveData as any) ? rawSaveData : migrateSaveDataToV3(rawSaveData as any).migrated;
         const validation = validateSaveDataV3(v3SaveData as any);
         if (!validation.isValid) {
           console.warn(`[角色导出] 存档「${s.存档名}」校验警告：${validation.errors[0] || '未知原因'}`);
@@ -1086,7 +1086,7 @@ const exportSingleSave = async (charId: string, slotKey: string, slot: SaveSlot)
     let exportSaveData = fullSaveData;
     let migrationWarning = '';
     try {
-      const v3SaveData = isSaveDataV3(fullSaveData as any) ? fullSaveData : migrateSaveDataToLatest(fullSaveData as any).migrated;
+      const v3SaveData = isSaveDataV3(fullSaveData as any) ? fullSaveData : migrateSaveDataToV3(fullSaveData as any).migrated;
       const validation = validateSaveDataV3(v3SaveData as any);
       if (!validation.isValid) {
         migrationWarning = `存档格式校验有警告：${validation.errors[0] || '未知问题'}`;
@@ -1181,7 +1181,7 @@ const _exportSaves = async () => {
 
       // 兼容旧格式：逐个尝试迁移与校验，失败则保留原始数据（保证“能导出”）
       try {
-        const v3SaveData = isSaveDataV3(rawSaveData as any) ? rawSaveData : migrateSaveDataToLatest(rawSaveData as any).migrated;
+        const v3SaveData = isSaveDataV3(rawSaveData as any) ? rawSaveData : migrateSaveDataToV3(rawSaveData as any).migrated;
         const validation = validateSaveDataV3(v3SaveData as any);
         if (!validation.isValid) {
           console.warn(`[存档导出] 存档「${s.存档名}」校验警告：${validation.errors[0] || '未知原因'}`);

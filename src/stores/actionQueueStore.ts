@@ -13,7 +13,7 @@ export interface GameAction {
 
 /**
  * 操作行动暂存系统
- * 用于存储玩家的游戏操作（如研习政略、配备器械等），
+ * 用于存储玩家的游戏操作（如研习方略、配备器械等），
  * 在下次发送AI消息时作为附加提示词发送
  */
 export const useActionQueueStore = defineStore('actionQueue', () => {
@@ -112,7 +112,7 @@ export const useActionQueueStore = defineStore('actionQueue', () => {
           if (action.itemType === '大道') {
             return `感悟了《${action.itemName}》大道`;
           } else {
-            return `研习了《${action.itemName}》政略`;
+            return `研习了《${action.itemName}》方略`;
           }
         case 'equip':
           return `配备了《${action.itemName}》${action.itemType || '器械'}`;

@@ -190,7 +190,7 @@ export type AttributeKey = keyof InnateAttributesEnglish;
 
 // --- 物品与背包 ---
 
-/** 装备增幅或功法属性加成 */
+/** 装备增幅或方略属性加成 */
 export interface AttributeBonus {
   气血上限?: number;
   灵气上限?: number;
@@ -199,18 +199,18 @@ export interface AttributeBonus {
   [key: string]: any; // 允许其他动态属性
 }
 
-/** 功法技能（背包中功法物品的技能数组） */
+/** 方略技能（背包中方略物品的技能数组） */
 export interface TechniqueSkill {
   技能名称: string;
   技能描述: string;
   消耗?: string;
-  熟练度要求?: number; // 达到此修炼进度后解锁（0-100百分比）
+  熟练度要求?: number; // 达到此施政进度后解锁（0-100百分比）
   [key: string]: any; // 允许其他动态属性
 }
 
-/** 功法效果 */
+/** 方略效果 */
 export interface TechniqueEffects {
-  修炼速度加成?: number;
+  施政速度加成?: number;
   属性加成?: Partial<InnateAttributes & { [key: string]: number }>;
   特殊能力?: string[];
 }
@@ -239,26 +239,6 @@ export type ItemType =
   | '材料'    // 材料
   | '其他';   // 其他物品
 
-/**
- * 修仙物品类型常量（向后兼容）
- *
- * @deprecated 使用 '方略' 替代
- */
-export declare const ITEM_TYPE_GONGFA: '功法';
-
-/**
- * 修仙丹药类型常量（向后兼容）
- *
- * @deprecated 使用 '药品' 替代
- */
-export declare const ITEM_TYPE_DANYAO: '丹药';
-
-/**
- * 扩展物品类型（包含旧值，仅用于数据修复层）
- *
- * @deprecated 使用 ItemType 替代。此类型仅用于兼容旧存档数据。
- */
-export type LegacyItemType = ItemType | '功法' | '丹药';
 
 /** 基础物品接口（县令主题：主要类型） */
 export interface BaseItem {
@@ -267,26 +247,11 @@ export interface BaseItem {
   类型: ItemType;
   品质: ItemQuality;
   数量: number;
-  已装备?: boolean; // true表示装备中/修炼中，false表示未装备
+  已装备?: boolean; // true表示装备中/施政中，false表示未装备
   描述: string;
   可叠加?: boolean;
 }
 
-/**
- * 旧版基础物品接口（向后兼容，支持旧物品类型）
- *
- * @deprecated 使用 BaseItem 替代。此接口仅用于兼容旧存档数据。
- */
-export interface LegacyBaseItem {
-  物品ID: string;
-  名称: string;
-  类型: LegacyItemType; // 支持旧的 '功法' 和 '丹药' 类型
-  品质: ItemQuality;
-  数量: number;
-  已装备?: boolean;
-  描述: string;
-  可叠加?: boolean;
-}
 
 /** 装备类型物品 */
 export interface EquipmentItem extends BaseItem {
@@ -295,18 +260,6 @@ export interface EquipmentItem extends BaseItem {
   特殊效果?: string | AttributeBonus;
 }
 
-/** 功法类型物品（修仙主题：向后兼容） */
-export interface TechniqueItem extends LegacyBaseItem {
-  类型: '功法';
-  功法效果?: TechniqueEffects;
-  功法技能?: TechniqueSkill[]; // ✅ 改为数组格式
-  修炼进度?: number; // 0-100 百分比
-  修炼中?: boolean; // 是否正在修炼（兼容旧代码）
-  施政进度?: number; // 0-100 百分比（县令主题，与修炼进度同义）
-  施政中?: boolean; // 是否正在施政（县令主题，与修炼中同义）
-  已解锁技能?: string[]; // ✅ 已解锁的技能名称列表
-  // 注意：新代码应使用 已装备 字段，修炼中/施政中 仅为向后兼容
-}
 
 /** 治国方略类型物品（县令主题：主要类型） */
 export interface StrategyItem extends BaseItem {
@@ -318,12 +271,6 @@ export interface StrategyItem extends BaseItem {
   已解锁技能?: string[];
 }
 
-/** 消耗品/材料类型物品（修仙主题：向后兼容） */
-export interface ConsumableItem extends LegacyBaseItem {
-  类型: '丹药' | '材料' | '其他';
-  使用效果?: string;
-}
-
 /** 消耗品/材料类型物品（县令主题：主要类型） */
 export interface MedicineItem extends BaseItem {
   类型: '药品' | '材料' | '其他';
@@ -331,25 +278,10 @@ export interface MedicineItem extends BaseItem {
 }
 
 /**
- * 物品的联合类型（包含向后兼容的旧物品类型）
- *
- * @deprecated 如果不需要支持旧存档，使用 NewItem 替代
+ * 物品的联合类型（县令主题：主要类型）
  */
-export type Item = EquipmentItem | TechniqueItem | StrategyItem | ConsumableItem | MedicineItem;
+export type Item = EquipmentItem | StrategyItem | MedicineItem;
 
-/**
- * 物品的新联合类型（县令主题：不含旧功法/丹药类型）
- *
- * 新代码应使用此类型，不包含 TechniqueItem 和 ConsumableItem
- */
-export type NewItem = EquipmentItem | StrategyItem | MedicineItem;
-
-
-/** 修炼功法引用（只存储引用，不存储完整数据） */
-export interface CultivationTechniqueReference {
-  物品ID: string;    // 引用背包中的功法ID
-  名称: string;      // 功法名称（用于快速显示）
-}
 
 /** 施政方略引用（只存储引用，不存储完整数据） - 县令主题 */
 export interface AdministrationStrategyReference {
@@ -388,20 +320,9 @@ export interface SilverStorage {
   极品: number;
 }
 
-/**
- * 灵石存储（修仙主题：向后兼容字段）
- *
- * @deprecated 使用 SilverStorage 替代
- */
-export type SpiritStoneStorage = SilverStorage;
-
 export interface Inventory extends AIMetadata {
   // 县令主题：主要货币字段
   银两: SilverStorage;
-
-  // 修仙主题：向后兼容字段
-  /** @deprecated 使用 银两 替代 */
-  灵石?: SpiritStoneStorage;
 
   /**
    * 新货币系统（可选，兼容旧存档）
@@ -456,20 +377,6 @@ export type GovernmentOfficeType =
   | '世家'       // 地方世家势力
   | '散修联盟';  // 散修联盟
 
-/**
- * 宗门类型（修仙主题：向后兼容别名）
- *
- * @deprecated 使用 GovernmentOfficeType 替代。此别名仅用于向后兼容旧代码和旧存档。
- */
-export type SectType = GovernmentOfficeType;
-
-/**
- * 修仙宗门类型（仅用于数据迁移时的类型检查）
- *
- * @deprecated 使用 GovernmentOfficeType 替代
- */
-export type CultivationSectType = '正道宗门' | '魔道宗门' | '中立宗门';
-
 // ============================================================================
 // 职位系统（县令主题：主要类型）
 // ============================================================================
@@ -492,26 +399,6 @@ export type GovernmentPosition =
   | '书吏'        // 书吏
   | '衙役';       // 衙役
 
-/**
- * 宗门职位（修仙主题：向后兼容别名）
- *
- * @deprecated 使用 GovernmentPosition 替代。此别名仅用于向后兼容旧代码和旧存档。
- */
-export type SectPosition = GovernmentPosition |
-  '外门弟子' | '内门弟子' | '核心弟子' | '传承弟子' |
-  '执事' | '长老' | '太上长老' | '副掌门' | '掌门' |
-  '副宗主' | '宗主';
-
-/**
- * 修仙宗门职位（仅用于数据迁移时的类型检查）
- *
- * @deprecated 使用 GovernmentPosition 替代
- */
-export type CultivationSectPosition =
-  | '外门弟子' | '内门弟子' | '核心弟子' | '传承弟子'
-  | '执事' | '长老' | '太上长老' | '副掌门' | '掌门'
-  | '副宗主' | '宗主';
-
 // ============================================================================
 // 官品/境界系统（县令主题：主要类型）
 // ============================================================================
@@ -527,20 +414,6 @@ export type RankLevel =
   | '九品' | '八品' | '七品' | '六品'
   | '五品' | '四品' | '三品' | '二品' | '一品';
 
-/**
- * 境界等级（修仙主题：向后兼容别名）
- *
- * @deprecated 使用 RankLevel 替代。此别名仅用于向后兼容旧代码和旧存档。
- */
-export type RealmLevel = RankLevel;
-
-/**
- * 修仙境界等级（仅用于数据迁移时的类型检查）
- *
- * @deprecated 使用 RankLevel 替代
- */
-export type CultivationRealmLevel = '练气' | '筑基' | '金丹' | '元婴' | '化神' | '炼虚' | '合体' | '渡劫';
-
 // ============================================================================
 // 关系类型（县令/修仙通用）
 // ============================================================================
@@ -551,8 +424,8 @@ export type SectRelationship = '仇敌' | '敌对' | '冷淡' | '中立' | '友�
 /** 衙门成员信息/宗门成员信息（县令主题：衙门成员信息；修仙主题：宗门成员信息） */
 export interface SectMemberInfo {
   宗门名称: string;
-  宗门类型: SectType;
-  职位: SectPosition;
+  宗门类型: GovernmentOfficeType;
+  职位: GovernmentPosition;
   贡献: number;
   关系: SectRelationship;
   声望: number;
@@ -563,7 +436,7 @@ export interface SectMemberInfo {
 /** 衙门基础信息/宗门基础信息（县令主题：衙门基础信息；修仙主题：宗门基础信息） */
 export interface SectInfo {
   名称: string; // 宗门名称
-  类型: SectType; // 宗门类型
+  类型: GovernmentOfficeType; // 宗门类型
   等级: '一流' | '二流' | '三流' | '末流'; // 宗门等级
   位置?: string; // 总部位置
   描述: string; // 宗门描述
@@ -594,9 +467,9 @@ export interface SectInfo {
 export interface SectMemberCount {
   总数?: number; // 总成员数
   total?: number; // 英文字段名兼容
-  按境界?: Record<RealmLevel, number>; // 按境界统计
+  按官品?: Record<RankLevel, number>; // 按官品统计
   byRealm?: Record<string, number>; // 英文字段名兼容
-  按职位?: Record<SectPosition, number>; // 按职位统计
+  按职位?: Record<GovernmentPosition, number>; // 按职位统计
   byPosition?: Record<string, number>; // 英文字段名兼容
 }
 
@@ -715,8 +588,8 @@ export interface SectLibraryTechniqueExtended {
   qualityTier: string;
   cost: number;
   description: string;
-  功法效果?: string;
-  境界要求?: string;
+  方略效果?: string;
+  官品要求?: string;
   职位要求?: string; // 外门弟子/内门弟子/核心弟子等
   已被兑换?: boolean;
   剩余数量?: number;
@@ -757,52 +630,6 @@ export interface SectTaskStatus {
   最后更新时间?: string;
   演变次数: number;
 }
-
-// ============================================================================
-// 衙门/宗门接口别名（县令主题别名）
-// ============================================================================
-
-/**
- * 衙门成员信息（县令主题别名）
- *
- * @deprecated 直接使用 SectMemberInfo 即可，Sect 本身是中性词
- */
-export type GovernmentMemberInfo = SectMemberInfo;
-
-/**
- * 衙门信息（县令主题别名）
- *
- * @deprecated 直接使用 SectInfo 即可，Sect 本身是中性词
- */
-export type GovernmentInfo = SectInfo;
-
-/**
- * 衙门系统数据（县令主题别名）
- *
- * @deprecated 直接使用 SectSystemData 即可，Sect 本身是中性词
- */
-export type GovernmentSystemData = SectSystemData;
-
-/**
- * 衙门系统V2（县令主题别名）
- *
- * @deprecated 直接使用 SectSystemV2 即可，Sect 本身是中性词
- */
-export type GovernmentSystemV2 = SectSystemV2;
-
-/**
- * 衙门内容状态（县令主题别名）
- *
- * @deprecated 直接使用 SectContentStatus 即可，Sect 本身是中性词
- */
-export type GovernmentContentStatus = SectContentStatus;
-
-/**
- * 衙门经营状态（县令主题别名）
- *
- * @deprecated 直接使用 SectManagementState 即可，Sect 本身是中性词
- */
-export type GovernmentManagementState = SectManagementState;
 
 // --- 三千大道系统 ---
 
@@ -887,7 +714,7 @@ export interface Realm {
   阶段: string;        // 官品阶段/境界阶段，如"初期"、"中期"、"后期"、"圆满"
   当前进度: number;    // 当前施政进度/当前修炼进度
   下一级所需: number;  // 晋升到下一阶段所需进度/突破到下一阶段所需进度
-  突破描述: string;    // 晋升到下一阶段的描述/突破到下一阶段的描述
+  晋升描述: string;    // 晋升到下一阶段的描述
 }
 /** 官品子阶段类型/境界子阶段类型 */
 export type RealmStage = '初期' | '中期' | '后期' | '圆满' | '极境';
@@ -939,20 +766,6 @@ export interface PlayerStatus extends AIMetadata {
   事件系统?: EventSystem;
   // 注意: 玩家的NSFW数据存储在 SaveData.身体部位开发 中，不使用 PrivacyProfile
 }
-
-/**
- * 官品状态（县令主题别名）
- *
- * @deprecated 直接使用 Realm 即可
- */
-export type Rank = Realm;
-
-/**
- * 衙门信息（县令主题别名）
- *
- * @deprecated 直接使用 SectMemberInfo 即可，Sect 本身是中性词
- */
-export type GovernmentOfficeMemberInfo = SectMemberInfo;
 
 // --- MECE短路径：拆分"属性/位置/效果" ---
 // 属性：动态数值（官品/境界、健康、民心/威望、智慧/洞察、任期/寿命、声望等）
@@ -1434,7 +1247,7 @@ export type QueueActionType =
   | 'item_use'      // 使用物品
   | 'item_equip'    // 装备物品
   | 'item_discard'  // 丢弃物品
-  | 'item_practice' // 修炼功法
+  | 'item_practice' // 施政方略
   | 'npc_interact'  // NPC互动
   | 'custom';       // 自定义动作
 
@@ -1554,14 +1367,13 @@ export interface SixSiConstraints {
     单次增加上限: 3;       // 每次最多增加1-3点（极稀有机缘可达5点）
     单次减少上限: 5;       // 每次最多减少1-5点（惩罚）
     对加成权重: 0.3;       // 占总加成的30%
-    获取方式: string[];    // 县令主题：['装备', '天赋', '丹药', '机缘', '政策领悟']；修仙主题：['装备', '天赋', '丹药', '机缘', '大道感悟']
+    获取方式: string[];    // 县令主题：['装备', '天赋', '药品', '机缘', '政策领悟']
   };
 }
 
 /** 六司加成结果 */
 export interface SixSiBonus {
-  修炼速度加成: number;    // 百分比 0-100（修仙主题）
-  施政速度加成?: number;   // 百分比 0-100（县令主题）
+  施政速度加成: number;    // 百分比 0-100（县令主题）
   战斗力加成: number;      // 百分比 0-100
   感知范围加成: number;    // 百分比 0-100
   交际能力加成: number;    // 百分比 0-100

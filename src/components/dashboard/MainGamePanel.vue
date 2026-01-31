@@ -279,7 +279,7 @@
 
             <!-- 时间配置 -->
             <div v-if="selectedAction.timeRequired" class="config-section">
-              <label class="config-label">{{ t('修炼时间') }}</label>
+              <label class="config-label">{{ t('施政时间') }}</label>
               <div class="time-selector">
                 <button
                   v-for="timeOption in timeOptions"
@@ -350,7 +350,7 @@ import { EnhancedActionQueueManager } from '@/utils/enhancedActionQueue';
 import { AIBidirectionalSystem, getTavernHelper } from '@/utils/AIBidirectionalSystem';
 import { isTavernEnv } from '@/utils/tavern';
 import { toast } from '@/utils/toast';
-import { calculateAgeFromBirthdate } from '@/utils/lifespanCalculator';
+import { calculateAgeFromBirthdate } from '@/utils/termCalculator';
 import { aiService } from '@/services/aiService';
 import { extractTextFromJsonResponse } from '@/utils/textSanitizer';
 import FormattedText from '@/components/common/FormattedText.vue';
@@ -893,18 +893,18 @@ const timeOptions = ref([
 // 行动分类数据
 const actionCategories = ref<ActionCategory[]>([
   {
-    name: '修炼',
+    name: '施政',
     icon: '',
     actions: [
       {
-        name: '基础修炼',
+        name: '基础施政',
         icon: '⚡',
         type: 'cultivation',
         description: '研读案卷，体察民情，是提升政绩的根本之法。',
         timeRequired: true
       },
       {
-        name: '炼体',
+        name: '锻炼身体',
         icon: 'Shield',
         iconComponent: Shield,
         type: 'cultivation',
@@ -912,7 +912,7 @@ const actionCategories = ref<ActionCategory[]>([
         timeRequired: true
       },
       {
-        name: '冥想',
+        name: '静心思考',
         icon: 'BrainCircuit',
         iconComponent: BrainCircuit,
         type: 'cultivation',
@@ -950,11 +950,11 @@ const actionCategories = ref<ActionCategory[]>([
     ]
   },
   {
-    name: '交流',
+    name: '社交',
     icon: '',
     actions: [
       {
-        name: '拜访朋友',
+        name: '拜访友人',
         icon: '',
         type: 'social',
         description: '拜访认识的朋友',

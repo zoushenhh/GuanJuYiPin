@@ -352,7 +352,7 @@ import {
 } from 'lucide-vue-next';
 import { toast } from '@/utils/toast';
 import { validateAndFixSectDataList } from '@/utils/worldGeneration/sectDataValidator';
-import { createJoinedSectState } from '@/utils/sectSystemFactory';
+import { createJoinedGovernmentState } from '@/utils/governmentSystemFactory';
 
 const characterStore = useCharacterStore();
 const gameStateStore = useGameStateStore();
@@ -629,10 +629,10 @@ const getMainResources = (sect: WorldFaction): string => {
   if (type.includes('丹')) return '灵药、丹炉、药圃';
   if (type.includes('符') || type.includes('阵')) return '符纸、阵法、法器';
   if (type.includes('魔') || type.includes('邪')) return '魔石、煞气、秘法';
-  if (type.includes('商')) return '灵石、珍宝、情报';
+  if (type.includes('商')) return '银两、珍宝、情报';
   if (type.includes('世家')) return '传承、人脉、底蕴';
 
-  return '灵石、功法、修炼资源';
+  return '银两、方略、政务资源';
 };
 
 // 获取宗门特色列表
@@ -846,7 +846,7 @@ const requestJoinSect = (sect: WorldFaction) => {
     applyLeave(currentName);
   }
 
-  const { sectSystem, memberInfo } = createJoinedSectState(sect);
+  const { sectSystem, memberInfo } = createJoinedGovernmentState(sect);
   gameStateStore.updateState('sectMemberInfo', memberInfo);
   gameStateStore.updateState('sectSystem', sectSystem);
   toast.success(`已入职 ${sect.名称}`);

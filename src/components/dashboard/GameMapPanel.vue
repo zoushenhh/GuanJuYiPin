@@ -69,7 +69,7 @@
           <strong>安全等级：</strong>{{ selectedLocation.danger_level }}
         </div>
         <div v-if="selectedLocation.suitable_for" class="location-detail">
-          <strong>适合境界：</strong>{{ selectedLocation.suitable_for }}
+          <strong>适合官品：</strong>{{ selectedLocation.suitable_for }}
         </div>
         <div v-if="selectedLocation.controlled_by" class="location-detail">
           <strong>控制势力：</strong>{{ selectedLocation.controlled_by }}

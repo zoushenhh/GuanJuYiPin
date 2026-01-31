@@ -1,15 +1,15 @@
 import type { SectContentStatus, SectMemberInfo, SectSystemV2, SectType, WorldFaction } from '@/types/game';
-import { SECT_SYSTEM_VERSION } from '@/utils/sectMigration';
+import { GOVERNMENT_SYSTEM_VERSION } from '@/utils/governmentMigration';
 
 /**
- * @fileoverview 衙门系统工厂模块（县令主题）
+ * @fileoverview 政府系统工厂模块（县令主题）
  *
  * 【职责】
- * - 创建和管理衙门系统
- * - 初始化衙门内容和状态
- * - 处理衙门成员信息
+ * - 创建和管理政府系统
+ * - 初始化政府内容和状态
+ * - 处理政府成员信息
  *
- * 【术语对照】
+ * 【术语说明】
  * - 宗门 -> 衙门/官府
  * - 掌门 -> 县令/长官
  * - 弟子 -> 下属/官员
@@ -32,7 +32,7 @@ type ShopItem = {
   stock?: number;
 };
 
-type LibraryTechnique = {
+type GovernmentPolicy = {
   id: string;
   name: string;
   quality: string;
@@ -41,31 +41,16 @@ type LibraryTechnique = {
   description: string;
 };
 
-/** 衙门内容生成选项 */
-export interface SectContentGenerationOptions {
+/** 政府内容生成选项 */
+export interface GovernmentContentGenerationOptions {
   /** 是否使用AI生成（true=等待AI生成，false=使用本地随机生成） */
   useAIGeneration?: boolean;
   /** 当前时间ISO字符串 */
   nowIso?: string;
 }
 
-/** 衙门框架创建结果 */
-export interface SectFrameworkResult {
-  sectSystem: SectSystemV2;
-  memberInfo: SectMemberInfo;
-  contentStatus: SectContentStatus;
-}
-
-/** 县别主题：衙门内容生成选项（别名） */
-export interface GovernmentOfficeContentGenerationOptions {
-  /** 是否使用AI生成（true=等待AI生成，false=使用本地随机生成） */
-  useAIGeneration?: boolean;
-  /** 当前时间ISO字符串 */
-  nowIso?: string;
-}
-
-/** 县别主题：衙门框架创建结果（别名） */
-export interface GovernmentOfficeFrameworkResult {
+/** 政府框架创建结果 */
+export interface GovernmentFrameworkResult {
   sectSystem: SectSystemV2;
   memberInfo: SectMemberInfo;
   contentStatus: SectContentStatus;
@@ -80,14 +65,6 @@ const normalizeSectType = (typeText: string): SectType => {
   return '正统衙门';
 };
 
-/**
- * 规范化势力类型为衙门类型（县令主题）
- * @param typeText 势力类型文本
- * @returns 衙门类型
- */
-export const normalizeGovernmentOfficeType = (typeText: string): SectType => {
-  return normalizeSectType(typeText);
-};
 
 const hashString = (input: string) => {
   let hash = 0;
@@ -119,33 +96,33 @@ const buildThemeKey = (sect: WorldFaction) => {
 };
 
 /**
- * 创建加入衙门后的状态（延迟初始化模式）
- * 藏经阁和贡献商店由 AI 动态生成，此处只创建框架
+ * 创建加入政府后的状态（延迟初始化模式）
+ * 档案库和供销库由 AI 动态生成，此处只创建框架
  */
-export const createJoinedSectState = (
-  sect: WorldFaction,
+export const createJoinedGovernmentState = (
+  office: WorldFaction,
   options?: { nowIso?: string }
 ): { sectSystem: SectSystemV2; memberInfo: SectMemberInfo } => {
   const nowIso = options?.nowIso || new Date().toISOString();
-  const sectName = sect.名称;
+  const officeName = office.名称;
 
   const memberInfo: SectMemberInfo = {
-    宗门名称: sectName,
-    宗门类型: normalizeSectType(String(sect.类型 || '正统衙门')),
+    宗门名称: officeName,
+    宗门类型: normalizeSectType(String(office.类型 || '正统衙门')),
     职位: '外门吏员',
     贡献: 0,
     关系: '友好',
     声望: 0,
     加入日期: nowIso,
-    描述: sect.描述 || '',
+    描述: office.描述 || '',
   };
 
   return {
     sectSystem: {
-      版本: SECT_SYSTEM_VERSION,
-      当前宗门: sectName,
+      版本: GOVERNMENT_SYSTEM_VERSION,
+      当前宗门: officeName,
       宗门档案: {
-        [sectName]: sect,
+        [officeName]: office,
       },
       宗门成员: {},
       宗门藏经阁: {},  // 由 AI 动态生成
@@ -157,25 +134,14 @@ export const createJoinedSectState = (
   };
 };
 
-/**
- * 创建加入衙门后的状态（县令主题别名，延迟初始化模式）
- * 档案库和供销库由 AI 动态生成，此处只创建框架
- */
-export const createJoinedGovernmentOfficeState = (
-  office: WorldFaction,
-  options?: { nowIso?: string }
-): { sectSystem: SectSystemV2; memberInfo: SectMemberInfo } => {
-  return createJoinedSectState(office, options);
-};
-
 // ============================================================================
 // 框架+延迟初始化模式
 // ============================================================================
 
 /**
- * 创建默认的衙门内容状态
+ * 创建默认的政府内容状态
  */
-export function createDefaultContentStatus(): SectContentStatus {
+export function createDefaultGovernmentContentStatus(): SectContentStatus {
   return {
     藏经阁已初始化: false,
     贡献商店已初始化: false,
@@ -184,49 +150,42 @@ export function createDefaultContentStatus(): SectContentStatus {
 }
 
 /**
- * 创建默认的衙门内容状态（县令主题别名）
- */
-export function createDefaultGovernmentOfficeContentStatus(): SectContentStatus {
-  return createDefaultContentStatus();
-}
-
-/**
- * 创建衙门框架（不生成具体内容）
+ * 创建政府框架（不生成具体内容）
  *
  * 使用延迟初始化模式：
- * 1. 玩家加入衙门时只创建框架和成员信息
- * 2. 藏经阁、贡献商店等内容由 AI 动态生成
+ * 1. 玩家加入政府时只创建框架和成员信息
+ * 2. 档案库、供销库等内容由 AI 动态生成
  *
- * @param sect 衙门信息
+ * @param office 政府信息
  * @param options 选项
- * @returns 衙门框架结果
+ * @returns 政府框架结果
  */
-export function createSectFramework(
-  sect: WorldFaction,
-  options?: SectContentGenerationOptions
-): SectFrameworkResult {
+export function createGovernmentFramework(
+  office: WorldFaction,
+  options?: GovernmentContentGenerationOptions
+): GovernmentFrameworkResult {
   const nowIso = options?.nowIso || new Date().toISOString();
-  const sectName = sect.名称;
+  const officeName = office.名称;
 
   const memberInfo: SectMemberInfo = {
-    宗门名称: sectName,
-    宗门类型: normalizeSectType(String(sect.类型 || '正统衙门')),
+    宗门名称: officeName,
+    宗门类型: normalizeSectType(String(office.类型 || '正统衙门')),
     职位: '外门吏员',
     贡献: 0,
     关系: '友好',
     声望: 0,
     加入日期: nowIso,
-    描述: sect.描述 || '',
+    描述: office.描述 || '',
   };
 
-  const contentStatus = createDefaultContentStatus();
+  const contentStatus = createDefaultGovernmentContentStatus();
 
   return {
     sectSystem: {
-      版本: SECT_SYSTEM_VERSION,
-      当前宗门: sectName,
+      版本: GOVERNMENT_SYSTEM_VERSION,
+      当前宗门: officeName,
       宗门档案: {
-        [sectName]: sect,
+        [officeName]: office,
       },
       宗门成员: {},
       宗门藏经阁: {},  // 空，由 AI 动态生成
@@ -234,7 +193,7 @@ export function createSectFramework(
       宗门任务: {},
       宗门任务状态: {},
       内容状态: {
-        [sectName]: contentStatus,
+        [officeName]: contentStatus,
       },
     },
     memberInfo,
@@ -243,36 +202,18 @@ export function createSectFramework(
 }
 
 /**
- * 创建衙门框架（县令主题别名，不生成具体内容）
- *
- * 使用延迟初始化模式：
- * 1. 玩家加入衙门时只创建框架和成员信息
- * 2. 档案库、供销库等内容由 AI 动态生成
- *
- * @param office 衙门信息
- * @param options 选项
- * @returns 衙门框架结果
+ * 检查政府内容是否需要初始化
  */
-export function createGovernmentOfficeFramework(
-  office: WorldFaction,
-  options?: GovernmentOfficeContentGenerationOptions
-): GovernmentOfficeFrameworkResult {
-  return createSectFramework(office, options);
-}
-
-/**
- * 检查衙门内容是否需要初始化
- */
-export function checkSectContentNeedsInit(
+export function checkGovernmentContentNeedsInit(
   sectSystem: SectSystemV2,
-  sectName: string
+  officeName: string
 ): { library: boolean; shop: boolean } {
-  const status = sectSystem.内容状态?.[sectName];
+  const status = sectSystem.内容状态?.[officeName];
 
   if (!status) {
     // 没有状态记录，检查实际内容
-    const hasLibrary = (sectSystem.宗门藏经阁?.[sectName]?.length ?? 0) > 0;
-    const hasShop = (sectSystem.宗门贡献商店?.[sectName]?.length ?? 0) > 0;
+    const hasLibrary = (sectSystem.宗门藏经阁?.[officeName]?.length ?? 0) > 0;
+    const hasShop = (sectSystem.宗门贡献商店?.[officeName]?.length ?? 0) > 0;
 
     return {
       library: !hasLibrary,
@@ -287,19 +228,9 @@ export function checkSectContentNeedsInit(
 }
 
 /**
- * 检查衙门内容是否需要初始化（县令主题别名）
+ * 获取政府主题关键字（用于AI生成提示）
  */
-export function checkGovernmentOfficeContentNeedsInit(
-  sectSystem: SectSystemV2,
-  sectName: string
-): { library: boolean; shop: boolean } {
-  return checkSectContentNeedsInit(sectSystem, sectName);
-}
-
-/**
- * 获取衙门主题关键字（用于AI生成提示）
- */
-export function getSectThemeKeywords(sect: WorldFaction): string[] {
+export function getGovernmentThemeKeywords(office: WorldFaction): string[] {
   const themeKey = buildThemeKey(sect);
   const keywords: string[] = [];
 
@@ -338,7 +269,7 @@ export function getSectThemeKeywords(sect: WorldFaction): string[] {
 // 导出
 // ============================================================================
 
-export type { ShopItem, LibraryTechnique };
+export type { ShopItem, GovernmentPolicy };
 
 // 导出内部工具函数供高级用途
 export {

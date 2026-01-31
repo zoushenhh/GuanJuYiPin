@@ -1121,7 +1121,7 @@ export class GameMapManager {
 
   /**
    * 更新其他玩家位置（已废弃，仅用于向后兼容）
-   * @deprecated 联机模式已移除，此函数不再使用
+   * @deprecated 此函数不再使用
    */
   updateOtherPlayerPosition(position: GameCoordinates | null, playerName: string = '玩家') {
     const npcLayer = this.layers.get(4); // MapLayer.NPC - 使用NPC层显示其他玩家

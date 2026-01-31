@@ -57,12 +57,12 @@ const attributeNames = {
 }
 
 const attributeDescriptions = {
-  root_bone: '决定气血上限、恢复速度、寿命上限。影响炼体修行、抗打击能力。',
-  spirituality: '决定灵气上限、吸收效率。影响修炼速度、法术威力。',
-  comprehension: '决定神识上限、学习效率。影响功法领悟、技能掌握速度。',
-  fortune: '决定各种概率、物品掉落品质。影响天材地宝获取、贵人相助。',
-  charm: '决定初始好感度、社交加成。影响NPC互动、门派声望获取。',
-  temperament: '决定心魔抗性、意志力。影响走火入魔抵抗、关键抉择。',
+  root_bone: '决定气血上限、恢复速度、寿命上限。影响体魄锻炼、抗打击能力。',
+  spirituality: '决定民心上限、获取效率。影响政务学习、政策威力。',
+  comprehension: '决定神识上限、学习效率。影响方略领悟、技能掌握速度。',
+  fortune: '决定各种概率、物品掉落品质。影响资源获取、贵人相助。',
+  charm: '决定初始好感度、社交加成。影响NPC互动、衙门声望获取。',
+  temperament: '决定心魔抗性、意志力。影响贪污抵抗、关键抉择。',
 }
 
 type AttributeKey = keyof typeof attributeNames

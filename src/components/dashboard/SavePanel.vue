@@ -314,7 +314,7 @@ import { toast } from '@/utils/toast';
 import { debug } from '@/utils/debug';
 import type { SaveSlot } from '@/types/game';
 import { createDadBundle, unwrapDadBundle } from '@/utils/dadBundle';
-import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
+import { isSaveDataV3, migrateSaveDataToV3 } from '@/utils/saveMigration';
 import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { repairSaveData } from '@/utils/dataRepair';
 
@@ -664,7 +664,7 @@ const exportSingleSave = async (save: SaveSlot) => {
     // 🔥 兼容旧格式：尝试迁移，如果失败则导出原始数据
     let exportSaveData = fullSaveData;
     try {
-      const v3SaveData = isSaveDataV3(fullSaveData as any) ? (fullSaveData as any) : migrateSaveDataToLatest(fullSaveData as any).migrated;
+      const v3SaveData = isSaveDataV3(fullSaveData as any) ? (fullSaveData as any) : migrateSaveDataToV3(fullSaveData as any).migrated;
       const validation = validateSaveDataV3(v3SaveData as any);
       if (!validation.isValid) {
         console.warn('[单个存档导出] 存档校验警告:', validation.errors[0]);
@@ -749,7 +749,7 @@ const exportCharacter = async () => {
       // 🔥 兼容旧格式：尝试迁移，如果失败则使用原始数据
       let exportSaveData = rawSaveData;
       try {
-        const v3SaveData = isSaveDataV3(rawSaveData as any) ? rawSaveData : migrateSaveDataToLatest(rawSaveData as any).migrated;
+        const v3SaveData = isSaveDataV3(rawSaveData as any) ? rawSaveData : migrateSaveDataToV3(rawSaveData as any).migrated;
         const validation = validateSaveDataV3(v3SaveData as any);
         if (!validation.isValid) {
           console.warn(`[角色导出] 存档「${s.存档名}」校验警告：${validation.errors[0] || '未知原因'}`);
@@ -832,7 +832,7 @@ const exportSaves = async () => {
 
       // 兼容旧格式：逐个尝试迁移与校验，失败则保留原始数据（保证“能导出”）
       try {
-        const v3SaveData = isSaveDataV3(rawSaveData as any) ? rawSaveData : migrateSaveDataToLatest(rawSaveData as any).migrated;
+        const v3SaveData = isSaveDataV3(rawSaveData as any) ? rawSaveData : migrateSaveDataToV3(rawSaveData as any).migrated;
         const validation = validateSaveDataV3(v3SaveData as any);
         if (!validation.isValid) {
           console.warn(`[存档导出] 存档「${s.存档名}」校验警告：${validation.errors[0] || '未知原因'}`);

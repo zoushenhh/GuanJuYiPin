@@ -90,7 +90,7 @@ import { generateWithRawPrompt } from '@/utils/tavernCore';
 import { parseJsonFromText } from '@/utils/jsonExtract';
 import { AIBidirectionalSystem } from '@/utils/AIBidirectionalSystem';
 import { rollD20 } from '@/utils/diceRoller';
-import { detectPlayerSectLeadership, isLeaderPosition } from '@/utils/sectLeadershipUtils';
+import { detectPlayerGovernmentLeadership, isLeaderPosition } from '@/utils/governmentLeadershipUtils';
 import type { GM_Response } from '@/types/AIGameMaster';
 import type { WorldFaction, WorldInfo } from '@/types/game';
 import { Building2, Calendar, Info, RefreshCw } from 'lucide-vue-next';
@@ -111,7 +111,7 @@ const allSects = computed(() => {
 
 // 检测玩家宗门领导地位
 const leaderInfo = computed(() => {
-  return detectPlayerSectLeadership(
+  return detectPlayerGovernmentLeadership(
     playerName.value,
     allSects.value,
     gameStateStore.sectMemberInfo
@@ -123,7 +123,7 @@ const sectSystemCurrent = computed(() => String((gameStateStore.sectSystem as an
 const resolvedSectName = computed(() => {
   const fromMember = String(playerSectInfo.value?.宗门名称 || '').trim();
   if (fromMember) return fromMember;
-  const fromLeader = String(leaderInfo.value.sectName || '').trim();
+  const fromLeader = String(leaderInfo.value.officeName || '').trim();
   if (fromLeader) return fromLeader;
   if (sectSystemCurrent.value) return sectSystemCurrent.value;
   const fromSystemMember = String(((gameStateStore.sectSystem as any)?.成员信息?.宗门名称 ?? '') || '').trim();
@@ -176,7 +176,7 @@ async function applyGmResponse(rawText: string, saveData: any) {
 async function ensureLeaderMembership() {
   // 如果玩家是衙门高层（leaderInfo）但缺少成员信息，则自动补齐一份成员信息，避免各模块判定"未加入衙门"
   if (playerSectInfo.value?.宗门名称) return;
-  const sectName = String(leaderInfo.value.sectName || '').trim();
+  const sectName = String(leaderInfo.value.officeName || '').trim();
   if (!sectName) return;
 
   const nowIso = new Date().toISOString();

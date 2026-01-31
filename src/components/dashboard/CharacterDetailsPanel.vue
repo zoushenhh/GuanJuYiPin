@@ -4,7 +4,7 @@
     <transition name="fade" mode="out-in">
       <div v-if="isLoading" class="state-container loading">
         <div class="loading-spinner"></div>
-        <p class="state-text">{{ t('感悟天地灵气中...') }}</p>
+        <p class="state-text">{{ t('感悟天地民心中...') }}</p>
       </div>
 
       <!-- 错误状态 -->
@@ -65,7 +65,7 @@
                 <div class="icon-box spirit"><Sparkles :size="18" /></div>
                 <div class="stat-info">
                   <span class="label">{{ t('才能') }}</span>
-                  <span class="value" :class="getSpiritRootClass(baseInfo.灵根)">{{ formatSpiritRoot(baseInfo.灵根) }}</span>
+                  <span class="value" :class="getSpiritRootClass(baseInfo.才能 || baseInfo.灵根)">{{ formatSpiritRoot(baseInfo.才能 || baseInfo.灵根) }}</span>
                 </div>
               </div>
 
@@ -79,7 +79,7 @@
             </div>
 
             <!-- 右侧：政绩进度 -->
-            <div class="cultivation-block">
+            <div class="achievement-block">
               <div v-if="isAnimalStage(playerStatus?.境界?.名称)" class="animal-stage">
                 <Sprout :size="20" class="floating-icon"/>
                 <span>{{ getAnimalStageDisplay() }}</span>
@@ -210,7 +210,7 @@
                   </div>
                   <!-- 详情分割线 -->
                    <div class="attr-divider">
-                     <span>{{ t('先天') }} / {{ t('后天加成') }}</span>
+                     <span>{{ t('先天属性') }} / {{ t('后天属性') }}</span>
                    </div>
                    <div class="attr-breakdown">
                      <div class="breakdown-col">
@@ -230,7 +230,7 @@
             </div>
           </div>
 
-          <!-- 2. 修炼体系 -->
+          <!-- 2. 施政体系 -->
           <div v-else-if="activeTab === 'cultivation'" class="tab-pane">
             <div class="pane-grid">
                <!-- 功法 -->
@@ -242,7 +242,7 @@
 
                   <div v-if="!fullCultivationTechnique" class="empty-placeholder">
                     <BookOpen :size="40" opacity="0.5"/>
-                    <p>{{ t('尚未修习任何功法') }}</p>
+                    <p>{{ t('尚未修习任何方略') }}</p>
                   </div>
 
                   <div v-else class="technique-container">
@@ -256,7 +256,7 @@
                        </div>
                        <!-- 进度条 -->
                        <div class="tm-progress">
-                          <span>{{ t('领悟重数') }}</span>
+                          <span>{{ t('施政进度') }}</span>
                           <div class="bar-bg"><div class="bar-fg" :style="{width: (fullCultivationTechnique.施政进度 || 0) + '%'}"></div></div>
                           <span>{{ fullCultivationTechnique.施政进度 || 0 }}%</span>
                        </div>
@@ -265,12 +265,12 @@
                     <transition name="expand">
                       <div v-show="showTechniqueDetails" class="technique-detail-panel">
                         <div class="detail-section">
-                          <div class="section-label">{{ t('功法描述') }}</div>
-                          <p class="desc-text">{{ t(fullCultivationTechnique?.描述 || '此功法奥妙无穷。') }}</p>
+                          <div class="section-label">{{ t('方略描述') }}</div>
+                          <p class="desc-text">{{ t(fullCultivationTechnique?.描述 || '此方略奥妙无穷。') }}</p>
                         </div>
 
                         <div v-if="hasTechniqueEffects" class="detail-section">
-                          <div class="section-label">{{ t('功法效果') }}</div>
+                          <div class="section-label">{{ t('方略效果') }}</div>
                           <div class="effects-box">
                             <div class="effect-row" v-if="fullCultivationTechnique.功法效果?.施政速度加成">
                               <Rocket :size="16" class="effect-icon" />
@@ -508,7 +508,7 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { useGameStateStore } from '@/stores/gameStateStore';
 import BodyStatsPanel from '@/components/dashboard/components/BodyStatsPanel.vue';
 import { calculateFinalAttributes } from '@/utils/attributeCalculation';
-import { calculateAgeFromBirthdate, type GameTime as LifespanGameTime } from '@/utils/lifespanCalculator';
+import { calculateAgeFromBirthdate, type GameTime as TermGameTime } from '@/utils/termCalculator';
 import { formatRealmWithStage } from '@/utils/realmUtils';
 import { isTavernEnv } from '@/utils/tavern';
 import type { DaoData, InnateAttributes, Inventory, Item, ItemQuality, MasteredSkill, NpcProfile, SaveData, TechniqueItem } from '@/types/game';

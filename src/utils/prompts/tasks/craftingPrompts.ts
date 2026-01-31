@@ -13,7 +13,7 @@ export type CraftingFormationInput = {
 };
 
 export type CraftingResourcePlan = {
-  灵气: {
+  民心: {
     当前: number;
     投入百分比: number;
     阵法额外百分比: number;
@@ -21,7 +21,7 @@ export type CraftingResourcePlan = {
     额外消耗: number;
     总消耗: number;
   };
-  神识: {
+  智慧: {
     当前: number;
     投入百分比: number;
     阵法额外百分比: number;
@@ -58,8 +58,8 @@ export interface CraftingSimulationInput {
   characterSnapshot?: {
     先天六司?: Record<string, number>;
     后天六司?: Record<string, number>;
-    大道摘要?: string[];
-    境界?: string;
+    治国理念?: string[];
+    官品?: string;
   };
 }
 
@@ -118,12 +118,12 @@ ${generateQualitySystemPrompt()}
 
 生产类型：${input.type}
 火候强度：${input.fire.percent}%（${input.fire.label}）
-阵法：${input.formation.name}（额外：灵气+${input.formation.extraManaPercent}% / 神识+${input.formation.extraSpiritPercent}%）
+阵法：${input.formation.name}（额外：民心+${input.formation.extraManaPercent}% / 智慧+${input.formation.extraSpiritPercent}%）
 成功率：${input.successRate}%
 结果是否成功：${input.success ? '成功' : '失败'}
 结果品质：${input.resultQuality.quality}·${String(input.resultQuality.grade)}
 
-灵力/神识消耗（如提供则必须遵守，不得超过当前值）：
+民心/智慧消耗（如提供则必须遵守，不得超过当前值）：
 ${JSON.stringify(input.resources ?? {}, null, 2)}
 
 材料清单（仅可使用这些材料）：
@@ -180,7 +180,7 @@ ${generateQualitySystemPrompt()}
 
 生产类型：${input.type}
 火候强度：${input.fire.percent}%（${input.fire.label}）
-阵法：${input.formation.name}（额外：灵气+${input.formation.extraManaPercent}% / 神识+${input.formation.extraSpiritPercent}%）
+阵法：${input.formation.name}（额外：民心+${input.formation.extraManaPercent}% / 智慧+${input.formation.extraSpiritPercent}%）
 
 材料清单：
 ${JSON.stringify(input.materials, null, 2)}
@@ -207,7 +207,7 @@ export function buildCraftingFinalizePrompts(input: CraftingFinalizeInput): { sy
 5) 失败时允许产物为"废品/炉渣"等：类型可为"产品"或"材料/其他"，但必须与描述一致。
 6) successRate 必须与推演一致（如果给了推演），否则按你推导给出 5-95 的整数。
 7) predictedQuality（如果给了）仅作参考，但【必须受城市等级限制约束】，不可突破城市等级上限。
-8) 若提供 resources（灵气/神识消耗计划）：你在 processText / eventDesc 里必须体现该投入与消耗，且不得写出超过当前值的消耗。
+8) 若提供 resources（民心/智慧消耗计划）：你在 processText / eventDesc 里必须体现该投入与消耗，且不得写出超过当前值的消耗。
 
 ## 【最高优先级】城市等级-品质硬性上限
 这是绝对不可突破的天花板，无论材料多好、推演结果如何，都必须遵守：
@@ -258,7 +258,7 @@ ${generateQualitySystemPrompt()}
 
 生产类型：${input.type}
 火候强度：${input.fire.percent}%（${input.fire.label}）
-阵法：${input.formation.name}（额外：灵气+${input.formation.extraManaPercent}% / 神识+${input.formation.extraSpiritPercent}%）
+阵法：${input.formation.name}（额外：民心+${input.formation.extraManaPercent}% / 智慧+${input.formation.extraSpiritPercent}%）
 
 材料清单：
 ${JSON.stringify(input.materials, null, 2)}

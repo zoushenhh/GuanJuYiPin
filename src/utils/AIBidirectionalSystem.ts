@@ -21,7 +21,7 @@ import { updateStatusEffects } from './statusEffectManager';
 import { sanitizeAITextForDisplay } from '@/utils/textSanitizer';
 import { validateAndRepairNpcProfile } from '@/utils/dataValidation';
 import { stripNsfwContent } from '@/utils/prompts/definitions/dataDefinitions';
-import { isSaveDataV3, migrateSaveDataToLatest } from './saveMigration';
+import { isSaveDataV3, migrateSaveDataToV3 } from './saveMigration';
 import { parseJsonSmart } from '@/utils/jsonExtract';
 import type { APIUsageType } from '@/stores/apiManagementStore';
 
@@ -449,7 +449,7 @@ class AIBidirectionalSystemClass {
     options?.onProgressUpdate?.('构建提示词并请求AI生成…');
     let gmResponse: GM_Response = { text: '', mid_term_memory: '', tavern_commands: [], action_options: [] };
     try {
-      const v3 = isSaveDataV3(saveData) ? (saveData as any) : migrateSaveDataToLatest(saveData).migrated;
+      const v3 = isSaveDataV3(saveData) ? (saveData as any) : migrateSaveDataToV3(saveData).migrated;
 
       // 发送给 AI 的状态：严格使用 V3 五域结构（命令 key 也必须按此结构输出）
       const stateForAI = cloneDeep(v3);
@@ -1055,7 +1055,7 @@ ${step1Text}
     }
     try {
       // 🔥 使用 v3 而不是原始 saveData，因为 maybeTriggerScheduledWorldEvent 可能已修改了 v3（如下次事件时间）
-      const dataForProcessing = isSaveDataV3(saveData) ? saveData : migrateSaveDataToLatest(saveData).migrated;
+      const dataForProcessing = isSaveDataV3(saveData) ? saveData : migrateSaveDataToV3(saveData).migrated;
       const { saveData: updatedSaveData, stateChanges } = await this.processGmResponse(
         gmResponse,
         dataForProcessing as SaveData,
@@ -1802,8 +1802,8 @@ ${step1Text}
 
           const ownedSect = factions.find(matchLeader);
           if (ownedSect && typeof ownedSect === 'object' && typeof ownedSect.名称 === 'string' && ownedSect.名称.trim()) {
-            const { createJoinedSectState } = await import('@/utils/sectSystemFactory');
-            const { sectSystem, memberInfo } = createJoinedSectState(ownedSect, { nowIso: new Date().toISOString() });
+            const { createJoinedGovernmentState } = await import('@/utils/governmentSystemFactory');
+            const { sectSystem, memberInfo } = createJoinedGovernmentState(ownedSect, { nowIso: new Date().toISOString() });
 
             // 玩家创建宗门：默认给最高职位（避免"创建了宗门但自己只是外门弟子"的违和感）
             memberInfo.职位 = '宗主';

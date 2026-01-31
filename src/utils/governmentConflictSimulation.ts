@@ -1,14 +1,14 @@
-import type { SaveData, SectWarReport, SectWarSideState, SectWarStageName, SectWarState, WorldFaction } from '@/types/game';
+import type { SaveData, GovernmentWarReport, GovernmentWarSideState, GovernmentWarStageName, GovernmentWarState, WorldFaction } from '@/types/game';
 
-export type SectWarPowerBreakdownItem = {
+export type GovernmentConflictPowerBreakdownItem = {
   label: string;
   value: number;
   note?: string;
 };
 
-export type SectWarComputedSide = {
-  side: SectWarSideState;
-  breakdown: SectWarPowerBreakdownItem[];
+export type GovernmentConflictComputedSide = {
+  side: GovernmentWarSideState;
+  breakdown: GovernmentConflictPowerBreakdownItem[];
   meta: {
     baseFrom: string;
     totalMembers: number;
@@ -32,17 +32,17 @@ export function randomIntInclusive(min: number, max: number): number {
   return Math.floor(Math.random() * (b - a + 1)) + a;
 }
 
-function pickFaction(saveData: SaveData, sectName: string): WorldFaction | null {
+function pickFaction(saveData: SaveData, officeName: string): WorldFaction | null {
   const factions = ((saveData as any)?.世界?.信息?.势力信息 ?? []) as WorldFaction[];
-  const name = String(sectName || '').trim();
+  const name = String(officeName || '').trim();
   if (!name) return null;
   return factions.find((f) => String((f as any)?.名称 || '').trim() === name) ?? null;
 }
 
-function getManagement(saveData: SaveData, sectName: string): any | null {
-  const name = String(sectName || '').trim();
+function getManagement(saveData: SaveData, officeName: string): any | null {
+  const name = String(officeName || '').trim();
   if (!name) return null;
-  return ((saveData as any)?.社交?.宗门?.宗门经营 ?? null)?.[name] ?? null;
+  return ((saveData as any)?.社交?.衙门?.衙门经营 ?? null)?.[name] ?? null;
 }
 
 function extractMemberCounts(faction: any): { outer: number; inner: number; core: number } {
@@ -91,9 +91,9 @@ function computeFacilityAvg(management: any): number {
   return values.reduce((a, b) => a + b, 0) / values.length;
 }
 
-export function computeSectWarSide(saveData: SaveData, sectName: string): SectWarComputedSide {
-  const faction = pickFaction(saveData, sectName);
-  const management = getManagement(saveData, sectName);
+export function computeGovernmentConflictSide(saveData: SaveData, officeName: string): GovernmentConflictComputedSide {
+  const faction = pickFaction(saveData, officeName);
+  const management = getManagement(saveData, officeName);
 
   const { value: leadershipPower, from: baseFrom } = extractLeadershipPower(faction);
   const counts = extractMemberCounts(faction);
@@ -101,7 +101,7 @@ export function computeSectWarSide(saveData: SaveData, sectName: string): SectWa
 
   const mPower = clamp(int(management?.战力, 0), 0, 100);
   const stability = clamp(int(management?.安定, 60), 0, 100);
-  const training = clamp(int(management?.外门训练度, 55), 0, 100);
+  const training = clamp(int(management?.吏员训练度, 55), 0, 100);
   const treasuryStone = int(management?.府库?.银两, 0);
   const facilityAvg = computeFacilityAvg(management);
 
@@ -112,7 +112,7 @@ export function computeSectWarSide(saveData: SaveData, sectName: string): SectWa
   const facilityBonus = clamp(Math.round(facilityAvg / 2), 0, 6); // 0..5/6
   const treasuryBonus = clamp(Math.round(Math.log10(Math.max(10, treasuryStone)) - 3), 0, 5); // 0..5
 
-  const breakdown: SectWarPowerBreakdownItem[] = [
+  const breakdown: GovernmentConflictPowerBreakdownItem[] = [
     { label: `基准战力（${baseFrom}）`, value: leadershipPower },
   ];
 
@@ -134,7 +134,7 @@ export function computeSectWarSide(saveData: SaveData, sectName: string): SectWa
   const morale = clamp(60 + stabilityBonus * 3 + trainingBonus * 2, 35, 95);
 
   const side: SectWarSideState = {
-    宗门名称: String(sectName || '').trim(),
+    衙门名称: String(officeName || '').trim(),
     战力: totalPower,
     外门: counts.outer,
     内门: counts.inner,
@@ -145,8 +145,8 @@ export function computeSectWarSide(saveData: SaveData, sectName: string): SectWa
   return { side, breakdown, meta: { baseFrom, totalMembers, facilityAvg, treasuryStone } };
 }
 
-export type SectWarStageResolution = {
-  stage: SectWarStageName;
+export type GovernmentConflictStageResolution = {
+  stage: GovernmentWarStageName;
   roll: number; // 1-20
   advantage: number; // >0 我方优
   grade: '大成功' | '成功' | '小胜' | '小败' | '失败' | '大失败';
@@ -155,7 +155,7 @@ export type SectWarStageResolution = {
   moraleDelta: { 我方: number; 敌方: number };
 };
 
-function stageIntensity(stage: SectWarStageName): number {
+function stageIntensity(stage: GovernmentWarStageName): number {
   switch (stage) {
     case '侦察':
       return 0.35;
@@ -172,7 +172,7 @@ function stageIntensity(stage: SectWarStageName): number {
   }
 }
 
-function gradeFromAdvantage(a: number): SectWarStageResolution['grade'] {
+function gradeFromAdvantage(a: number): GovernmentConflictStageResolution['grade'] {
   if (a >= 14) return '大成功';
   if (a >= 7) return '成功';
   if (a >= 0) return '小胜';
@@ -181,7 +181,7 @@ function gradeFromAdvantage(a: number): SectWarStageResolution['grade'] {
   return '大失败';
 }
 
-function applyLosses(side: SectWarSideState, loss: { 外门: number; 内门: number; 核心: number }): SectWarSideState {
+function applyLosses(side: GovernmentWarSideState, loss: { 外门: number; 内门: number; 核心: number }): GovernmentWarSideState {
   return {
     ...side,
     外门: clamp(side.外门 - loss.外门, 0, 1_000_000),
@@ -205,12 +205,12 @@ function splitLoss(totalLoss: number, weights: { 外门: number; 内门: number;
   return { 外门: o, 内门: i, 核心: c };
 }
 
-export function resolveWarStage(args: {
-  war: SectWarState;
-  stage: SectWarStageName;
+export function resolveGovernmentConflictStage(args: {
+  war: GovernmentWarState;
+  stage: GovernmentWarStageName;
   nowIso: string;
   roll?: number;
-}): { war: SectWarState; report: SectWarReport; resolution: SectWarStageResolution } {
+}): { war: GovernmentWarState; report: GovernmentWarReport; resolution: GovernmentConflictStageResolution } {
   const { war, stage, nowIso } = args;
   const roll = typeof args.roll === 'number' ? clamp(Math.floor(args.roll), 1, 20) : randomIntInclusive(1, 20);
 
@@ -244,7 +244,7 @@ export function resolveWarStage(args: {
   const moraleDeltaOur = clamp(Math.round(advantage / 6), -8, 6);
   const moraleDeltaEnemy = clamp(Math.round(-advantage / 6), -8, 6);
 
-  const nextWar: SectWarState = {
+  const nextWar: GovernmentWarState = {
     ...war,
     我方: applyLosses(
       {
@@ -278,7 +278,7 @@ export function resolveWarStage(args: {
 
   const summary = `阶段「${stage}」：${grade}（d20=${roll}，优势=${advantage >= 0 ? '+' : ''}${advantage}）。我方伤亡 外门-${ourLoss.外门}/内门-${ourLoss.内门}/核心-${ourLoss.核心}；敌方伤亡 外门-${enemyLoss.外门}/内门-${enemyLoss.内门}/核心-${enemyLoss.核心}。`;
 
-  const report: SectWarReport = {
+  const report: GovernmentWarReport = {
     时间: nowIso,
     阶段: stage,
     摘要: summary,
@@ -294,7 +294,7 @@ export function resolveWarStage(args: {
     },
   };
 
-  const resolution: SectWarStageResolution = {
+  const resolution: GovernmentConflictStageResolution = {
     stage,
     roll,
     advantage,
@@ -307,7 +307,7 @@ export function resolveWarStage(args: {
   return { war: nextWar, report, resolution };
 }
 
-export function concludeWar(args: { war: SectWarState; nowIso: string; roll?: number }): { war: SectWarState; report: SectWarReport } {
+export function concludeGovernmentConflict(args: { war: GovernmentWarState; nowIso: string; roll?: number }): { war: GovernmentWarState; report: GovernmentWarReport } {
   const roll = typeof args.roll === 'number' ? clamp(Math.floor(args.roll), 1, 20) : randomIntInclusive(1, 20);
   const { war, nowIso } = args;
   const our = war.我方;
@@ -322,7 +322,7 @@ export function concludeWar(args: { war: SectWarState; nowIso: string; roll?: nu
     当前阶段: '终局',
   };
 
-  const report: SectWarReport = {
+  const report: GovernmentWarReport = {
     时间: nowIso,
     阶段: '终局',
     摘要: `终局判定：${status}（d20=${roll}，终局差值=${score >= 0 ? '+' : ''}${Math.round(score)}）。累计伤亡：我方 外门-${finalized.累计伤亡?.我方?.外门 ?? 0}/内门-${finalized.累计伤亡?.我方?.内门 ?? 0}/核心-${finalized.累计伤亡?.我方?.核心 ?? 0}；敌方 外门-${finalized.累计伤亡?.敌方?.外门 ?? 0}/内门-${finalized.累计伤亡?.敌方?.内门 ?? 0}/核心-${finalized.累计伤亡?.敌方?.核心 ?? 0}。`,
@@ -331,7 +331,7 @@ export function concludeWar(args: { war: SectWarState; nowIso: string; roll?: nu
   return { war: finalized, report };
 }
 
-export function buildWarMemoryLine(war: SectWarState): string {
+export function buildGovernmentConflictMemoryLine(war: GovernmentWarState): string {
   const status = war.状态;
   const attacker = war.发起方;
   const defender = war.守方;
@@ -340,6 +340,6 @@ export function buildWarMemoryLine(war: SectWarState): string {
   const ourLossText = `外门-${ourLoss.外门 ?? 0}/内门-${ourLoss.内门 ?? 0}/核心-${ourLoss.核心 ?? 0}`;
   const enemyLossText = `外门-${enemyLoss.外门 ?? 0}/内门-${enemyLoss.内门 ?? 0}/核心-${enemyLoss.核心 ?? 0}`;
   const goal = war.目标 ? `，目标：${war.目标}` : '';
-  return `【衙门竞争】${attacker} 对 ${defender}${goal} —— 结果：${status}。累计伤亡：我方(${ourLossText})，敌方(${enemyLossText})。`;
+  return `【政府竞争】${attacker} 对 ${defender}${goal} —— 结果：${status}。累计伤亡：我方(${ourLossText})，敌方(${enemyLossText})。`;
 }
 

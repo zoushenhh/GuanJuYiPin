@@ -1,30 +1,30 @@
 <template>
   <div v-if="visible" class="modal-overlay" @click.self="handleClose">
-    <div class="deep-cultivation-modal">
+    <div class="deep-administration-modal">
       <div class="modal-header">
-        <h3>{{ $t('深度修炼') }}</h3>
+        <h3>{{ $t('深度施政') }}</h3>
         <button class="close-btn" @click="handleClose">
           <X :size="20" />
         </button>
       </div>
 
       <div class="modal-content">
-        <!-- 功法信息 -->
-        <div v-if="technique" class="technique-info-section">
+        <!-- 方略信息 -->
+        <div v-if="strategy" class="strategy-info-section">
           <div class="info-header">
-            <div class="technique-icon" :class="getTechniqueQualityClass">📖</div>
-            <div class="technique-details">
-              <h4 class="technique-name" :class="getTechniqueQualityClass">{{ technique.名称 }}</h4>
-              <div class="technique-quality">
-                {{ technique.品质?.quality || '凡' }}品 {{ technique.品质?.grade || 0 }}阶
+            <div class="strategy-icon" :class="getStrategyQualityClass">📖</div>
+            <div class="strategy-details">
+              <h4 class="strategy-name" :class="getStrategyQualityClass">{{ strategy.名称 }}</h4>
+              <div class="strategy-quality">
+                {{ strategy.品质?.quality || '凡' }}品 {{ strategy.品质?.grade || 0 }}阶
               </div>
             </div>
           </div>
 
-          <!-- 当前修炼进度 -->
+          <!-- 当前施政进度 -->
           <div class="progress-section">
             <div class="progress-label">
-              <span>{{ $t('当前修炼进度') }}</span>
+              <span>{{ $t('当前施政进度') }}</span>
               <span class="progress-percent">{{ currentProgress }}%</span>
             </div>
             <div class="progress-bar-bg">
@@ -32,18 +32,18 @@
             </div>
           </div>
 
-          <!-- 功法效果 -->
-          <div v-if="technique.功法效果" class="effects-section">
-            <h5>{{ $t('功法效果') }}</h5>
+          <!-- 方略效果 -->
+          <div v-if="strategy.方略效果" class="effects-section">
+            <h5>{{ $t('方略效果') }}</h5>
             <ul class="effects-list">
-              <li v-if="technique.功法效果.修炼速度加成">
+              <li v-if="strategy.方略效果.施政速度加成">
                 <span class="effect-icon">🚀</span>
-                {{ $t('修炼速度: +{0}%').replace('{0}', ((technique.功法效果.修炼速度加成 - 1) * 100).toFixed(0)) }}
+                {{ $t('施政速度: +{0}%').replace('{0}', ((strategy.方略效果.施政速度加成 - 1) * 100).toFixed(0)) }}
               </li>
-              <li v-if="technique.功法效果.属性加成">
+              <li v-if="strategy.方略效果.属性加成">
                 <span class="effect-icon">💪</span>
                 {{ $t('属性加成:') }}
-                <span v-for="(value, key) in technique.功法效果.属性加成" :key="key" class="attr-bonus">
+                <span v-for="(value, key) in strategy.方略效果.属性加成" :key="key" class="attr-bonus">
                   {{ key }}+{{ value }}
                 </span>
               </li>
@@ -51,10 +51,10 @@
           </div>
         </div>
 
-        <!-- 修炼天数选择 -->
-        <div class="cultivation-days-section">
-          <label class="section-label">{{ $t('选择修炼天数') }}</label>
-          <p class="section-hint">{{ $t('AI将根据修炼天数生成详细的修炼过程和结果') }}</p>
+        <!-- 施政天数选择 -->
+        <div class="administration-days-section">
+          <label class="section-label">{{ $t('选择施政天数') }}</label>
+          <p class="section-hint">{{ $t('AI将根据施政天数生成详细的施政过程和结果') }}</p>
 
           <div class="input-group">
             <input
@@ -91,7 +91,7 @@
           :disabled="!isValidDays"
           @click="handleConfirm"
         >
-          {{ $t('开始修炼') }}
+          {{ $t('开始施政') }}
         </button>
       </div>
     </div>
@@ -101,14 +101,14 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { X } from 'lucide-vue-next';
-import type { TechniqueItem } from '@/types/game';
+import type { StrategyItem } from '@/types/game';
 import { useI18n } from '@/i18n';
 
 const { t: _t } = useI18n();
 
 interface Props {
   visible: boolean;
-  technique: TechniqueItem | null;
+  strategy: StrategyItem | null;
   currentProgress?: number;
 }
 
@@ -138,8 +138,8 @@ const isValidDays = computed(() => {
   return selectedDays.value >= 1 && selectedDays.value <= 3650;
 });
 
-const getTechniqueQualityClass = computed(() => {
-  const quality = props.technique?.品质?.quality || '凡';
+const getStrategyQualityClass = computed(() => {
+  const quality = props.strategy?.品质?.quality || '凡';
   return `quality-${quality}`;
 });
 

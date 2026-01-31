@@ -110,19 +110,13 @@ const editingTalent = ref<Talent | null>(null)
 const filteredTalents = computed(() => {
   const allTalents = store.creationData.talents;
   console.log("【天赋选择】所有天赋数据:", allTalents.length, "个");
-  console.log("【天赋选择】当前模式:", store.isLocalCreation ? '本地' : '联机');
-  
-  if (store.isLocalCreation) {
-    const availableTalents = allTalents.filter(talent =>
-      talent.source === 'local' || talent.source === 'cloud'
-    );
-    console.log("【天赋选择】单机模式可用天赋数量:", availableTalents.length);
-    return availableTalents;
-  } else {
-    const availableTalents = allTalents.length > 0 ? allTalents : [];
-    console.log("【天赋选择】联机模式天赋数量:", availableTalents.length);
-    return availableTalents;
-  }
+
+  // 单机模式：显示本地和云端数据
+  const availableTalents = allTalents.filter(talent =>
+    talent.source === 'local' || talent.source === 'cloud'
+  );
+  console.log("【天赋选择】可用天赋数量:", availableTalents.length);
+  return availableTalents;
 });
 
 // 自定义天赋字段 - 支持简单描述和结构化格式

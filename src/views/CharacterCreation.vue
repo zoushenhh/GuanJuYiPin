@@ -193,7 +193,7 @@ onUnmounted(() => {
   store.resetOnExit();
 });
 
-// 单机模式下不支持联机兑换码功能
+// 兑换码功能（单机模式不支持）
 async function executeCloudAiGeneration(_code: string, _userPrompt?: string) {
   toast.error('单机模式下不支持兑换码功能');
 }
@@ -361,7 +361,6 @@ async function createCharacter() {
   store.startCreation();
 
   if (!store.isLocalCreation) {
-    // 移除联机模式相关检查
     toast.error('仅支持单机模式');
     store.resetCreationState();
     return;

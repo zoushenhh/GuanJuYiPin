@@ -30,7 +30,7 @@ import { computed, defineAsyncComponent } from 'vue'
 import { useGameStateStore } from '@/stores/gameStateStore'
 import { toast } from '@/utils/toast'
 import { debug } from '@/utils/debug'
-import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration'
+import { isSaveDataV3, migrateSaveDataToV3 } from '@/utils/saveMigration'
 
 // 异步加载 TreeNode 组件以避免循环依赖
 const TreeNode = defineAsyncComponent(() => import('./TreeNode.vue'))
@@ -50,7 +50,7 @@ const gameStateStore = useGameStateStore()
 
 const displaySaveData = computed(() => {
   const raw = props.saveData ?? {}
-  const v3 = isSaveDataV3(raw) ? raw : migrateSaveDataToLatest(raw as any).migrated
+  const v3 = isSaveDataV3(raw) ? raw : migrateSaveDataToV3(raw as any).migrated
 
   // 只展示 V3 五域（彻底隐藏旧顶层 key）
   return {
@@ -71,7 +71,6 @@ const handleEditItem = (path: string, value: unknown) => {
     '元数据.游玩时长',
     '元数据.创建时间',
     '元数据.更新时间',
-    '系统.联机.同步状态',
   ];
   if (readOnlyPaths.some((p) => path === p || path.startsWith(`${p}.`))) {
     toast.warning('该字段为界面展示信息，无法直接修改（请修改实际存档字段）');

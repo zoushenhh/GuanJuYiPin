@@ -263,9 +263,9 @@ import { AlertTriangle, FastForward, Play, RefreshCw, ScrollText, Shield, Square
 import { useGameStateStore } from '@/stores/gameStateStore';
 import { useCharacterStore } from '@/stores/characterStore';
 import { toast } from '@/utils/toast';
-import { detectPlayerSectLeadership, isLeaderPosition } from '@/utils/sectLeadershipUtils';
+import { detectPlayerGovernmentLeadership, isLeaderPosition } from '@/utils/governmentLeadershipUtils';
 import type { SectWarState, WorldFaction, WorldInfo } from '@/types/game';
-import { buildWarMemoryLine, computeSectWarSide, concludeWar, resolveWarStage, type SectWarComputedSide } from '@/utils/sectWarSimulation';
+import { buildGovernmentConflictMemoryLine, computeGovernmentConflictSide, concludeGovernmentConflict, resolveGovernmentConflictStage, type GovernmentConflictComputedSide } from '@/utils/governmentConflictSimulation';
 import { generateWithRawPrompt } from '@/utils/tavernCore';
 import { parseJsonSmart } from '@/utils/jsonExtract';
 import { aiService } from '@/services/aiService';
@@ -296,14 +296,14 @@ const sectNameCandidates = computed(() =>
     .slice(0, 200)
 );
 
-const leaderInfo = computed(() => detectPlayerSectLeadership(playerName.value, allSects.value, gameStateStore.sectMemberInfo));
+const leaderInfo = computed(() => detectPlayerGovernmentLeadership(playerName.value, allSects.value, gameStateStore.sectMemberInfo));
 
 const playerSectInfo = computed(() => gameStateStore.sectMemberInfo);
 const sectSystemCurrent = computed(() => String((gameStateStore.sectSystem as any)?.当前宗门 || '').trim());
 const resolvedSectName = computed(() => {
   const fromMember = String(playerSectInfo.value?.宗门名称 || '').trim();
   if (fromMember) return fromMember;
-  const fromLeader = String(leaderInfo.value.sectName || '').trim();
+  const fromLeader = String(leaderInfo.value.officeName || '').trim();
   if (fromLeader) return fromLeader;
   if (sectSystemCurrent.value) return sectSystemCurrent.value;
   const fromSystemMember = String(((gameStateStore.sectSystem as any)?.成员信息?.宗门名称 ?? '') || '').trim();
@@ -534,8 +534,8 @@ async function startWar() {
     const reason = warReason.value.trim();
     const goal = warGoal.value.trim();
 
-    const our = computeSectWarSide(saveData, attacker);
-    const enemy = computeSectWarSide(saveData, defender);
+    const our = computeGovernmentConflictSide(saveData, attacker);
+    const enemy = computeGovernmentConflictSide(saveData, defender);
 
     const nowIso = new Date().toISOString();
     const warId = `war_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
@@ -587,7 +587,7 @@ async function advance() {
     const nowIso = new Date().toISOString();
     const stage = (w.阶段列表?.[w.阶段索引] ?? w.当前阶段) as any;
 
-    const { war: afterStage, report } = resolveWarStage({ war: w, stage, nowIso });
+    const { war: afterStage, report } = resolveGovernmentConflictStage({ war: w, stage, nowIso });
     const nextIndex = w.阶段索引 + 1;
 
     const next: SectWarState = {
@@ -598,14 +598,14 @@ async function advance() {
     };
 
     if (nextIndex >= (w.阶段列表?.length ?? 0)) {
-      const { war: concluded, report: endReport } = concludeWar({ war: next, nowIso });
+      const { war: concluded, report: endReport } = concludeGovernmentConflict({ war: next, nowIso });
       const finalized: SectWarState = {
         ...concluded,
         战报: [...(next.战报 ?? []), endReport],
         当前阶段: '终局',
       };
       await persistWar(finalized);
-      gameStateStore.addToShortTermMemory(buildWarMemoryLine(finalized));
+      gameStateStore.addToShortTermMemory(buildGovernmentConflictMemoryLine(finalized));
       await characterStore.saveCurrentGame();
       toast.success(`衙门竞争已结束：${finalized.状态}`);
     } else {
@@ -629,7 +629,7 @@ async function autoResolve() {
     while (w.阶段索引 < (w.阶段列表?.length ?? 0) && w.状态 === '进行中') {
       const nowIso = new Date().toISOString();
       const stage = (w.阶段列表?.[w.阶段索引] ?? w.当前阶段) as any;
-      const { war: afterStage, report } = resolveWarStage({ war: w, stage, nowIso });
+      const { war: afterStage, report } = resolveGovernmentConflictStage({ war: w, stage, nowIso });
       const nextIndex = w.阶段索引 + 1;
       w = {
         ...afterStage,
@@ -640,7 +640,7 @@ async function autoResolve() {
     }
 
     const nowIso = new Date().toISOString();
-    const { war: concluded, report: endReport } = concludeWar({ war: w, nowIso });
+    const { war: concluded, report: endReport } = concludeGovernmentConflict({ war: w, nowIso });
     const finalized: SectWarState = {
       ...concluded,
       战报: [...(w.战报 ?? []), endReport],
@@ -648,7 +648,7 @@ async function autoResolve() {
     };
 
     await persistWar(finalized);
-    gameStateStore.addToShortTermMemory(buildWarMemoryLine(finalized));
+    gameStateStore.addToShortTermMemory(buildGovernmentConflictMemoryLine(finalized));
     await characterStore.saveCurrentGame();
     toast.success(`已推演至终局：${finalized.状态}`);
   } catch (e) {
@@ -675,7 +675,7 @@ async function ceasefire() {
       ],
     };
     await persistWar(next);
-    gameStateStore.addToShortTermMemory(buildWarMemoryLine(next));
+    gameStateStore.addToShortTermMemory(buildGovernmentConflictMemoryLine(next));
     await characterStore.saveCurrentGame();
     toast.success('已停战');
   } catch (e) {

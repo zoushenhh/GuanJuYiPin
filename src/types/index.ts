@@ -296,7 +296,6 @@ export type CharacterData = Character & {
  * - origin -> 出身背景
  * - spiritRoot -> 出身背景
  * - root_bone -> 精力
- * - mode: '联机' -> 已移除（纯单机模式）
  */
 export interface CharacterCreationPayload {
   charId: string;

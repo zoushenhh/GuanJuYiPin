@@ -26,12 +26,12 @@ import type {
 import { calculateFinalAttributes } from '@/utils/attributeCalculation';
 import { isTavernEnv } from '@/utils/tavern';
 import { ensureSystemConfigHasNsfw } from '@/utils/nsfw';
-import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
+import { isSaveDataV3, migrateSaveDataToV3 } from '@/utils/saveMigration';
 import { normalizeInventoryCurrencies } from '@/utils/currencySystem';
-import { detectPlayerSectLeadership } from '@/utils/sectLeadershipUtils';
+import { detectPlayerGovernmentLeadership } from '@/utils/governmentLeadershipUtils';
 
-function buildTechniqueProgress(inventory: Inventory | null) {
-  const progress: Record<string, { 熟练度: number; 已解锁技能: string[] }> = {};
+function buildGoverningStrategyProgress(inventory: Inventory | null) {
+  const progress: Record<string, { 方略进度: number; 已解锁技能: string[] }> = {};
   const items = inventory?.物品 || {};
 
   Object.values(items).forEach((item: any) => {
@@ -39,7 +39,7 @@ function buildTechniqueProgress(inventory: Inventory | null) {
     const itemId = item.物品ID;
     if (!itemId) return;
     progress[itemId] = {
-      熟练度: Number(item.政绩进度 ?? item.熟练度 ?? 0),
+      方略进度: Number(item.政绩进度 ?? item.方略进度 ?? 0),
       已解锁技能: Array.isArray(item.已解锁技能) ? item.已解锁技能 : []
     };
   });
@@ -136,12 +136,12 @@ interface GameState {
   thousandDao: any | null;
   // 事件系统
   eventSystem: EventSystem;
-  // 政绩方略
-  cultivationTechnique: any | null;
+  // 治国方略
+  governingStrategy: any | null;
   // 政务模块（完整结构）
-  cultivation: any | null;
+  administration: any | null;
   // 方略模块（进度/套装）
-  techniqueSystem: any | null;
+  governingSystem: any | null;
   // 技能模块（掌握技能/冷却）
   skillState: any | null;
   // 效果（buff/debuff数组）
@@ -196,9 +196,9 @@ export const useGameStateStore = defineStore('gameState', {
       下次事件时间: null,
       事件记录: [],
     },
-    cultivationTechnique: null,
-    cultivation: null,
-    techniqueSystem: null,
+    governingStrategy: null,
+    administration: null,
+    governingSystem: null,
     skillState: null,
     effects: [],
     masteredSkills: null,
@@ -310,9 +310,9 @@ export const useGameStateStore = defineStore('gameState', {
         if (!sectMemberInfo) {
           const playerNameForDetect = String((character as any)?.名字 || '').trim();
           const factions = (worldInfo?.势力信息 || []) as WorldFaction[];
-          const leader = detectPlayerSectLeadership(playerNameForDetect, factions, null);
+          const leader = detectPlayerGovernmentLeadership(playerNameForDetect, factions, null);
 
-          const sectNameCandidate = String((sectSystem as any)?.当前衙门 || leader.sectName || '').trim();
+          const sectNameCandidate = String((sectSystem as any)?.当前衙门 || leader.officeName || '').trim();
           if (sectNameCandidate) {
             const sectProfile = factions.find((s) => String((s as any)?.名称 || '').trim() === sectNameCandidate) ?? null;
             sectMemberInfo = {
@@ -349,7 +349,7 @@ export const useGameStateStore = defineStore('gameState', {
       const daoSystem = v3?.角色?.大道 ? deepCopy(v3.角色.大道) : null;
       const eventSystem: EventSystem | null = v3?.社交?.事件 ? deepCopy(v3.社交.事件) : null;
       const cultivation = v3?.角色?.政务 ? deepCopy(v3.角色.政务) : null;
-      const techniqueSystem = v3?.角色?.方略 ? deepCopy(v3.角色.方略) : null;
+      const governingSystem = v3?.角色?.方略 ? deepCopy(v3.角色.方略) : null;
       const skillState = v3?.角色?.技能 ? deepCopy(v3.角色.技能) : null;
 
       const effects: StatusEffect[] = Array.isArray(v3?.角色?.效果) ? deepCopy(v3.角色.效果) : [];
@@ -402,10 +402,10 @@ export const useGameStateStore = defineStore('gameState', {
             事件记录: [],
           };
 
-      this.cultivation = cultivation ? deepCopy(cultivation) : null;
-      this.cultivationTechnique = (this.cultivation as any)?.政绩方略 ?? null;
+      this.administration = cultivation ? deepCopy(cultivation) : null;
+      this.governingStrategy = (this.administration as any)?.政绩方略 ?? null;
 
-      this.techniqueSystem = techniqueSystem ? deepCopy(techniqueSystem) : null;
+      this.governingSystem = governingSystem ? deepCopy(governingSystem) : null;
       this.skillState = skillState ? deepCopy(skillState) : null;
       this.masteredSkills = (this.skillState as any)?.掌握技能
         ? deepCopy((this.skillState as any).掌握技能)
@@ -440,8 +440,8 @@ export const useGameStateStore = defineStore('gameState', {
         } as any;
       }
 
-      if (!this.cultivation) {
-        this.cultivation = { 政绩方略: this.cultivationTechnique ?? null } as any;
+      if (!this.administration) {
+        this.administration = { 政绩方略: this.governingStrategy ?? null } as any;
       }
 
       this.isGameLoaded = true;
@@ -470,14 +470,14 @@ export const useGameStateStore = defineStore('gameState', {
 
       const deepCopy = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
-      const techniqueProgress = buildTechniqueProgress(this.inventory);
-      const currentTechniqueId = (this.cultivationTechnique as any)?.物品ID ?? null;
+      const strategyProgress = buildGoverningStrategyProgress(this.inventory);
+      const currentStrategyId = (this.governingStrategy as any)?.物品ID ?? null;
 
-      const techniqueSystem = {
-        ...(this.techniqueSystem || {}),
-        当前方略ID: (this.techniqueSystem as any)?.当前方略ID ?? currentTechniqueId,
-        方略进度: (this.techniqueSystem as any)?.方略进度 ?? techniqueProgress,
-        方略套装: (this.techniqueSystem as any)?.方略套装 ?? { 主修: null, 辅修: [] },
+      const governingSystem = {
+        ...(this.governingSystem || {}),
+        当前方略ID: (this.governingSystem as any)?.当前方略ID ?? currentStrategyId,
+        方略进度: (this.governingSystem as any)?.方略进度 ?? strategyProgress,
+        方略套装: (this.governingSystem as any)?.方略套装 ?? { 主修: null, 辅修: [] },
       } as any;
 
       const skillState = {
@@ -487,9 +487,9 @@ export const useGameStateStore = defineStore('gameState', {
         冷却: (this.skillState as any)?.冷却 ?? {},
       } as any;
 
-      const cultivation = {
-        ...(this.cultivation || {}),
-        政绩方略: (this.cultivation as any)?.政绩方略 ?? this.cultivationTechnique ?? null,
+      const administration = {
+        ...(this.administration || {}),
+        政绩方略: (this.administration as any)?.政绩方略 ?? this.governingStrategy ?? null,
       } as any;
 
       const nowIso = new Date().toISOString();
@@ -554,8 +554,8 @@ export const useGameStateStore = defineStore('gameState', {
           身体: body,
           背包: this.inventory,
           装备: this.equipment,
-          方略: techniqueSystem,
-          政务: cultivation,
+          方略: governingSystem,
+          政务: administration,
           大道: daoNormalized,
           技能: skillState,
         },
@@ -693,9 +693,9 @@ export const useGameStateStore = defineStore('gameState', {
         下次事件时间: null,
         事件记录: [],
       };
-      this.cultivationTechnique = null;
-      this.cultivation = null;
-      this.techniqueSystem = null;
+      this.governingStrategy = null;
+      this.administration = null;
+      this.governingSystem = null;
       this.skillState = null;
       this.effects = [];
       this.masteredSkills = null;

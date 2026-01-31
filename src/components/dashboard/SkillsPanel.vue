@@ -25,14 +25,14 @@
         @click="activeTab = 'library'"
       >
         <BookOpen :size="16" />
-        <span>{{ t('功法库') }}</span>
+        <span>{{ t('方略库') }}</span>
         <span v-if="techniqueTotalCount" class="tab-count">{{ techniqueTotalCount }}</span>
       </button>
     </div>
 
     <!-- 从政页面 -->
     <div v-if="activeTab === 'cultivation'" class="tab-content">
-      <!-- 当前从政功法 -->
+      <!-- 当前施政方略 -->
       <div class="cultivation-card" :class="cultivationSkills ? getQualityBorderClass(cultivationSkills) : ''">
         <div class="cultivation-header">
           <div class="cultivation-info">
@@ -40,9 +40,9 @@
               <ScrollText :size="20" />
             </div>
             <div class="technique-meta">
-              <span class="meta-label">{{ cultivationSkills ? t('当前从政') : t('未在从政') }}</span>
+              <span class="meta-label">{{ cultivationSkills ? t('当前施政') : t('未在施政') }}</span>
               <span class="technique-name" :class="cultivationSkills ? getQualityTextClass(cultivationSkills) : ''">
-                {{ cultivationSkills?.名称 || t('请从功法库选择功法') }}
+                {{ cultivationSkills?.名称 || t('请从方略库选择方略') }}
               </span>
             </div>
           </div>
@@ -61,9 +61,9 @@
                 <Clock :size="16" />
                 <span>{{ t('深研') }}</span>
               </button>
-              <button v-if="canBreakthrough" class="action-btn warning" @click="attemptBreakthrough" :title="t('突破')">
+              <button v-if="canBreakthrough" class="action-btn warning" @click="attemptBreakthrough" :title="t('晋升')">
                 <TrendingUp :size="16" />
-                <span>{{ t('突破') }}</span>
+                <span>{{ t('晋升') }}</span>
               </button>
               <button class="action-btn danger" @click="unequipSkill" :title="t('卸下')">
                 <X :size="16" />
@@ -103,11 +103,11 @@
         </div>
       </div>
 
-      <!-- 功法技能列表 -->
+      <!-- 方略技能列表 -->
       <div v-if="cultivationSkills && sortedSkills.length > 0" class="skills-section">
         <div class="section-header">
           <Sparkles :size="16" />
-          <span>{{ t('功法技能') }}</span>
+          <span>{{ t('方略技能') }}</span>
           <span class="section-count">{{ allLearnedSkills.length }}/{{ sortedSkills.length }}</span>
         </div>
         <div class="skills-grid">

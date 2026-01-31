@@ -140,15 +140,15 @@
                   {{ t('丢弃') }}
                 </button>
               </template>
-              <!-- 功法：修炼和丢弃 -->
-              <template v-else-if="selectedItem?.类型 === '功法'">
+              <!-- 方略：施政和丢弃 -->
+              <template v-else-if="selectedItem?.类型 === '方略'">
                 <button
                   class="action-btn"
                   :class="isCultivating(selectedItem) ? 'stop-cultivate-btn' : 'cultivate-btn'"
                   :disabled="cultivateBusy"
                   @click="toggleCultivate(selectedItem)"
                 >
-                  {{ isCultivating(selectedItem) ? t('停止修炼') : t('修炼') }}
+                  {{ isCultivating(selectedItem) ? t('停止施政') : t('施政') }}
                 </button>
                 <button class="action-btn discard-btn" @click="discardItem(selectedItem)">
                   {{ t('丢弃') }}
@@ -174,7 +174,7 @@
             <BoxSelect :size="48" />
             <p v-if="selectedCategory === 'all'">{{ t('空空如也') }}</p>
             <p v-else-if="selectedCategory === '装备'">{{ t('暂无装备') }}</p>
-            <p v-else-if="selectedCategory === '功法'">{{ t('暂无功法') }}</p>
+            <p v-else-if="selectedCategory === '功法'">{{ t('暂无方略') }}</p>
             <p v-else-if="selectedCategory === '其他'">{{ t('暂无其他物品') }}</p>
             <p v-else>{{ t('暂无{0}').replace('{0}', t(selectedCategory)) }}</p>
             <span v-if="selectedCategory !== 'all'" class="filter-tip"> {{ t('可以试试搜索其他分类') }} </span>
@@ -311,15 +311,15 @@
                   {{ t('丢弃') }}
                 </button>
               </template>
-              <!-- 功法：修炼和丢弃 -->
-              <template v-else-if="selectedItem?.类型 === '功法'">
+              <!-- 方略：施政和丢弃 -->
+              <template v-else-if="selectedItem?.类型 === '方略'">
                 <button
                   class="action-btn"
                   :class="isCultivating(selectedItem) ? 'stop-cultivate-btn' : 'cultivate-btn'"
                   :disabled="cultivateBusy"
                   @click="toggleCultivate(selectedItem)"
                 >
-                  {{ isCultivating(selectedItem) ? t('停止修炼') : t('修炼') }}
+                  {{ isCultivating(selectedItem) ? t('停止施政') : t('施政') }}
                 </button>
                 <button class="action-btn discard-btn" @click="discardItem(selectedItem)">
                   {{ t('丢弃') }}

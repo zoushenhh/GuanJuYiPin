@@ -68,7 +68,7 @@ import { useGameStateStore } from '@/stores/gameStateStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { toast } from '@/utils/toast'
 import { panelBus } from '@/utils/panelBus'
-import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration'
+import { isSaveDataV3, migrateSaveDataToV3 } from '@/utils/saveMigration'
 import GameVariableDataHeader from './components/GameVariableDataHeader.vue'
 import GameVariableDataSelector from './components/GameVariableDataSelector.vue'
 import GameVariableDataDisplay from './components/GameVariableDataDisplay.vue'
@@ -112,7 +112,7 @@ const saveDataView = computed(() => {
   const activeProfile = characterStore.activeCharacterProfile
 
   const raw = (gameStateStore.toSaveData() as any) || {}
-  const v3 = isSaveDataV3(raw) ? raw : migrateSaveDataToLatest(raw).migrated
+  const v3 = isSaveDataV3(raw) ? raw : migrateSaveDataToV3(raw).migrated
 
   // 只展示 V3 五域，彻底隐藏任何旧顶层 key（即使仍残留在对象上）
   const data: any = {
@@ -339,7 +339,7 @@ const saveVariable = async (item: EditingItem) => {
       toast.error(t('未获取到存档数据（存档可能未完整加载）'))
       return
     }
-    const v3 = isSaveDataV3(current) ? current : migrateSaveDataToLatest(current as any).migrated
+    const v3 = isSaveDataV3(current) ? current : migrateSaveDataToV3(current as any).migrated
     const next = JSON.parse(JSON.stringify(v3))
     lodashSet(next, key, parsedValue)
     gameStateStore.loadFromSaveData(next as any)
