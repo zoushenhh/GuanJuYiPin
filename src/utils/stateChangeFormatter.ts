@@ -129,7 +129,7 @@ function parseItemChange(change: StateChange): FormattedChange | null {
 }
 
 /**
- * 解析角色核心属性变更 (修为、气血等)
+ * 解析角色核心属性变更 (政绩、健康等)
  * V3：角色.属性 / 角色.位置 / 社交.关系.[NPC名].属性
  * @param change - 单条变更记录
  * @returns FormattedChange | null

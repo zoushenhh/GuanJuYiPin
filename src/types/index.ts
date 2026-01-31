@@ -344,10 +344,10 @@ export interface CharacterCreationPayload {
  */
 export type DADCustomData = {
   worlds: World[];
-  talentTiers: TalentTier[];
-  origins: Origin[];        // @deprecated 使用 MagistrateBackground
-  spiritRoots: SpiritRoot[]; // @deprecated 使用 MagistrateBackground
-  talents: Talent[];
+  backgrounds: TalentTier[];
+  aptitudes: Origin[];        // @deprecated 使用 MagistrateBackground
+  postHeavens: SpiritRoot[]; // @deprecated 使用 MagistrateBackground
+  abilities: Talent[];
 };
 // src/types/index.ts
 

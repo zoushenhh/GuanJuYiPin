@@ -638,19 +638,19 @@ async () => {
   const creationStore = useCharacterCreationStore();
 
   // [Roo] 强制TS重新评估类型
-  // 如果用户选择了随机才能，用AI生成的具体才能替换
-  if (creationStore.selectedSpiritRoot?.name === '随机才能' && (saveDataAfterCommands as any).角色?.身份?.灵根) {
-    const aiSpiritRoot = (saveDataAfterCommands as any).角色.身份.灵根;
-    if (typeof aiSpiritRoot === 'object') {
-      creationStore.setAIGeneratedSpiritRoot(aiSpiritRoot as SpiritRoot);
+  // 如果用户选择了随机后天，用AI生成的具体后天替换
+  if (creationStore.selectedPostHeaven?.name === '随机后天' && (saveDataAfterCommands as any).角色?.身份?.后天) {
+    const aiPostHeaven = (saveDataAfterCommands as any).角色.身份.后天;
+    if (typeof aiPostHeaven === 'object') {
+      creationStore.setAIGeneratedSpiritRoot(aiPostHeaven as SpiritRoot);
     }
   }
 
-  // 如果用户选择了随机出生，用AI生成的具体出生替换
-  if (creationStore.selectedOrigin?.name === '随机出身' && (saveDataAfterCommands as any).角色?.身份?.出生) {
-    const aiOrigin = (saveDataAfterCommands as any).角色.身份.出生;
-    if (typeof aiOrigin === 'object') {
-      creationStore.setAIGeneratedOrigin(aiOrigin as Origin);
+  // 如果用户选择了随机天资，用AI生成的具体天资替换
+  if (creationStore.selectedAptitude?.name === '随机天资' && (saveDataAfterCommands as any).角色?.身份?.天资) {
+    const aiAptitude = (saveDataAfterCommands as any).角色.身份.天资;
+    if (typeof aiAptitude === 'object') {
+      creationStore.setAIGeneratedOrigin(aiAptitude as Origin);
     }
   }
 
@@ -703,58 +703,58 @@ function deriveBaseFieldsFromDetails(baseInfo: CharacterBaseInfo): CharacterBase
   // 1. 世界 - 已经由 baseInfo 传入，这里不再覆盖
   // derivedInfo.世界 = worldName; // worldName is just a string, baseInfo.世界 is a World object
 
-  // 2. 天资 (Talent Tier) - 用户必选
-  const authoritativeTalentTier = creationStore.selectedTalentTier;
-  if (authoritativeTalentTier) {
-    console.log(`[数据校准] ✅ 同步用户选择的天资: ${authoritativeTalentTier.name}`);
-    derivedInfo.天资 = authoritativeTalentTier;
-  } else {
-    console.warn('[数据校准] 警告: 无法找到权威的天资数据。');
-  }
-
-  // 3. 出身 (Origin) - 如果AI已生成具体出身，则保留AI生成的
-  const authoritativeOrigin = creationStore.selectedOrigin;
-  const hasAIGeneratedOrigin = derivedInfo.出生 && typeof derivedInfo.出生 === 'object' && (derivedInfo.出生 as any).名称 !== '随机出身';
-
-  if (authoritativeOrigin && !hasAIGeneratedOrigin) {
-    console.log(`[数据校准] ✅ 同步用户选择的出身: ${authoritativeOrigin.name}`);
-    derivedInfo.出生 = authoritativeOrigin;
-  } else if (hasAIGeneratedOrigin) {
-    // 如果用户选择随机，并且一个具体的对象已经存在（由AI或后备逻辑生成），则直接信任和保留它。
-    console.log('[数据校准] ✅ 保留已生成的具体出身:', (derivedInfo.出生 as Origin).name);
-  } else if (creationStore.characterPayload.origin_id === null) {
-    // 仅当没有生成任何具体出身时，才可能需要标记回随机（作为最后的保险措施）
-    console.log('[数据校准] 🎲 用户选择随机出身，但无有效生成值，标记为随机');
-    derivedInfo.出生 = '随机出身';
+  // 2. 出身 - 用户必选
+  const authoritativeBackground = creationStore.selectedBackground;
+  if (authoritativeBackground) {
+    console.log(`[数据校准] ✅ 同步用户选择的出身: ${authoritativeBackground.name}`);
+    derivedInfo.天资 = authoritativeBackground;
   } else {
     console.warn('[数据校准] 警告: 无法找到权威的出身数据。');
   }
 
-  // 4. 才干 - 如果AI已生成具体才干，则保留AI生成的
-  const authoritativeSpiritRoot = creationStore.selectedSpiritRoot;
-  const hasAIGeneratedSpiritRoot = derivedInfo.灵根 && typeof derivedInfo.灵根 === 'object' && (derivedInfo.灵根 as any).名称 !== '随机才干';
+  // 3. 天资 - 如果AI已生成具体天资，则保留AI生成的
+  const authoritativeAptitude = creationStore.selectedAptitude;
+  const hasAIGeneratedAptitude = derivedInfo.天资 && typeof derivedInfo.天资 === 'object' && (derivedInfo.天资 as any).名称 !== '随机天资';
 
-  if (authoritativeSpiritRoot && !hasAIGeneratedSpiritRoot) {
-    console.log(`[数据校准] ✅ 同步用户选择的才干: ${authoritativeSpiritRoot.name} (${authoritativeSpiritRoot.tier})`);
-    derivedInfo.灵根 = authoritativeSpiritRoot;
-  } else if (hasAIGeneratedSpiritRoot) {
+  if (authoritativeAptitude && !hasAIGeneratedAptitude) {
+    console.log(`[数据校准] ✅ 同步用户选择的天资: ${authoritativeAptitude.name}`);
+    derivedInfo.出生 = authoritativeAptitude;
+  } else if (hasAIGeneratedAptitude) {
     // 如果用户选择随机，并且一个具体的对象已经存在（由AI或后备逻辑生成），则直接信任和保留它。
-    console.log('[数据校准] ✅ 保留已生成的具体才干:', (derivedInfo.灵根 as SpiritRoot).name);
-  } else if (creationStore.characterPayload.spirit_root_id === null) {
-    // 仅当没有生成任何具体才干时，才可能需要标记回随机（作为最后的保险措施）
-    console.log('[数据校准] 🎲 用户选择随机才干，但无有效生成值，标记为随机');
-    derivedInfo.灵根 = '随机才干';
+    console.log('[数据校准] ✅ 保留已生成的具体天资:', (derivedInfo.出生 as Origin).name);
+  } else if (creationStore.characterPayload.origin_id === null) {
+    // 仅当没有生成任何具体天资时，才可能需要标记回随机（作为最后的保险措施）
+    console.log('[数据校准] 🎲 用户选择随机天资，但无有效生成值，标记为随机');
+    derivedInfo.出生 = '随机天资';
   } else {
-    console.warn('[数据校准] 警告: 无法找到权威的才干数据。');
+    console.warn('[数据校准] 警告: 无法找到权威的天资数据。');
   }
 
-  // 5. 天赋 (Talents) - 用户选择的天赋，强制使用不允许修改
-  const authoritativeTalents = creationStore.selectedTalents;
-  if (authoritativeTalents && authoritativeTalents.length > 0) {
-    console.log(`[数据校准] ✅ 同步用户选择的天赋，共 ${authoritativeTalents.length} 个`);
-    derivedInfo.天赋 = authoritativeTalents;
+  // 4. 后天 - 如果AI已生成具体后天，则保留AI生成的
+  const authoritativePostHeaven = creationStore.selectedPostHeaven;
+  const hasAIGeneratedPostHeaven = derivedInfo.后天 && typeof derivedInfo.后天 === 'object' && (derivedInfo.后天 as any).名称 !== '随机后天';
+
+  if (authoritativePostHeaven && !hasAIGeneratedPostHeaven) {
+    console.log(`[数据校准] ✅ 同步用户选择的后天: ${authoritativePostHeaven.name} (${authoritativePostHeaven.tier})`);
+    derivedInfo.后天 = authoritativePostHeaven;
+  } else if (hasAIGeneratedPostHeaven) {
+    // 如果用户选择随机，并且一个具体的对象已经存在（由AI或后备逻辑生成），则直接信任和保留它。
+    console.log('[数据校准] ✅ 保留已生成的具体后天:', (derivedInfo.后天 as SpiritRoot).name);
+  } else if (creationStore.characterPayload.spirit_root_id === null) {
+    // 仅当没有生成任何具体后天时，才可能需要标记回随机（作为最后的保险措施）
+    console.log('[数据校准] 🎲 用户选择随机后天，但无有效生成值，标记为随机');
+    derivedInfo.后天 = '随机后天';
   } else {
-    console.log('[数据校准] 用户未选择任何天赋，天赋字段设置为空数组。');
+    console.warn('[数据校准] 警告: 无法找到权威的后天数据。');
+  }
+
+  // 5. 能力 - 用户选择的能力，强制使用不允许修改
+  const authoritativeAbilities = creationStore.selectedAbilities;
+  if (authoritativeAbilities && authoritativeAbilities.length > 0) {
+    console.log(`[数据校准] ✅ 同步用户选择的能力，共 ${authoritativeAbilities.length} 个`);
+    derivedInfo.天赋 = authoritativeAbilities;
+  } else {
+    console.log('[数据校准] 用户未选择任何能力，天赋字段设置为空数组。');
     derivedInfo.天赋 = [];
   }
 

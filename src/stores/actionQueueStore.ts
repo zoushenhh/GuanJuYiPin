@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 export interface GameAction {
   id: string;
-  type?: 'cultivate' | 'equip' | 'use' | 'unequip' | 'discard' | 'npc_trade' | 'npc_request' | 'npc_steal' | 'custom' | 'npc_memory_summarize' | 'comprehend';
+  type?: 'govern' | 'equip' | 'use' | 'unequip' | 'discard' | 'npc_trade' | 'npc_request' | 'npc_steal' | 'custom' | 'npc_memory_summarize' | 'study';
   itemName?: string;
   itemType?: string;
   description?: string;
@@ -44,16 +44,16 @@ export const useActionQueueStore = defineStore('actionQueue', () => {
       );
     }
 
-    // 确保任何时候只有一个研习操作
-    // 如果添加新的研习操作，则移除所有旧的
-    if (newAction.type === 'cultivate') {
-      pendingActions.value = pendingActions.value.filter(a => a.type !== 'cultivate');
+    // 确保任何时候只有一个施政操作
+    // 如果添加新的施政操作，则移除所有旧的
+    if (newAction.type === 'govern') {
+      pendingActions.value = pendingActions.value.filter(a => a.type !== 'govern');
     }
 
-    // 确保任何时候只有一个感悟大道操作（感悟治国理论）
-    // 如果添加新的感悟操作，则移除所有旧的
-    if (newAction.type === 'comprehend') {
-      pendingActions.value = pendingActions.value.filter(a => a.type !== 'comprehend');
+    // 确保任何时候只有一个理论学习操作（学习治国理论）
+    // 如果添加新的学习操作，则移除所有旧的
+    if (newAction.type === 'study') {
+      pendingActions.value = pendingActions.value.filter(a => a.type !== 'study');
     }
     // --- 冲突解决逻辑结束 ---
 
@@ -108,11 +108,17 @@ export const useActionQueueStore = defineStore('actionQueue', () => {
     
     const actionTexts = pendingActions.value.map(action => {
       switch (action.type) {
-        case 'cultivate':
-          if (action.itemType === '大道') {
-            return `感悟了《${action.itemName}》大道`;
+        case 'govern':
+          if (action.itemType === '方略') {
+            return `学习了《${action.itemName}》方略`;
           } else {
-            return `研习了《${action.itemName}》方略`;
+            return `执行了《${action.itemName}》政务`;
+          }
+        case 'study':
+          if (action.itemType === '理论') {
+            return `学习了《${action.itemName}》理论`;
+          } else {
+            return `研究了《${action.itemName}》`;
           }
         case 'equip':
           return `配备了《${action.itemName}》${action.itemType || '器械'}`;

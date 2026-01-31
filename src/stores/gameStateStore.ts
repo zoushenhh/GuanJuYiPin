@@ -365,9 +365,9 @@ export const useGameStateStore = defineStore('gameState', {
       this.attributes = attributes;
       this.location = location;
 
-      // 才能/官品品质字段容错（AI偶尔会返回 {quality,grade} 结构）
-      if ((this.character as any)?.灵根 && typeof (this.character as any).灵根 === 'object') {
-        normalizeQualitySuffix((this.character as any).灵根, 'tier');
+      // 后天/官品品质字段容错（AI偶尔会返回 {quality,grade} 结构）
+      if ((this.character as any)?.后天 && typeof (this.character as any).后天 === 'object') {
+        normalizeQualitySuffix((this.character as any).后天, 'tier');
       }
       if ((this.attributes as any)?.官品 && typeof (this.attributes as any).官品 === 'object') {
         normalizeQualitySuffix((this.attributes as any).官品, '品质');
