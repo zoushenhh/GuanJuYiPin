@@ -22,7 +22,6 @@ export interface SaveMigrationReport {
 export interface SaveDisplayInfo {
   角色名字: string;
   官品: string; // 县令主题：官品/职位
-  官品?: string; // 县令主题字段（与官品保持同步）
   位置: string;
   游戏时间: GameTime | null;
 }
@@ -102,7 +101,7 @@ export function extractSaveDisplayInfo(saveData: SaveData | null | undefined): S
     游戏时间 = coerceTime(anySave.游戏时间);
   }
 
-  return { 角色名字, 官品, 官品: 官品, 位置, 游戏时间 };
+  return { 角色名字, 官品, 位置, 游戏时间 };
 }
 
 
@@ -269,11 +268,13 @@ export function migrateSaveDataToV3(raw: SaveData): { migrated: SaveDataV3; repo
   const legacyStatusObj = isPlainObject(legacyStatusLike) ? legacyStatusLike : ({} as any);
 
   const flatAttributes = {
+    境界: (legacyStatusObj as any).境界 ?? (legacyStatusObj as any).官品 ?? null,
     官品: (legacyStatusObj as any).官品 ?? null,
     声望: (legacyStatusObj as any).声望 ?? 0,
     气血: (legacyStatusObj as any).气血 ?? { 当前: 100, 上限: 100 },
     灵气: (legacyStatusObj as any).灵气 ?? { 当前: 50, 上限: 50 },
     神识: (legacyStatusObj as any).神识 ?? { 当前: 30, 上限: 30 },
+    寿命: (legacyStatusObj as any).寿命 ?? (legacyStatusObj as any).任期 ?? { 当前: 18, 上限: 80 },
     任期: (legacyStatusObj as any).任期 ?? { 当前: 18, 上限: 80 },
   };
 
@@ -320,6 +321,7 @@ export function migrateSaveDataToV3(raw: SaveData): { migrated: SaveDataV3; repo
       : { 掌握技能: [], 装备栏: [], 冷却: {} });
 
   const flatSect = source.宗门 ?? source.宗门系统 ?? undefined;
+  const flatGovernment = source.衙门 ?? source.衙门系统 ?? undefined;
   const flatRelationships = source.关系 ?? source.人物关系 ?? {};
   const flatMemory = normalizeMemory(source.记忆 ?? source.社交?.记忆);
 
@@ -367,14 +369,13 @@ export function migrateSaveDataToV3(raw: SaveData): { migrated: SaveDataV3; repo
       装备: flatEquipment,
       方略: flatTechniqueSystem,
       施政: flatCultivation,
-      方略: flatTechniqueSystem,
-      施政: flatCultivation,
       大道: flatDao,
       技能: flatSkills,
       理念: flatDao,
     },
     社交: {
       关系: flatRelationships,
+      衙门: flatGovernment ?? flatSect ?? null,
       宗门: flatSect ?? null,
       事件: flatEvent,
       记忆: flatMemory,

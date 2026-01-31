@@ -32,46 +32,46 @@ function getRealmLevel(realm: string): number {
  * 验证并修复衙门境界分布数据
  */
 export function validateAndFixGovernmentRealmData(governmentData: any): any {
-  if (!sectData) return sectData;
+  if (!governmentData) return governmentData;
 
   // 字段名兼容：将英文字段名转换为中文字段名
-  if (sectData.leadership && !sectData.领导层) {
-    sectData.领导层 = sectData.leadership;
-    delete sectData.leadership;
+  if (governmentData.leadership && !governmentData.领导层) {
+    governmentData.领导层 = governmentData.leadership;
+    delete governmentData.leadership;
   }
 
   // 特殊规则：合欢衙门若缺失"圣女"，自动补齐（避免只生成衙门不生成关键职位）
-  const sectName = String(sectData.名称 || sectData.name || '');
-  if (sectName.includes('合欢')) {
-    if (!sectData.领导层) {
-      sectData.领导层 = {
+  const governmentName = String(governmentData.名称 || governmentData.name || '');
+  if (governmentName.includes('合欢')) {
+    if (!governmentData.领导层) {
+      governmentData.领导层 = {
         主官: '合欢老魔',
-        主官修为: sectData.最强修为 || '化神期',
-        最强修为: sectData.最强修为 || '化神期',
+        主官修为: governmentData.最强修为 || '化神期',
+        最强修为: governmentData.最强修为 || '化神期',
         圣女: '灰夫人(合欢圣女)'
       };
-    } else if (!sectData.领导层.圣女) {
-      sectData.领导层.圣女 = '灰夫人(合欢圣女)';
+    } else if (!governmentData.领导层.圣女) {
+      governmentData.领导层.圣女 = '灰夫人(合欢圣女)';
     }
-  } else if (sectData.领导层) {
+  } else if (governmentData.领导层) {
     // 彩蛋限定：其他衙门不应出现"圣女/圣子"字段（即便AI生成了也移除）
-    if ('圣女' in sectData.领导层) delete sectData.领导层.圣女;
-    if ('圣子' in sectData.领导层) delete sectData.领导层.圣子;
+    if ('圣女' in governmentData.领导层) delete governmentData.领导层.圣女;
+    if ('圣子' in governmentData.领导层) delete governmentData.领导层.圣子;
   }
 
   // 处理 memberCount 字段
-  if (sectData.memberCount && !sectData.成员数量) {
-    sectData.成员数量 = {
-      总数: sectData.memberCount.total,
-      按境界: sectData.memberCount.byRealm,
-      按职位: sectData.memberCount.byPosition
+  if (governmentData.memberCount && !governmentData.成员数量) {
+    governmentData.成员数量 = {
+      总数: governmentData.memberCount.total,
+      按境界: governmentData.memberCount.byRealm,
+      按职位: governmentData.memberCount.byPosition
     };
-    delete sectData.memberCount;
+    delete governmentData.memberCount;
   }
 
   // 处理已存在的成员数量字段中的英文子字段
-  if (sectData.成员数量) {
-    const memberCount = sectData.成员数量;
+  if (governmentData.成员数量) {
+    const memberCount = governmentData.成员数量;
 
     // 转换 total -> 总数
     if (memberCount.total !== undefined && memberCount.总数 === undefined) {
@@ -90,15 +90,15 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
   }
 
   // 获取最强修为等级
-  const maxRealm = sectData.领导层?.最强修为 || sectData.最强修为;
+  const maxRealm = governmentData.领导层?.最强修为 || governmentData.最强修为;
   const maxLevel = getRealmLevel(maxRealm);
 
   console.log(`[衙门验证] ${governmentData.名称}: 最强修为="${maxRealm}" → 等级=${maxLevel}`);
   console.log(`[衙门验证] ${governmentData.名称}: 原始境界分布=`, governmentData.成员数量?.按境界);
 
   // 🔥 智能修复：根据境界分布自动设置最强修为
-  if (sectData.成员数量?.按境界) {
-    const realmDist = sectData.成员数量.按境界;
+  if (governmentData.成员数量?.按境界) {
+    const realmDist = governmentData.成员数量.按境界;
 
     // 找出境界分布中的最高境界
     let highestRealmLevel = 0;
@@ -122,30 +122,30 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
       const correctedMaxRealm = `${realmNameWithoutSuffix}圆满`;
 
       // 更新leadership中的最强修为
-      if (sectData.领导层) {
-        const oldMaxRealm = sectData.领导层.最强修为;
+      if (governmentData.领导层) {
+        const oldMaxRealm = governmentData.领导层.最强修为;
         governmentData.领导层.最强修为 = correctedMaxRealm;
         console.log(`[衙门验证] ${governmentData.名称}: 根据境界分布自动修正最强修为: "${oldMaxRealm}" → "${correctedMaxRealm}"`);
 
         // 如果主官修为低于最强修为，也更新主官修为
         const masterRealmLevel = getRealmLevel(governmentData.领导层.主官修为 || '');
         if (masterRealmLevel < highestRealmLevel) {
-          sectData.领导层.主官修为 = correctedMaxRealm;
-          console.log(`[衙门验证] ${sectData.名称}: 同时更新主官修为为: "${correctedMaxRealm}"`);
+          governmentData.领导层.主官修为 = correctedMaxRealm;
+          console.log(`[衙门验证] ${governmentData.名称}: 同时更新主官修为为: "${correctedMaxRealm}"`);
         }
       }
     }
 
-    console.log(`[衙门验证] ${sectData.名称}: 境界分布包含:`, Object.keys(realmDist).filter(r => realmDist[r] > 0));
+    console.log(`[衙门验证] ${governmentData.名称}: 境界分布包含:`, Object.keys(realmDist).filter(r => realmDist[r] > 0));
   }
 
-  console.log(`[衙门验证] ${sectData.名称}: 验证后境界分布=`, sectData.成员数量?.按境界);
+  console.log(`[衙门验证] ${governmentData.名称}: 验证后境界分布=`, governmentData.成员数量?.按境界);
 
   // 验证长老数量与高境界修士数量的一致性
-  if (sectData.领导层?.长老数量 && sectData.成员数量?.按境界) {
-    const elderCount = sectData.领导层.长老数量;
-    const realmDist = sectData.成员数量.按境界;
-    
+  if (governmentData.领导层?.长老数量 && governmentData.成员数量?.按境界) {
+    const elderCount = governmentData.领导层.长老数量;
+    const realmDist = governmentData.成员数量.按境界;
+
     // 计算元婴期及以上的修士总数
     let highRealmCount = 0;
     Object.keys(realmDist).forEach(realm => {
@@ -167,7 +167,7 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
     }
   }
 
-  return sectData;
+  return governmentData;
 }
 
 /**
@@ -181,14 +181,12 @@ export function validateGovernmentConsistency(governmentData: any): { isValid: b
     return { isValid: false, errors };
   }
 
-  const sectData = governmentData;
-
   // 检查最强修为与境界分布的一致性
-  const maxRealm = sectData.领导层?.最强修为 || sectData.最强修为;
+  const maxRealm = governmentData.领导层?.最强修为 || governmentData.最强修为;
   const maxLevel = getRealmLevel(maxRealm);
 
-  if (sectData.成员数量?.按境界) {
-    Object.keys(sectData.成员数量.按境界).forEach(realm => {
+  if (governmentData.成员数量?.按境界) {
+    Object.keys(governmentData.成员数量.按境界).forEach(realm => {
       const realmLevel = getRealmLevel(realm);
       if (realmLevel > maxLevel) {
         errors.push(`境界分布错误: 存在${realm}期修士，但最强修为仅为${maxRealm}`);
@@ -197,13 +195,13 @@ export function validateGovernmentConsistency(governmentData: any): { isValid: b
   }
 
   // 检查长老数量与高境界修士的合理性
-  const elderCount = sectData.领导层?.长老数量;
-  if (elderCount && sectData.成员数量?.按境界) {
+  const elderCount = governmentData.领导层?.长老数量;
+  if (elderCount && governmentData.成员数量?.按境界) {
     let highRealmCount = 0;
-    Object.keys(sectData.成员数量.按境界).forEach(realm => {
+    Object.keys(governmentData.成员数量.按境界).forEach(realm => {
       const realmLevel = getRealmLevel(realm);
       if (realmLevel >= 4) {
-        highRealmCount += sectData.成员数量.按境界[realm] || 0;
+        highRealmCount += governmentData.成员数量.按境界[realm] || 0;
       }
     });
 
@@ -219,7 +217,7 @@ export function validateGovernmentConsistency(governmentData: any): { isValid: b
  * 批量验证并修复衙门数据列表
  */
 export function validateAndFixGovernmentDataList(governments: any[]): any[] {
-  if (!Array.isArray(sects)) return sects;
+  if (!Array.isArray(governments)) return governments;
 
   return governments.map(government => {
     const fixedGovernment = validateAndFixGovernmentRealmData(government);

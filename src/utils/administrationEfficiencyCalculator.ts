@@ -23,6 +23,22 @@ import type {
   CultivationSpeedResult,
 } from '@/types/game';
 
+/** 行政效率计算结果 */
+export interface AdministrationEfficiencyResult {
+  基础效率: number;
+  综合系数: number;
+  最终效率: number;
+  预计晋升时间: string;
+  因子详情: {
+    民心基础值系数: number;
+    先天六司系数: number;
+    后天六司系数: number;
+    状态效果系数: number;
+    策略加成系数: number;
+    环境加成系数: number;
+  };
+}
+
 // ============================================================================
 // 常量定义
 // ============================================================================
@@ -188,11 +204,11 @@ export function calculateCombinedSixSiFactor(
  * @returns 系数范围 0.1 - 2.0
  */
 export function calculatePublicTrustBaseFactor(trust: number): number {
-  const clampedDensity = clamp(density, 1, 100);
+  const clampedTrust = clamp(trust, 1, 100);
 
-  for (const range of SPIRIT_DENSITY_RANGES) {
-    if (clampedDensity >= range.min && clampedDensity <= range.max) {
-      return lerp(clampedDensity, range.min, range.max, range.minFactor, range.maxFactor);
+  for (const range of PUBLIC_TRUST_BASE_RANGES) {
+    if (clampedTrust >= range.min && clampedTrust <= range.max) {
+      return lerp(clampedTrust, range.min, range.max, range.minFactor, range.maxFactor);
     }
   }
 
@@ -204,15 +220,15 @@ export function calculatePublicTrustBaseFactor(trust: number): number {
  * 获取民心基础值描述
  */
 export function getPublicTrustBaseDescription(trust: number): string {
-  const clampedDensity = clamp(density, 1, 100);
+  const clampedTrust = clamp(trust, 1, 100);
 
-  for (const range of SPIRIT_DENSITY_RANGES) {
-    if (clampedDensity >= range.min && clampedDensity <= range.max) {
+  for (const range of PUBLIC_TRUST_BASE_RANGES) {
+    if (clampedTrust >= range.min && clampedTrust <= range.max) {
       return range.desc;
     }
   }
 
-  return '灵气稀薄';
+  return '民心稀薄';
 }
 
 // ============================================================================

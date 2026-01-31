@@ -231,7 +231,7 @@ export function checkGovernmentContentNeedsInit(
  * 获取政府主题关键字（用于AI生成提示）
  */
 export function getGovernmentThemeKeywords(office: WorldFaction): string[] {
-  const themeKey = buildThemeKey(sect);
+  const themeKey = buildThemeKey(office);
   const keywords: string[] = [];
 
   switch (themeKey) {
@@ -256,10 +256,10 @@ export function getGovernmentThemeKeywords(office: WorldFaction): string[] {
   }
 
   // 添加衙门特色
-  if (Array.isArray(sect.特色)) {
-    keywords.push(...sect.特色);
-  } else if (sect.特色) {
-    keywords.push(sect.特色);
+  if (Array.isArray(office.特色)) {
+    keywords.push(...office.特色);
+  } else if (office.特色) {
+    keywords.push(office.特色);
   }
 
   return [...new Set(keywords)];

@@ -1,4 +1,4 @@
-import type { SaveData, GovernmentWarReport, GovernmentWarSideState, GovernmentWarStageName, GovernmentWarState, WorldFaction } from '@/types/game';
+import type { SaveData, GovernmentWarReport, GovernmentWarSideState, GovernmentWarStageName, GovernmentWarState, SectWarSideState, SectWarState, WorldFaction } from '@/types/game';
 
 export type GovernmentConflictPowerBreakdownItem = {
   label: string;
@@ -133,8 +133,8 @@ export function computeGovernmentConflictSide(saveData: SaveData, officeName: st
   const totalPower = clamp(Math.round(base + memberScore + stabilityBonus + trainingBonus + facilityBonus + treasuryBonus), 1, 100);
   const morale = clamp(60 + stabilityBonus * 3 + trainingBonus * 2, 35, 95);
 
-  const side: SectWarSideState = {
-    衙门名称: String(officeName || '').trim(),
+  const side: GovernmentWarSideState = {
+    宗门名称: String(officeName || '').trim(),
     战力: totalPower,
     外门: counts.outer,
     内门: counts.inner,
@@ -316,7 +316,7 @@ export function concludeGovernmentConflict(args: { war: GovernmentWarState; nowI
   const win = score >= 0;
   const status = win ? '胜利' : '失败';
 
-  const finalized: SectWarState = {
+  const finalized: GovernmentWarState = {
     ...war,
     状态: status,
     当前阶段: '终局',

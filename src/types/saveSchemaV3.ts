@@ -125,6 +125,7 @@ export interface SaveDataV3 {
   社交: {
     关系: Record<string, NpcProfile>;
     关系矩阵?: RelationshipMatrixV3;
+    衙门?: (SectSystemV2 & { 成员信息?: SectMemberInfo }) | null;
     宗门?: (SectSystemV2 & { 成员信息?: SectMemberInfo }) | null;
     事件: EventSystem;
     记忆: Memory;

@@ -394,3 +394,357 @@ export function cleanCommand(command: TavernCommand): TavernCommand {
 export function cleanCommands(commands: TavernCommand[]): TavernCommand[] {
   return commands.map(cleanCommand);
 }
+
+// ============================================================
+// 以下功能从 commandValueValidator.ts 合并而来
+// ============================================================
+
+function coerceNumeric(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function coerceStringArray(value: unknown): string[] | null {
+  if (Array.isArray(value)) {
+    return value
+      .map((v) => (typeof v === 'string' ? v.trim() : ''))
+      .filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+    return trimmed
+      .split(/[、,，;；\n]/)
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+  return null;
+}
+
+/**
+ * 验证指令值的格式（只验证，不修复）
+ * 从 commandValueValidator.ts 合并
+ */
+export function validateAndRepairCommandValue(command: TavernCommand): ValidationResult {
+  const { action, key, value } = command;
+  const errors: string[] = [];
+
+  if (typeof key !== 'string' || !key) {
+    return { valid: false, errors: ['指令缺少key字段'], warnings: [] };
+  }
+  if (typeof action !== 'string' || !action) {
+    return { valid: false, errors: ['指令缺少action字段'], warnings: [] };
+  }
+
+  try {
+    // 1. 玩家官品对象
+    if (key === '角色.属性.官品' && action === 'set') {
+      const result = validateRankObject(value, '玩家');
+      errors.push(...result.errors);
+    }
+
+    // 2. 玩家位置对象
+    if (key === '角色.位置' && action === 'set') {
+      const result = validateLocationObject(value);
+      errors.push(...result.errors);
+    }
+
+    // 3. 状态效果对象（push操作）
+    if (key === '角色.效果' && action === 'push') {
+      const result = validateStatusEffectObject(value);
+      errors.push(...result.errors);
+    }
+
+    // 4. 物品对象（push到背包）
+    if (key === '角色.背包.物品' && action === 'push') {
+      const result = validateItemObject(value);
+      errors.push(...result.errors);
+    }
+
+    // 5. 物品对象（set操作）
+    if (key.startsWith('角色.背包.物品.') && action === 'set') {
+      const dotCount = (key.match(/\./g) || []).length;
+      if (dotCount === 3) {
+        const result = validateItemObject(value);
+        errors.push(...result.errors);
+      }
+    }
+
+    // 6. NPC对象（创建或更新）
+    if (key.startsWith('社交.关系.') && (key.match(/\./g) || []).length === 2 && action === 'set') {
+      const isLikelyFullNpcObject =
+        value &&
+        typeof value === 'object' &&
+        (value as any).名字 &&
+        (value as any).性别 &&
+        (value as any).出生日期 &&
+        ((value as any).外貌描述 || (value as any).性格特征 || (value as any).官品);
+
+      if (isLikelyFullNpcObject) {
+        const result = validateNPCObject(value);
+        errors.push(...result.errors);
+      }
+    }
+
+    // 7. NPC官品对象
+    if (key.includes('社交.关系.') && key.endsWith('.官品') && action === 'set') {
+      const result = validateRankObject(value, 'NPC');
+      errors.push(...result.errors);
+    }
+
+    // 8. 大道对象
+    if (key.startsWith('角色.大道.大道列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
+      const daoName = key.split('.')[3];
+      const result = validateDaoObject(value, daoName);
+      errors.push(...result.errors);
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+      warnings: []
+    };
+  } catch (error) {
+    console.error('[指令值验证] 验证过程发生异常:', error);
+    return {
+      valid: false,
+      errors: [`验证过程异常: ${error instanceof Error ? error.message : String(error)}`],
+      warnings: []
+    };
+  }
+}
+
+interface ValueValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+function validateRankObject(value: any, type: '玩家' | 'NPC'): ValueValidationResult {
+  const errors: string[] = [];
+
+  if (typeof value !== 'object' || value === null) {
+    errors.push('官品必须是对象类型');
+    return { valid: false, errors };
+  }
+
+  if (!value.名称) errors.push('官品缺少"名称"字段');
+  if (!value.阶段) errors.push('官品缺少"阶段"字段');
+
+  if (value.当前进度 !== undefined) {
+    const numeric = coerceNumeric(value.当前进度);
+    if (numeric === null) errors.push('官品"当前进度"字段类型错误，应为数字');
+    else value.当前进度 = numeric;
+  }
+  if (value.下一级所需 !== undefined) {
+    const numeric = coerceNumeric(value.下一级所需);
+    if (numeric === null) errors.push('官品"下一级所需"字段类型错误，应为数字');
+    else value.下一级所需 = numeric;
+  }
+  if (value.晋升描述 !== undefined && typeof value.晋升描述 !== 'string') {
+    errors.push('官品"晋升描述"字段类型错误，应为字符串');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+function validateLocationObject(value: any): ValueValidationResult {
+  const errors: string[] = [];
+
+  if (typeof value !== 'object' || value === null) {
+    errors.push('位置必须是对象类型');
+    return { valid: false, errors };
+  }
+
+  if (!value.描述) errors.push('位置缺少"描述"字段');
+  if (value.x !== undefined && typeof value.x !== 'number') errors.push('位置.x类型错误，应为数字');
+  if (value.y !== undefined && typeof value.y !== 'number') errors.push('位置.y类型错误，应为数字');
+  if (value.地图ID !== undefined && typeof value.地图ID !== 'string') errors.push('位置.地图ID类型错误，应为字符串');
+
+  return { valid: errors.length === 0, errors };
+}
+
+function validateStatusEffectObject(value: any): ValueValidationResult {
+  const errors: string[] = [];
+
+  if (typeof value !== 'object' || value === null) {
+    errors.push('状态效果必须是对象类型');
+    return { valid: false, errors };
+  }
+
+  if (!value.状态名称) errors.push('状态效果缺少"状态名称"字段');
+  if (!value.类型 || !['buff', 'debuff'].includes(value.类型)) errors.push('状态效果缺少"类型"字段或值无效');
+  if (value.状态描述 === undefined) errors.push('状态效果缺少"状态描述"字段');
+  if (typeof value.持续时间分钟 !== 'number') errors.push('状态效果缺少"持续时间分钟"字段或类型错误');
+  if (!value.生成时间 || typeof value.生成时间 !== 'object') errors.push('状态效果缺少"生成时间"对象字段');
+
+  return { valid: errors.length === 0, errors };
+}
+
+function validateItemObject(value: any): ValueValidationResult {
+  const errors: string[] = [];
+
+  if (typeof value !== 'object' || value === null) {
+    errors.push('物品必须是对象类型');
+    return { valid: false, errors };
+  }
+
+  if (!value.物品ID) errors.push('物品缺少"物品ID"字段');
+  if (!value.名称) errors.push('物品缺少"名称"字段');
+  if (!value.类型) errors.push('物品缺少"类型"字段');
+
+  if (!value.品质) {
+    errors.push('物品缺少"品质"字段');
+  } else if (typeof value.品质 === 'object') {
+    if (!value.品质.quality) errors.push('物品品质缺少"quality"字段');
+    if (typeof value.品质.grade !== 'number') errors.push('物品品质缺少"grade"字段或类型错误');
+  } else {
+    errors.push('物品品质必须是对象类型');
+  }
+
+  if (typeof value.数量 !== 'number') errors.push('物品缺少"数量"字段或类型错误');
+  if (value.描述 === undefined) errors.push('物品缺少"描述"字段');
+
+  if (value.类型 === '治国方略') {
+    if (!Array.isArray(value.政务技能)) {
+      errors.push('治国方略物品缺少"政务技能"数组');
+    } else if (value.政务技能.length === 0) {
+      errors.push('治国方略物品的"政务技能"数组不能为空，至少需要1个技能');
+    } else {
+      value.政务技能.forEach((skill: any, index: number) => {
+        if (typeof skill !== 'object' || skill === null) {
+          errors.push(`政务技能[${index}]不是对象类型`);
+        } else {
+          if (!skill.技能名称) errors.push(`政务技能[${index}]缺少"技能名称"字段`);
+          if (skill.技能描述 === undefined) errors.push(`政务技能[${index}]缺少"技能描述"字段`);
+          if (typeof skill.熟练度要求 !== 'number') errors.push(`政务技能[${index}]缺少"熟练度要求"字段或类型错误`);
+        }
+      });
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+function validateNPCObject(value: any): ValueValidationResult {
+  const errors: string[] = [];
+
+  if (typeof value !== 'object' || value === null) {
+    errors.push('NPC必须是对象类型');
+    return { valid: false, errors };
+  }
+
+  if (!value.名字) errors.push('NPC缺少"名字"字段');
+  if (!value.性别) errors.push('NPC缺少"性别"字段');
+  if (!value.出生日期) errors.push('NPC缺少"出生日期"字段');
+
+  if (!value.官品) {
+    errors.push('NPC缺少"官品"字段');
+  } else {
+    const rankResult = validateRankObject(value.官品, 'NPC');
+    errors.push(...rankResult.errors);
+  }
+
+  if (!value.出生) errors.push('NPC缺少"出生"字段');
+  if (value.性格特征 !== undefined) {
+    const coerced = coerceStringArray(value.性格特征);
+    if (coerced) value.性格特征 = coerced;
+  }
+  if (!value.性格特征) errors.push('NPC缺少"性格特征"字段');
+  if (!value.外貌描述) errors.push('NPC缺少"外貌描述"字段');
+  if (!value.与玩家关系) errors.push('NPC缺少"与玩家关系"字段');
+  if (value.好感度 !== undefined) {
+    const numeric = coerceNumeric(value.好感度);
+    if (numeric !== null) value.好感度 = numeric;
+  }
+  if (typeof value.好感度 !== 'number') errors.push('NPC缺少"好感度"字段或类型错误');
+
+  if (value.天赋 !== undefined && !Array.isArray(value.天赋)) {
+    errors.push('NPC天赋必须是数组类型');
+  }
+
+  if (value.私密信息 && typeof value.私密信息 === 'object') {
+    const privacy = value.私密信息 as any;
+    const listFields = ['性癖好', '性伴侣名单', '特殊体质', '亲密偏好', '禁忌清单'];
+    for (const field of listFields) {
+      if (privacy[field] !== undefined) {
+        const coerced = coerceStringArray(privacy[field]);
+        if (coerced) privacy[field] = coerced;
+      }
+    }
+    if (privacy.生育状态 !== undefined) {
+      const fertility = privacy.生育状态;
+      if (typeof fertility === 'string') {
+        privacy.生育状态 = { 当前状态: fertility };
+      } else if (typeof fertility !== 'object' || fertility === null) {
+        errors.push('NPC私密信息.生育状态必须是对象或字符串');
+      }
+    }
+    if (value.私密信息.身体部位 !== undefined) {
+      const bp = value.私密信息.身体部位;
+      const ok = Array.isArray(bp) || (bp && typeof bp === 'object');
+      if (!ok) errors.push('NPC私密信息.身体部位必须是数组或对象类型');
+    }
+  }
+
+  if (value.记忆 !== undefined && !Array.isArray(value.记忆)) {
+    const coerced = coerceStringArray(value.记忆);
+    if (coerced) value.记忆 = coerced;
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+function validateDaoObject(value: any, daoNameFromKey?: string): ValueValidationResult {
+  const errors: string[] = [];
+
+  if (typeof value !== 'object' || value === null) {
+    errors.push('大道对象必须是对象类型');
+    return { valid: false, errors };
+  }
+
+  if (!value.道名) {
+    const possibleName = daoNameFromKey || value.name || value.名称;
+    if (possibleName) {
+      value.道名 = possibleName;
+    } else {
+      errors.push('大道对象缺少"道名"字段');
+    }
+  }
+
+  if (value.描述 === undefined) {
+    value.描述 = value.description || '修行之道';
+  }
+
+  if (!Array.isArray(value.阶段列表)) {
+    value.阶段列表 = [
+      { 阶段名: '入门', 需求经验: 100 },
+      { 阶段名: '小成', 需求经验: 500 },
+      { 阶段名: '大成', 需求经验: 2000 },
+      { 阶段名: '圆满', 需求经验: 10000 }
+    ];
+  }
+
+  if (typeof value.是否解锁 !== 'boolean') {
+    value.是否解锁 = true;
+  }
+
+  if (typeof value.当前阶段 !== 'number') {
+    value.当前阶段 = 0;
+  }
+
+  if (typeof value.当前经验 !== 'number') {
+    value.当前经验 = 0;
+  }
+
+  if (typeof value.总经验 !== 'number') {
+    value.总经验 = 0;
+  }
+
+  return { valid: errors.length === 0, errors };
+}

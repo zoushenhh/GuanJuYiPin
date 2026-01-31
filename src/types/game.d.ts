@@ -289,6 +289,9 @@ export interface AdministrationStrategyReference {
   名称: string;      // 方略名称（用于快速显示）
 }
 
+/** 修仙主题：功法引用（向后兼容别名） */
+export type CultivationTechniqueReference = AdministrationStrategyReference;
+
 /** 掌握的技能（技能数据+进度合并） */
 export interface MasteredSkill {
   技能名称: string;
@@ -376,6 +379,9 @@ export type GovernmentOfficeType =
   | '商会'       // 商会组织
   | '世家'       // 地方世家势力
   | '散修联盟';  // 散修联盟
+
+/** 宗门类型（向后兼容别名） */
+export type SectType = GovernmentOfficeType;
 
 // ============================================================================
 // 职位系统（县令主题：主要类型）
@@ -579,6 +585,37 @@ export interface SectWarSystem extends AIMetadata {
   当前?: SectWarState | null;
   历史?: SectWarState[];
 }
+
+// ============================================================================
+// 政府系统类型（县令主题主要类型 - 向后兼容别名）
+// ============================================================================
+
+/** 政府成员信息（县令主题主要类型） */
+export type GovernmentMemberInfo = SectMemberInfo;
+
+/** 政府基础信息（县令主题主要类型） */
+export type GovernmentInfo = SectInfo;
+
+/** 政府系统数据（县令主题主要类型） */
+export type GovernmentSystemData = SectSystemData;
+
+/** 政府系统数据 V2（县令主题主要类型） */
+export type GovernmentSystemV2 = SectSystemV2;
+
+/** 政府战争状态（县令主题主要类型） */
+export type GovernmentWarState = SectWarState;
+
+/** 政府战争边状态（县令主题主要类型） */
+export type GovernmentWarSideState = SectWarSideState;
+
+/** 政府战争阶段名称（县令主题主要类型） */
+export type GovernmentWarStageName = SectWarStageName;
+
+/** 政府战争报告（县令主题主要类型） */
+export type GovernmentWarReport = SectWarReport;
+
+/** 政府战争系统（县令主题主要类型） */
+export type GovernmentWarSystem = SectWarSystem;
 
 /** 衙门藏书阁方略/宗门藏经阁功法 - 扩展版本 */
 export interface SectLibraryTechniqueExtended {

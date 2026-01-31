@@ -1659,11 +1659,10 @@ ${step1Text}
     const preprocessedCommands = this._preprocessCommands(response.tavern_commands);
 
     // 🔥 步骤1：验证并清理指令格式
-    const { validateCommands, cleanCommands } = await import('./commandValidator');
+    const { validateCommands, cleanCommands, validateAndRepairCommandValue } = await import('./commandValidator');
     const validation = validateCommands(preprocessedCommands);
 
     // 🔥 步骤2：验证指令值的格式，过滤掉格式错误的指令
-    const { validateAndRepairCommandValue } = await import('./commandValueValidator');
     const validCommands: any[] = [];
     const rejectedCommands: Array<{ command: any; errors: string[] }> = [];
 
