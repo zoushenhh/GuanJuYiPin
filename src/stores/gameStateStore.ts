@@ -26,7 +26,7 @@ import type {
 import { calculateFinalAttributes } from '@/utils/attributeCalculation';
 import { isTavernEnv } from '@/utils/tavern';
 import { ensureSystemConfigHasNsfw } from '@/utils/nsfw';
-import { isSaveDataV3, migrateSaveDataToV3 } from '@/utils/saveMigration';
+import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
 import { normalizeInventoryCurrencies } from '@/utils/currencySystem';
 import { detectPlayerGovernmentLeadership } from '@/utils/governmentLeadershipUtils';
 

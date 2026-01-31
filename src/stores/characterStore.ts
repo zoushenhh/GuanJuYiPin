@@ -19,7 +19,7 @@ import { getAIDataRepairSystemPrompt } from '@/utils/prompts/tasks/dataRepairPro
 import { updateTermFromGameTime, updateNpcTermFromGameTime } from '@/utils/termCalculator'; // <-- 导入任期计算工具
 import { updateMasteredSkills } from '@/utils/masteredSkillsCalculator'; // <-- 导入掌握技能计算工具
 import { updateStatusEffects } from '@/utils/statusEffectManager'; // <-- 导入状态效果管理工具
-import { detectLegacySaveData, isSaveDataV3, migrateSaveDataToV3, extractSaveDisplayInfo } from '@/utils/saveMigration';
+import { detectLegacySaveData, isSaveDataV3, migrateSaveDataToLatest, extractSaveDisplayInfo } from '@/utils/saveMigration';
 import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { useGameStateStore } from '@/stores/gameStateStore';
 import SaveMigrationModal from '@/components/dashboard/components/SaveMigrationModal.vue';

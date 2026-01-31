@@ -17,7 +17,7 @@ import { createEmptyThousandDaoSystem } from '@/data/thousandDaoData';
 import { buildCharacterInitializationPrompt, buildCharacterSelectionsSummary } from '@/utils/prompts/tasks/characterInitializationPrompts';
 import { validateGameData } from '@/utils/dataValidation';
 import { repairSaveData } from '@/utils/dataRepair';
-import { migrateSaveDataToV3 } from '@/utils/saveMigration';
+import { migrateSaveDataToLatest } from '@/utils/saveMigration';
 // 移除未使用的旧生成器导入,改用增强版生成器
 // import { WorldGenerationConfig } from '@/utils/worldGeneration/gameWorldConfig';
 import { EnhancedWorldGenerator } from '@/utils/worldGeneration/enhancedWorldGenerator';

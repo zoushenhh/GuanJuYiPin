@@ -403,3 +403,8 @@ export function migrateSaveDataToV3(raw: SaveData): { migrated: SaveDataV3; repo
 
   return { migrated: migrated as SaveDataV3, report };
 }
+
+// Alias for backward compatibility
+export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; report: SaveMigrationReport } {
+  return migrateSaveDataToV3(raw);
+}
