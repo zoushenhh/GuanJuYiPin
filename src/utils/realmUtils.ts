@@ -10,7 +10,7 @@
  */
 export function formatRealmWithStage(realm: any): string {
   if (!realm) {
-    return '凡人';
+    return '平民';
   }
 
   // 如果是字符串，直接返回
@@ -19,12 +19,12 @@ export function formatRealmWithStage(realm: any): string {
   }
 
   // 如果是对象，提取名称和阶段
-  const name = realm.名称 || realm.name || '凡人';
+  const name = realm.名称 || realm.name || '平民';
   const stage = realm.阶段 || realm.stage || '';
 
-  // 凡人不加阶段
-  if (name === '凡人' || name === 'Mortal') {
-    return '凡人';
+  // 平民不加阶段
+  if (name === '平民' || name === 'Commoner') {
+    return '平民';
   }
 
   // 如果有阶段，返回"境界+阶段"

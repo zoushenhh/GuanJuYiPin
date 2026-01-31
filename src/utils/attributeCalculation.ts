@@ -213,11 +213,13 @@ export function calculateTechniqueBonuses(saveData: SaveData): InnateAttributes 
     return bonuses;
   }
 
-  // 查找已装备的治国方略
-  const items = (itemsMap ?? {}) as Record<string, Item>;
-  const equippedTechnique = Object.values(items).find((item) => item.类型 === '方略' && item.已装备 === true);
+  // 查找已装备的治国方略（兼容"方略"和"治国方略"两种类型名称）
+  const items = (itemsMap ?? {}) as Record<string, any>;
+  const equippedTechnique = Object.values(items).find((item) =>
+    (item.类型 === '方略' || item.类型 === '治国方略') && item.已装备 === true
+  );
 
-  if (equippedTechnique && equippedTechnique.类型 === '方略' && equippedTechnique.方略效果?.属性加成) {
+  if (equippedTechnique && (equippedTechnique.类型 === '方略' || equippedTechnique.类型 === '治国方略') && equippedTechnique.方略效果?.属性加成) {
     const attributeBonuses = equippedTechnique.方略效果.属性加成;
     for (const key in attributeBonuses) {
       if (key in bonuses) {

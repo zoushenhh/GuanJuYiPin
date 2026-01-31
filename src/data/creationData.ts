@@ -88,7 +88,7 @@ export const LOCAL_ORIGINS: Omit<Origin, 'source'>[] = [
   { id: 2, name: '书香门第', description: '出身于官宦世家，饱读诗书，对治国之道有超乎常人的理解力。', talent_cost: 2, attribute_modifiers: { comprehension: 2 }, rarity: 3 },
   { id: 3, name: '商贾之家', description: '生于富贵之家，精通人情世故，处事圆滑，魅力非凡。', talent_cost: 2, attribute_modifiers: { charm: 2 }, rarity: 3 },
   { id: 4, name: '将门之后', description: '名将的后代，血脉中流淌着勇武与煞气，心性坚定。', talent_cost: 3, attribute_modifiers: { temperament: 2, root_bone: 1 }, rarity: 3 },
-  { id: 5, name: '幕僚出身', description: '你的师父是一位游历四方的大幕僚，你继承了他的部分衣钵和见识。', talent_cost: 4, attribute_modifiers: { comprehension: 1, temperament: 1 }, rarity: 4 },
+  { id: 5, name: '幕僚出身', description: '你的恩师是一位游历四方的大幕僚，你继承了他的部分衣钵和见识。', talent_cost: 4, attribute_modifiers: { comprehension: 1, temperament: 1 }, rarity: 4 },
   { id: 6, name: '卧底探子', description: '你出身名门正派，却被派往敌对势力执行卧底任务，心性远超常人。', talent_cost: 1, attribute_modifiers: { temperament: 3 }, rarity: 4 },
   { id: 7, name: '前朝遗臣', description: '你保留着前朝的记忆，虽然官位尽失，但对官场和未来的大事了如指掌。', talent_cost: 5, attribute_modifiers: { comprehension: 2, luck: 1 }, rarity: 5 },
   { id: 8, name: '世家子弟', description: '你的家族中流淌着稀薄的高官血脉，天生威严十足，升迁速度略快于常人。', talent_cost: 6, attribute_modifiers: { spirit: 2, root_bone: 1 }, rarity: 5 },
@@ -384,7 +384,7 @@ export const LOCAL_SPIRIT_ROOTS: Omit<SpiritRoot, 'source'>[] = [
     tier: '神品',
     description: '最为稀有的传说才能，触及天道机缘。升迁艰难但一旦有成，可逆转局势，掌控因果。',
     cultivation_speed: '0.8x(前期) -> 3.2x(后期)',
-    special_effects: ['天命法术精通', '时来运转', '因果推演', '机会把握'],
+    special_effects: ['天命政事精通', '时来运转', '因果推演', '机会把握'],
     base_multiplier: 3.2,
     talent_cost: 28,
     rarity: 5

@@ -1044,7 +1044,9 @@ export interface NpcProfile {
 
   // === 修炼属性 ===
   境界: Realm;
+  官品?: Realm; // 县令主题字段（与境界保持同步）
   灵根: CharacterBaseInfo['灵根'];
+  才能?: CharacterBaseInfo['灵根']; // 县令主题字段（与灵根保持同步）
   天赋: CharacterBaseInfo['天赋']; // 天赋列表
   先天六司: InnateAttributes; // NPC只有一个六司字段，不分先天/最终
 

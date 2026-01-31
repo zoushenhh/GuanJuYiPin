@@ -31,7 +31,7 @@ interface CreationPayload {
   charId: string; // e.g., 'char_' + Date.now()
   baseInfo: CharacterBaseInfo;
   world: World; // 世界数据
-  mode: '单机' | '联机';
+  mode: '单机'; // 仅支持单机模式
   age: number; // 开局年龄
 }
 
@@ -41,85 +41,6 @@ interface TavernCommand {
   key: string;
   value?: unknown;
 }
-
-/**
- * 🔥 辅助函数：获取联机存档槽位
- * 统一接口，支持旧数据迁移
- */
-function getOnlineSaveSlot(profile: CharacterProfile): SaveSlot | null {
-  if (profile.模式 !== '联机') return null;
-
-  // 新结构：使用存档列表
-  if (profile.存档列表?.['云端治理']) {
-    return profile.存档列表['云端治理'];
-  }
-
-  // 兼容：部分旧版本/旧数据使用 "存档" 作为联机槽位 key
-  if (profile.存档列表?.['存档'] && !profile.存档列表?.['云端治理']) {
-    debug.log('角色商店', '?? 检测到联机存档槽位 key=存档，正在迁移为 云端治理...');
-    profile.存档列表['云端治理'] = { ...(profile.存档列表['存档'] as any), 存档名: '云端治理' };
-    delete (profile.存档列表 as any)['存档'];
-    return profile.存档列表['云端治理'];
-  }
-
-  // 兼容旧数据：如果旧的 profile.存档 存在，迁移到新结构
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if ((profile as any).存档) {
-    debug.log('角色商店', '⚠️ 检测到旧存档结构，正在迁移到统一结构...');
-    if (!profile.存档列表) {
-      profile.存档列表 = {};
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    profile.存档列表['云端治理'] = (profile as any).存档;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (profile as any).存档; // 清理旧字段
-    debug.log('角色商店', '✅ 旧存档数据已迁移到 存档列表["云端治理"]');
-    return profile.存档列表['云端治理'];
-  }
-
-  return null;
-}
-
-/**
- * 🔥 过滤存档数据用于云端同步
- * 排除叙事信息（narrativeHistory）以减少数据量
- */
-function filterSaveDataForCloud(saveData: SaveData | null): SaveData | null {
-  if (!saveData) return null;
-
-  // 深拷贝以避免修改原始数据
-  const filtered = JSON.parse(JSON.stringify(saveData)) as SaveData;
-
-  // 🔥 移除叙事历史（太大了，且云存档不需要）
-  // - V3: 系统.历史.叙事
-  // - 兼容旧结构: 历史.叙事 / 叙事历史 / 对话历史
-  const anyFiltered = filtered as any;
-  let removed = false;
-
-  if (anyFiltered?.系统?.历史 && typeof anyFiltered.系统.历史 === 'object' && '叙事' in anyFiltered.系统.历史) {
-    delete anyFiltered.系统.历史.叙事;
-    removed = true;
-  }
-  if (anyFiltered?.历史 && typeof anyFiltered.历史 === 'object' && '叙事' in anyFiltered.历史) {
-    delete anyFiltered.历史.叙事;
-    removed = true;
-  }
-  if ('叙事历史' in anyFiltered) {
-    delete anyFiltered.叙事历史;
-    removed = true;
-  }
-  if ('对话历史' in anyFiltered) {
-    delete anyFiltered.对话历史;
-    removed = true;
-  }
-
-  if (removed) {
-    debug.log('角色商店', '✅ 已移除叙事历史用于云端同步');
-  }
-
-  return filtered;
-}
-
 
 export const useCharacterStore = defineStore('characterV3', () => {
   // --- 状态 (State) ---
@@ -166,45 +87,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
           needsSave = true;
         }
 
-        // 3.0.2 修复联机槽位 key：存档 → 云端修行
-        if (anyProfile.模式 === '联机' && anyProfile.存档列表?.['存档'] && !anyProfile.存档列表?.['云端修行']) {
-          anyProfile.存档列表['云端修行'] = { ...(anyProfile.存档列表['存档'] as any), 存档名: '云端修行' };
-          delete anyProfile.存档列表['存档'];
-          needsSave = true;
-        }
-        // 3.1 迁移联机模式：profile.存档 → profile.存档列表['云端修行']
-        if (profile.模式 === '联机' && profile.存档 && !profile.存档列表?.['云端修行']) {
-          debug.log('角色商店', `🔄 迁移联机角色「${roleNameForLog}」的存档结构`);
-
-          // 初始化存档列表（如果不存在）
-          if (!profile.存档列表) {
-            profile.存档列表 = {};
-          }
-
-          // 访问废弃字段用于迁移
-          // 将旧的 profile.存档 迁移到 profile.存档列表['云端修行']
-          profile.存档列表['云端修行'] = {
-            ...profile.存档,
-            存档名: '云端修行',
-          };
-
-          // 添加"上次对话"槽位（如果不存在）
-          if (!profile.存档列表['上次对话']) {
-            profile.存档列表['上次对话'] = {
-              存档名: '上次对话',
-              保存时间: null,
-              存档数据: null
-            };
-          }
-
-          // 删除废弃字段
-          delete profile.存档;
-          needsSave = true;
-
-          debug.log('角色商店', `✅ 角色「${roleNameForLog}」存档结构迁移完成`);
-        }
-
-        // 3.2 迁移单机模式：兼容3.7.8版本的旧存档结构
+        // 3.0 迁移单机模式：兼容旧版本存档结构
         if (profile.模式 === '单机' && profile.存档 && (!profile.存档列表 || Object.keys(profile.存档列表).length === 0)) {
           debug.log('角色商店', `🔄 迁移单机角色「${roleNameForLog}」的旧版本存档结构`);
 
@@ -257,38 +140,9 @@ export const useCharacterStore = defineStore('characterV3', () => {
           needsSave = true;
         }
 
-        // 3.3.1 联机存档名修正
-        if (profile.模式 === '联机' && profile.存档列表?.['云端修行']?.存档名 !== '云端修行') {
-          profile.存档列表['云端修行'].存档名 = '云端修行';
-          needsSave = true;
-        }
-
-        // 3.4 迁移激活存档槽位 key（联机：存档 → 云端修行）
-        if (rootState.value.当前激活存档?.角色ID === charId && profile.模式 === '联机') {
-          if (rootState.value.当前激活存档.存档槽位 === '存档') {
-            rootState.value.当前激活存档.存档槽位 = '云端修行';
-            needsSave = true;
-          }
-        }
-
-        // 3.5 迁移联机 SaveData 键（IDB：savedata_{charId}_存档 → savedata_{charId}_云端修行）
-        if (profile.模式 === '联机') {
-          asyncMigrations.push((async () => {
-            const newDataKey = `savedata_${charId}_云端修行`;
-            const oldDataKey = `savedata_${charId}_存档`;
-            const existingNew = await storage.loadFromIndexedDB(newDataKey);
-            if (!existingNew) {
-              const existingOld = await storage.loadFromIndexedDB(oldDataKey);
-              if (existingOld) {
-                await storage.saveSaveData(charId, '云端修行', existingOld as any);
-                debug.log('角色商店', `? 已迁移联机存档数据键：${oldDataKey} → ${newDataKey}`);
-              }
-            }
-          })());
-        }
       });
 
-      // 等待异步迁移（例如联机存档键迁移）完成
+      // 等待异步迁移完成
       if (asyncMigrations.length > 0) {
         await Promise.all(asyncMigrations);
       }
@@ -336,9 +190,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
     if (profile.模式 === '单机' && profile.存档列表) {
       return profile.存档列表[active.存档槽位] || null;
     }
-    if (profile.模式 === '联机') {
-      return getOnlineSaveSlot(profile);
-    }
     return null;
   });
 
@@ -364,24 +215,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
         };
         return enhancedSlot;
       });
-    }
-    if (profile.模式 === '联机') {
-      const onlineSlot = getOnlineSaveSlot(profile);
-      if (onlineSlot) {
-        // 🔥 修复：使用 extractSaveDisplayInfo 兼容旧格式和 V3 格式
-        const displayInfo = extractSaveDisplayInfo(onlineSlot.存档数据 as any);
-        const enhancedSlot = {
-          ...onlineSlot,
-          id: '云端修行',
-          角色名字: onlineSlot.角色名字 || displayInfo.角色名字 || profile.角色?.名字 || '未知',
-          官品: onlineSlot.官品 || displayInfo.官品 || '平民',
-          位置: onlineSlot.位置 || displayInfo.位置 || '未知',
-          保存时间: onlineSlot.保存时间 || null,
-          最后保存时间: onlineSlot.最后保存时间 ?? onlineSlot.保存时间 ?? null,
-          游戏时长: onlineSlot.游戏时长 || 0
-        };
-        return [enhancedSlot];
-      }
     }
     return [];
   });
@@ -522,12 +355,10 @@ export const useCharacterStore = defineStore('characterV3', () => {
           ...profile.存档列表,
           [active.存档槽位]: { ...slot } // 创建新对象触发响应式
         };
-      } else if (profile.模式 === '联机') {
-        rootState.value.角色列表[active.角色ID].存档 = { ...slot }; // 创建新对象触发响应式
-      }
 
-      // 强制触发响应式更新
-      triggerRef(rootState);
+        // 强制触发响应式更新
+        triggerRef(rootState);
+      }
 
       // 5. 保存到本地存储
       await commitMetadataToStorage();
@@ -624,33 +455,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       // [核心改造] 1. 创建角色前，彻底清理酒馆环境
       await clearAllCharacterData(); // 不再需要传递toastId
 
-      // 2. 如果是联机模式，先向后端提交角色创建信息
-      // 🔥 标记：后端创建是否成功
-      let backendCreationSuccess = false;
-      if (mode === '联机') {
-        try {
-          uiStore.updateLoadingText('正在向云端提交角色信息...');
-
-          // 构造符合后端schema的数据结构
-          const characterSubmissionData = {
-            char_id: charId,
-            base_info: authoritativeBaseInfo,
-          };
-
-          debug.log('角色商店', '向后端提交的数据', characterSubmissionData);
-          const backendResult = await createCharacterAPI(characterSubmissionData);
-          debug.log('角色商店', '后端返回结果', backendResult);
-          uiStore.updateLoadingText('角色信息已成功提交至云端！');
-          backendCreationSuccess = true;
-        } catch (error) {
-          debug.error('角色商店', '向后端提交失败', error);
-          toast.warning('向云端提交角色信息失败，将继续本地创建流程');
-          backendCreationSuccess = false;
-          // 不要抛出错误，允许继续本地创建流程
-        }
-      }
-
-      // 3. 使用AI增强的初始化服务创建完整的存档数据
+      // 2. 使用AI增强的初始化服务创建完整的存档数据
       console.log('[角色商店] 准备调用initializeCharacter...');
       let initialSaveData: SaveData | null = null;
       try {
@@ -659,79 +464,45 @@ export const useCharacterStore = defineStore('characterV3', () => {
         console.log('[角色商店] ✅ initializeCharacter返回成功,数据有效:', !!initialSaveData);
       } catch (e) {
         console.error('[角色商店] ❌ initializeCharacter失败:', e);
-        // 🔥 修复：AI生成失败时直接抛出错误，不再自动回退到离线初始化
+        // 🔥 修复：AI生成失败时直接抛出错误
         // 让上层（App.vue）处理错误，显示重试对话框让用户选择
         const errorMessage = e instanceof Error ? e.message : String(e);
         throw new Error(`角色初始化失败: ${errorMessage}`);
       }
 
-      // Tavern 兜底：确保系统NSFW配置与“角色.身体”骨架存在（避免界面不展示/路径缺失）
+      // Tavern 兜底：确保系统NSFW配置与"角色.身体"骨架存在（避免界面不展示/路径缺失）
       if (isTavernEnv() && initialSaveData) {
         initialSaveData = ensureSaveDataHasTavernNsfw(initialSaveData) as SaveData;
       }
 
-      let newProfile: CharacterProfile;
-      if (mode === '单机') {
-        const now = new Date().toISOString();
-        newProfile = {
-          模式: '单机',
-          角色: (initialSaveData as any)?.角色?.身份 || authoritativeBaseInfo, // 仅存静态身份信息
-          存档列表: {
-            '存档1': {
-              存档名: '存档1',
-              保存时间: now,
-              游戏内时间: '为官元年 春',
-              角色名字: authoritativeBaseInfo.名字,
-              官品: '平民',
-              位置: '未知',
-              政绩进度: 0,
-              存档数据: initialSaveData
-            },
-            '上次对话': {
-              存档名: '上次对话',
-              保存时间: null,
-              存档数据: null
-            }
+      // 创建单机模式角色
+      const now = new Date().toISOString();
+      const newProfile: CharacterProfile = {
+        模式: '单机',
+        角色: (initialSaveData as any)?.角色?.身份 || authoritativeBaseInfo, // 仅存静态身份信息
+        存档列表: {
+          '存档1': {
+            存档名: '存档1',
+            保存时间: now,
+            游戏内时间: '为官元年 春',
+            角色名字: authoritativeBaseInfo.名字,
+            官品: '平民',
+            位置: '未知',
+            政绩进度: 0,
+            存档数据: initialSaveData
           },
-        };
-      } else { // 联机模式
-        const now = new Date().toISOString();
-        // 🔥 统一结构：联机也使用存档列表，只有一个存档
-        newProfile = {
-          模式: '联机',
-          角色: (initialSaveData as any)?.角色?.身份 || authoritativeBaseInfo,
-          存档列表: {
-            '云端修行': {
-              存档名: '云端修行',
-              保存时间: now,
-              游戏内时间: '为官元年 春',
-              角色名字: authoritativeBaseInfo.名字,
-              官品: '平民',
-              位置: '未知',
-              政绩进度: 0,
-              存档数据: initialSaveData,
-              // 联机模式专属字段
-              云端同步信息: {
-                最后同步: backendCreationSuccess ? now : '',
-                版本: 1,
-                需要同步: !backendCreationSuccess,
-                后端创建失败: !backendCreationSuccess,
-              },
-            },
-            '上次对话': {
-              存档名: '上次对话',
-              保存时间: null,
-              存档数据: null
-            }
-          },
-        };
-      }
+          '上次对话': {
+            存档名: '上次对话',
+            保存时间: null,
+            存档数据: null
+          }
+        },
+      };
 
       rootState.value.角色列表[charId] = newProfile;
 
       // 2. 设置为当前激活存档
-      const slotKey = mode === '单机' ? '存档1' : '云端修行'; // 🔥 联机也使用存档列表的key
-      rootState.value.当前激活存档 = { 角色ID: charId, 存档槽位: slotKey };
+      rootState.value.当前激活存档 = { 角色ID: charId, 存档槽位: '存档1' };
 
       // 🔥 [核心修复] 必须先将完整的初始存档数据持久化，再保存元数据
       // 这样可以确保原子性，避免出现元数据存在但存档数据丢失的情况
@@ -742,32 +513,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
       const gameStateStore = useGameStateStore();
       gameStateStore.loadFromSaveData(initialSaveData);
       debug.log('角色商店', '✅ 初始存档已加载到 gameStateStore');
-
-      // 5. [核心修复] 同步完整存档数据到云端 (仅在后端创建成功时)
-      if (mode === '联机' && backendCreationSuccess) {
-        try {
-          uiStore.updateLoadingText('正在同步初始存档到云端...');
-
-          // 🔥 过滤掉叙事信息，减少数据量
-          const saveDataForCloud = filterSaveDataForCloud(initialSaveData);
-          const saveDataToSync = {
-            save_data: saveDataForCloud,
-            world_map: {}, // 从酒馆变量或初始化结果获取地图数据
-            game_time: '为官元年 春'
-          };
-
-          debug.log('角色商店', '准备同步到云端的初始存档数据', saveDataToSync);
-          await updateCharacterSave(charId, saveDataToSync);
-          uiStore.updateLoadingText('初始存档已成功同步到云端！');
-        } catch (error) {
-          debug.warn('角色商店', '同步初始存档数据到云端失败', error);
-          const errorMessage = error instanceof Error ? error.message : '未知错误';
-          toast.warning(`云端同步失败(后端未启动): ${errorMessage}`);
-          // 不要抛出错误，允许角色创建继续完成
-        }
-      } else if (mode === '联机' && !backendCreationSuccess) {
-        debug.warn('角色商店', '后端创建角色失败，跳过初始存档同步');
-      }
 
       // 最终的成功提示由App.vue处理
       return authoritativeBaseInfo;
@@ -857,66 +602,14 @@ export const useCharacterStore = defineStore('characterV3', () => {
       if (profile.模式 === '单机') {
         targetSlot = profile.存档列表?.[slotKey];
       } else {
-        targetSlot = getOnlineSaveSlot(profile);
+        toast.error('仅支持单机模式');
+        return false;
       }
 
       if (!targetSlot) {
         debug.error('角色商店', '找不到指定的存档槽位', slotKey);
         toast.error('找不到指定的存档槽位！');
         return false;
-      }
-
-      // 联机模式：必须登录才能加载
-      // 🔥 检查后端创建是否失败，如果失败则跳过云端获取
-      const onlineSlot = getOnlineSaveSlot(profile);
-      const backendCreationFailed = (onlineSlot?.云端同步信息 as any)?.后端创建失败;
-      if (profile.模式 === '联机' && isBackendConfigured()) {
-        if (backendCreationFailed) {
-          debug.warn('角色商店', '检测到后端创建失败标记，尝试重新拉取云端存档');
-        }
-        // 先验证token有效性
-        const tokenValid = await verifyStoredToken();
-        if (!tokenValid) {
-          debug.warn('角色商店', '联机模式token无效，需要登录');
-          toast.warning('联机模式需要登录');
-          return false;
-        } else {
-          try {
-            const cloudProfile = await fetchCharacterProfile(charId) as any;
-            const cloudSave = cloudProfile?.game_save;
-            const cloudSaveData = cloudSave?.save_data;
-
-            if (cloudSaveData) {
-              targetSlot.存档数据 = cloudSaveData as SaveData;
-
-              if (cloudSave?.game_time && typeof cloudSave.game_time === 'string') {
-                targetSlot.游戏内时间 = cloudSave.game_time;
-              }
-              if (cloudSave?.world_map && typeof cloudSave.world_map === 'object') {
-                (targetSlot as any).世界地图 = cloudSave.world_map;
-              }
-
-              await storage.saveSaveData(charId, slotKey, targetSlot.存档数据);
-
-              const currentOnlineSlot = getOnlineSaveSlot(profile);
-              if (currentOnlineSlot) {
-                currentOnlineSlot.云端同步信息 = {
-                  最后同步: cloudSave?.last_sync ? String(cloudSave.last_sync) : new Date().toISOString(),
-                  版本: typeof cloudSave?.version === 'number' ? cloudSave.version : (currentOnlineSlot.云端同步信息?.版本 ?? 1),
-                  需要同步: false,
-                  后端创建失败: false,
-                };
-                await commitMetadataToStorage();
-              }
-
-              debug.log('角色商店', '联机存档已从云端拉取并缓存到本地');
-            }
-          } catch (error) {
-            debug.warn('角色商店', '联机存档云端拉取失败，回退本地缓存', error);
-          }
-        }
-      } else if (profile.模式 === '联机' && backendCreationFailed) {
-        debug.warn('角色商店', '检测到后端创建失败标记，跳过云端获取，使用本地缓存');
       }
 
       // 🔥 [关键修复] 如果存档数据不在内存中，先从 IndexedDB 加载
@@ -1260,16 +953,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
           }
         };
       } else if (profile.模式 === '联机') {
-        // 联机模式更新云端修行存档
-        if (!profile.存档列表) {
-          profile.存档列表 = {};
-        }
-        const currentOnlineSlot = getOnlineSaveSlot(profile);
-        rootState.value.角色列表[charId].存档列表['云端修行'] = {
-          ...(currentOnlineSlot || { 存档名: '云端修行' }),
-          存档数据: saveData,
-          保存时间: new Date().toISOString()
-        };
+        toast.error('仅支持单机模式');
+        return;
       }
 
       await commitMetadataToStorage();
@@ -1319,7 +1004,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       debug.log('角色商店', `[直接更新] 保留本地叙事历史数据 (${localNarrativeHistory.length}条)`);
     }
 
-    // 🔥 响应式更新存档数据
+    // 🔥 响应式更新存档数据（仅单机模式）
     if (profile.模式 === '单机' && profile.存档列表) {
       rootState.value.角色列表[charId].存档列表 = {
         ...profile.存档列表,
@@ -1330,15 +1015,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
         }
       };
     } else if (profile.模式 === '联机') {
-      if (!profile.存档列表) {
-        profile.存档列表 = {};
-      }
-      const currentOnlineSlot = getOnlineSaveSlot(profile);
-      rootState.value.角色列表[charId].存档列表['云端修行'] = {
-        ...(currentOnlineSlot || { 存档名: '云端修行' }),
-        存档数据: updatedSaveData,
-        保存时间: new Date().toISOString()
-      };
+      toast.error('仅支持单机模式');
+      return;
     }
 
     // 立即持久化到localStorage
@@ -1441,82 +1119,22 @@ export const useCharacterStore = defineStore('characterV3', () => {
       // 确保存档数据在内存中也被移除，以保持一致性
       delete slot.存档数据;
 
-      // 5. 将元数据变更写回 rootState 并持久化
+      // 5. 将元数据变更写回 rootState 并持久化（仅单机模式）
       if (profile.模式 === '单机' && profile.存档列表) {
         profile.存档列表[active.存档槽位] = slot;
       } else if (profile.模式 === '联机') {
-        if (!profile.存档列表) {
-          profile.存档列表 = {};
-        }
-        profile.存档列表['云端修行'] = slot;
+        toast.error('仅支持单机模式');
+        return;
       }
       await commitMetadataToStorage();
 
-      // 6. 云端同步（联机模式）
-      if (profile.模式 === '联机') {
-        // 🔥 检查是否后端创建失败，如果是则先尝试重新创建角色
-        const currentOnlineSlot = getOnlineSaveSlot(profile);
-        const backendCreationFailed = (currentOnlineSlot?.云端同步信息 as any)?.后端创建失败;
-        if (backendCreationFailed) {
-          try {
-            debug.log('角色商店', '检测到后端创建失败标记，尝试重新创建角色...');
-            const characterSubmissionData = {
-              char_id: active.角色ID,
-              base_info: profile.角色,
-            };
-            await createCharacterAPI(characterSubmissionData);
-            // 创建成功，清除失败标记
-            if (currentOnlineSlot?.云端同步信息) {
-              (currentOnlineSlot.云端同步信息 as any).后端创建失败 = false;
-            }
-            debug.log('角色商店', '✅ 后端角色重新创建成功');
-          } catch (error) {
-            debug.warn('角色商店', '后端角色重新创建失败，跳过云端同步', error);
-            // 保持失败标记，下次再试
-            return;
-          }
-        }
-
-        try {
-          const worldMapToSync = (slot as any).世界地图 ?? {};
-          const gameTimeToSync = slot.游戏内时间 ?? null;
-
-          // 🔥 过滤叙事信息，减少数据量
-          const saveDataForCloud = filterSaveDataForCloud(currentSaveData);
-          const result = await updateCharacterSave(active.角色ID, {
-            save_data: saveDataForCloud,
-            world_map: worldMapToSync,
-            game_time: gameTimeToSync
-          });
-
-          const syncOnlineSlot = getOnlineSaveSlot(profile);
-          const nextVersion =
-            typeof (result as any)?.version === 'number'
-              ? (result as any).version
-              : (syncOnlineSlot?.云端同步信息?.版本 ?? 1) + 1;
-
-          if (syncOnlineSlot) {
-            syncOnlineSlot.云端同步信息 = {
-              最后同步: new Date().toISOString(),
-              版本: nextVersion,
-              需要同步: false,
-            };
-          }
-
-          await commitMetadataToStorage();
-        } catch (error) {
-          debug.warn('角色商店', '云端同步失败（联机模式）', error);
-          const errorOnlineSlot = getOnlineSaveSlot(profile);
-          if (errorOnlineSlot) {
-            errorOnlineSlot.云端同步信息 = {
-              最后同步: errorOnlineSlot.云端同步信息?.最后同步 || new Date().toISOString(),
-              版本: errorOnlineSlot.云端同步信息?.版本 || 1,
-              需要同步: true,
-            };
-            await commitMetadataToStorage();
-          }
-        }
-      }
+      // TODO: 云端同步功能待实现（需要后端服务支持）
+      // const saveDataForCloud = filterSaveDataForCloud(currentSaveData);
+      // const result = await updateCharacterSave(active.角色ID, {
+      //   save_data: saveDataForCloud,
+      //   world_map: worldMapToSync,
+      //   game_time: gameTimeToSync
+      // });
 
       debug.log('角色商店', `存档【${slot.存档名}】元数据已更新`);
 
@@ -1930,15 +1548,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
         }
       };
     } else if (profile.模式 === '联机') {
-      if (!profile.存档列表) {
-        profile.存档列表 = {};
-      }
-      const currentOnlineSlot = getOnlineSaveSlot(profile);
-      rootState.value.角色列表[charId].存档列表['云端修行'] = {
-        ...(currentOnlineSlot || { 存档名: '云端修行' }),
-        存档数据: cloneDeep(save.存档数据), // 深拷贝确保响应式更新
-        保存时间: new Date().toISOString()
-      };
+      toast.error('仅支持单机模式');
+      return;
     }
 
     // 强制触发 rootState 的响应式更新
@@ -2083,11 +1694,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
     if (profile.模式 === '单机' && profile.存档列表) {
       profile.存档列表 = {};
     } else if (profile.模式 === '联机') {
-      const onlineSlot = getOnlineSaveSlot(profile);
-      if (onlineSlot) {
-        onlineSlot.存档数据 = null;
-        onlineSlot.保存时间 = null;
-      }
+      toast.error('仅支持单机模式');
+      return;
     }
 
     // 清空当前激活存档
@@ -2467,7 +2075,7 @@ const equipTechnique = async (itemId: string) => {
   });
 
   // 1. 卸下当前所有治国方略（治国方略类型）
-  Object.values(((saveData as any).角色?.背包?.物品 ?? {}) as Record<string, Item>).forEach((i) => {
+  Object.values(((saveData as any).角色?.背包?.物品 ?? {}) as Record<string, any>).forEach((i) => {
     if (i.类型 === '治国方略') {
       i.已装备 = false;
     }
@@ -2529,7 +2137,7 @@ const equipTechnique = async (itemId: string) => {
 
   // 🔥 [关键修复] loadFromSaveData 后再次确保技能解锁状态正确
   // 因为 loadFromSaveData 可能会创建新对象
-  const itemInStore = gameStateStore.inventory?.物品?.[itemId];
+  const itemInStore = gameStateStore.inventory?.物品?.[itemId] as any;
   if (itemInStore && itemInStore.类型 === '治国方略') {
     if (!itemInStore.已解锁技能) {
       itemInStore.已解锁技能 = [];
@@ -2694,83 +2302,29 @@ const loadSaveData = async (characterId: string, saveSlot: string): Promise<Save
     try {
       let loadedCount = 0;
 
-      // 🔥 联机模式：加载单个存档
+      // 联机模式已禁用
       if (profile.模式 === '联机') {
-        // 确保存档列表和云端修行存档存在
-        if (!profile.存档列表) {
-          profile.存档列表 = {};
-        }
-        if (!profile.存档列表['云端修行']) {
-          profile.存档列表['云端修行'] = {
-            存档名: '云端修行',
-            保存时间: '',
-            游戏内时间: '',
-          };
-        }
-        const 存档 = profile.存档列表['云端修行'];
+        debug.error('角色商店', '仅支持单机模式');
+        return;
+      }
 
-        // 如果存档数据不在内存中，尝试从云端或本地加载
-        if (!存档.存档数据) {
-          // 🔥 检查后端创建是否失败，如果失败则跳过云端获取
-          const backendCreationFailed = (存档.云端同步信息 as any)?.后端创建失败;
+      // 单机模式：加载所有存档槽位
+      if (!profile.存档列表) {
+        debug.log('角色商店', `[loadCharacterSaves] 角色 ${charId} 无存档列表，无需加载。`);
+        return;
+      }
 
-          // 首先尝试从云端获取（如果已登录且后端创建未失败）
-          if (isBackendConfigured() && !backendCreationFailed) {
-            const tokenValid = await verifyStoredToken();
-            if (tokenValid) {
-              try {
-                const cloudProfile = await fetchCharacterProfile(charId) as any;
-                const cloudSave = cloudProfile?.game_save;
-                const cloudSaveData = cloudSave?.save_data;
+      const slotKeys = Object.keys(profile.存档列表);
 
-                if (cloudSaveData) {
-                  存档.存档数据 = cloudSaveData as SaveData;
-                  if (cloudSave?.game_time && typeof cloudSave.game_time === 'string') {
-                    存档.游戏内时间 = cloudSave.game_time;
-                  }
-                  存档.云端同步信息 = {
-                    最后同步: cloudSave?.last_sync ? String(cloudSave.last_sync) : new Date().toISOString(),
-                    版本: typeof cloudSave?.version === 'number' ? cloudSave.version : 1,
-                    需要同步: false,
-                  };
-                  loadedCount++;
-                  debug.log('角色商店', `  > 成功从云端加载联机存档`);
-                }
-              } catch (error) {
-                debug.warn('角色商店', '从云端加载联机存档失败，尝试本地缓存', error);
-              }
-            }
-          }
-
-          // 如果云端没有或加载失败，尝试从本地 IndexedDB 加载
-          if (!存档.存档数据) {
-            const saveData = await storage.loadSaveData(charId, '云端修行');
-            if (saveData) {
-              存档.存档数据 = saveData;
-              loadedCount++;
-              debug.log('角色商店', `  > 成功从本地加载联机存档缓存`);
-            }
-          }
-        }
-      } else {
-        // 单机模式：加载所有存档槽位
-        if (!profile.存档列表) {
-          debug.log('角色商店', `[loadCharacterSaves] 角色 ${charId} 无存档列表，无需加载。`);
-          return;
-        }
-
-        const slotKeys = Object.keys(profile.存档列表);
-
-        for (const slotKey of slotKeys) {
-          const slot = profile.存档列表[slotKey];
-          // 只加载没有存档数据的槽位（包括"上次对话"）
-          if (slot && !slot.存档数据) {
-            const saveData = await storage.loadSaveData(charId, slotKey);
-            if (saveData) {
-              slot.存档数据 = saveData;
-              loadedCount++;
-              debug.log('角色商店', `  > 成功加载存档: ${slotKey}`);
-            }
+      for (const slotKey of slotKeys) {
+        const slot = profile.存档列表[slotKey];
+        // 只加载没有存档数据的槽位（包括"上次对话"）
+        if (slot && !slot.存档数据) {
+          const saveData = await storage.loadSaveData(charId, slotKey);
+          if (saveData) {
+            slot.存档数据 = saveData;
+            loadedCount++;
+            debug.log('角色商店', `  > 成功加载存档: ${slotKey}`);
           }
         }
       }

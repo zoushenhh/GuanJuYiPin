@@ -26,6 +26,7 @@ export interface SaveMigrationReport {
 export interface SaveDisplayInfo {
   角色名字: string;
   境界: string; // 县令主题：官品/职位
+  官品?: string; // 县令主题字段（与境界保持同步）
   位置: string;
   游戏时间: GameTime | null;
 }
@@ -118,7 +119,7 @@ export function extractSaveDisplayInfo(saveData: SaveData | null | undefined): S
     游戏时间 = coerceTime(anySave.游戏时间);
   }
 
-  return { 角色名字, 境界, 位置, 游戏时间 };
+  return { 角色名字, 境界, 官品: 境界, 位置, 游戏时间 };
 }
 
 const LEGACY_ROOT_KEYS = [

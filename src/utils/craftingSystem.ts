@@ -50,7 +50,8 @@ export interface CraftingComputationResult {
   daoBonusStage: number;
 }
 
-const QUALITY_ORDER: QualityType[] = ['凡', '黄', '玄', '地', '天', '仙', '神'];
+// 县令主题品质等级：从低到高（民、乡、县、州、府、宫、皇）
+const QUALITY_ORDER: QualityType[] = ['民', '乡', '县', '州', '府', '宫', '皇'];
 
 function clampInt(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, Math.round(value)));
@@ -66,7 +67,7 @@ function toGradeNumber(grade: unknown): number {
 }
 
 export function getItemQualityScore(item: Item): number {
-  const quality = item.品质?.quality ?? '凡';
+  const quality = item.品质?.quality ?? '民';
   const grade = toGradeNumber(item.品质?.grade);
   const rank = Math.max(1, QUALITY_ORDER.indexOf(quality) + 1);
   const normalizedGrade = Math.max(0, Math.min(10, grade)) / 10;
@@ -214,7 +215,7 @@ export function computeCrafting(input: CraftingComputationInput): CraftingComput
   const gradeVariance = clampInt((rng() - 0.5) * 4, -2, 2);
   const targetGrade = clampInt(successGradeBase + gradeVariance + (success ? qualityBonus : -5), 0, 10);
 
-  const quality: QualityType = success ? (QUALITY_ORDER[targetRank - 1] ?? '凡') : '凡';
+  const quality: QualityType = success ? (QUALITY_ORDER[targetRank - 1] ?? '民') : '民';
   const grade: GradeType = clampInt(success ? targetGrade : 0, 0, 10) as GradeType;
 
   const resultQuality: ItemQuality = { quality, grade };

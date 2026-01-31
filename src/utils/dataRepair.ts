@@ -480,11 +480,11 @@ function repairItem(item: Item): Item {
 
   // 修复品质
   if (!repaired.品质 || typeof repaired.品质 !== 'object') {
-    repaired.品质 = { quality: '凡', grade: 1 };
+    repaired.品质 = { quality: '民', grade: 1 };
   } else {
-    const validQualities = ['凡', '黄', '玄', '地', '天', '仙', '神'];
+    const validQualities = ['皇', '宫', '府', '州', '县', '乡', '民'];
     if (!validQualities.includes(repaired.品质.quality)) {
-      repaired.品质.quality = '凡';
+      repaired.品质.quality = '民';
     }
     repaired.品质.grade = validateNumber(repaired.品质.grade, 0, 10, 1) as GradeType;
   }
