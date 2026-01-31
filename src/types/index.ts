@@ -122,6 +122,13 @@ export interface World {
   source?: 'local' | 'custom' | 'cloud';
 }
 
+// 新术语类型别名（县令模拟器）
+export type Region = World;           // 地界 = 世界
+export type Background = TalentTier;  // 出身 = 天资等级
+export type Aptitude = Origin;        // 天资 = 出身背景
+export type PostHeaven = SpiritRoot;  // 后天 = 灵根/才能
+export type Ability = Talent;         // 能力 = 天赋
+
 export interface TalentTier {
   id: number;
   name: string;
@@ -135,7 +142,7 @@ export interface TalentTier {
 /**
  * @deprecated 使用 MagistrateBackground 替代
  * 旧术语：出身
- * 新术语：县令出身背景
+ * 新术语：县令天资
  */
 export interface Origin {
   id: number;

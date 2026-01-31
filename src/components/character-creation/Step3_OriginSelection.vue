@@ -65,7 +65,7 @@
           <div class="description-scroll">
             <p>{{ activeDescription }}</p>
           </div>
-          <div class="cost-display">{{ $t('消耗天道点: {0}').replace('{0}', String(activeCost)) }}</div>
+          <div class="cost-display">{{ $t('消耗官品点: {0}').replace('{0}', String(activeCost)) }}</div>
         </div>
         <div v-else class="placeholder">{{ $t('请选择一处出身，或听天由命。') }}</div>
       </div>
@@ -131,14 +131,14 @@ const filteredOrigins = computed(() => {
   return availableOrigins;
 });
 
-// 先天属性选项 - 出身影响的是先天属性
+// 先天属性选项 - 出身影响的是先天属性（县令六司）
 const _attributeOptions = [
-  { value: 'root_bone', label: '先天根骨' },
-  { value: 'spirit', label: '先天灵性' },
-  { value: 'comprehension', label: '先天悟性' },
-  { value: 'luck', label: '先天气运' },
-  { value: 'charm', label: '先天魅力' },
-  { value: 'temperament', label: '先天心性' }
+  { value: '政务', label: '政务' },
+  { value: '经济', label: '经济' },
+  { value: '军事', label: '军事' },
+  { value: '民生', label: '民生' },
+  { value: '威望', label: '威望' },
+  { value: '文化', label: '文化' }
 ] as const
 
 // 调整数值选项
@@ -160,7 +160,7 @@ const _modifierOptions = [
 const customOriginFields: ModalField[] = [
   { key: 'name', label: '出身名称', type: 'text', placeholder: '例如：山野遗孤' },
   { key: 'description', label: '出身描述', type: 'textarea', placeholder: '描述此出身的背景故事和成长经历...' },
-  { key: 'talent_cost', label: '天道点消耗', type: 'number', placeholder: '选择此出身需要消耗的天道点，可为负数表示奖励' },
+  { key: 'talent_cost', label: '官品点消耗', type: 'number', placeholder: '选择此出身需要消耗的官品点，可为负数表示奖励' },
   { key: 'rarity', label: '稀有度', type: 'number', placeholder: '1-10，数值越高越稀有' },
   {
     key: 'attribute_modifiers',
@@ -172,12 +172,12 @@ const customOriginFields: ModalField[] = [
         placeholder: '属性名称',
         type: 'select',
         options: [
-          { value: '根骨', label: '根骨' },
-          { value: '灵性', label: '灵性' },
-          { value: '悟性', label: '悟性' },
-          { value: '气运', label: '气运' },
-          { value: '魅力', label: '魅力' },
-          { value: '心性', label: '心性' }
+          { value: '政务', label: '政务' },
+          { value: '经济', label: '经济' },
+          { value: '军事', label: '军事' },
+          { value: '民生', label: '民生' },
+          { value: '威望', label: '威望' },
+          { value: '文化', label: '文化' }
         ]
       },
       { key: 'value', placeholder: '修正值（可为负数）', type: 'text' }
@@ -214,7 +214,7 @@ function validateCustomOrigin(data: Partial<CustomOriginData>) {
     // 数值字段验证
     const talentCost = Number(data.talent_cost);
     if (data.talent_cost !== undefined && data.talent_cost !== '' && isNaN(talentCost)) {
-      errors.talent_cost = '天道点消耗必须是数字';
+      errors.talent_cost = '官品点消耗必须是数字';
     }
 
     const rarity = Number(data.rarity);
@@ -309,19 +309,19 @@ async function handleAIPromptSubmit(userPrompt: string) {
       return;
     }
 
-    // 解析天道点消耗（支持多种字段名）
-    let talentCost = parsedOrigin.talent_cost || parsedOrigin.天道点消耗 || parsedOrigin.消耗天道点;
+    // 解析官品点消耗（支持多种字段名）
+    let talentCost = parsedOrigin.talent_cost || parsedOrigin.官品点消耗 || parsedOrigin.消耗官品点;
 
-    // 如果AI没有提供天道点，给予警告并设置默认值
+    // 如果AI没有提供官品点，给予警告并设置默认值
     if (talentCost === undefined || talentCost === null) {
-      console.warn('【AI推演-出身】AI未返回天道点消耗字段，使用默认值3');
-      toast.warning('AI未设置天道点消耗，已自动设为3点', { id: toastId, duration: 2000 });
+      console.warn('【AI推演-出身】AI未返回官品点消耗字段，使用默认值3');
+      toast.warning('AI未设置官品点消耗，已自动设为3点', { id: toastId, duration: 2000 });
       talentCost = 3; // 默认消耗3点，较为合理
     } else {
       // 确保是数字类型
       talentCost = Number(talentCost);
       if (isNaN(talentCost)) {
-        console.warn('【AI推演-出身】天道点消耗不是有效数字，使用默认值3');
+        console.warn('【AI推演-出身】官品点消耗不是有效数字，使用默认值3');
         talentCost = 3;
       }
     }
@@ -444,7 +444,7 @@ const editInitialData = computed(() => {
 
 function handleSelectOrigin(origin: Origin) {
   if (!canSelect(origin)) {
-    toast.warning('天道点不足，无法选择此出身。')
+    toast.warning('官品点不足，无法选择此出身。')
     return
   }
   // Toggle selection

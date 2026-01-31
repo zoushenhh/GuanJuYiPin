@@ -1,15 +1,15 @@
 // 县令 - AI驱动的古代县令模拟器
-import type { World, TalentTier, Origin, SpiritRoot, Talent } from '@/types';
+import type { Region, Background, Aptitude, PostHeaven, Ability } from '@/types';
 
 // =======================================================================
-//                           本地世界数据
+//                           本地地界数据 (原世界数据)
 // =======================================================================
-export const LOCAL_WORLDS: Omit<World, 'source'>[] = [
+export const LOCAL_REGIONS: Omit<Region, 'source'>[] = [
   {
     id: 1,
     name: '江南水乡',
     era: '大宋年间',
-    description: '此方世界名为"江南水乡"，乃是一处水网密布、物产丰饶的富庶之地。其核心法则是"以民为本，为官一任，造福一方"，无论是县令、知州，还是道台、巡抚，皆需以民生为重，为民请命。\n官民之别在此界泾渭分明，宛若天渊。平民百姓日出而作，日落而息，受赋税徭役之苦，终日为生计奔波；而官员一旦踏入仕途，便能享受俸禄，掌管一方百姓，动辄影响千人万户的生计。在百姓眼中，官员是高高在上的"父母官"，一言可定一家兴衰，一念可改全村命运。然而，这种权力并非毫无代价。\n此界奉行"有官必有责"的铁则，朝廷予官员权力，却也降下无尽责任。治安良好、赋税充足、百姓安居，皆是官员之功。但若遇天灾人祸、盗匪横行、民不聊生，便是官员失职，轻则降职罚俸，重则革职查办。官员之间，为求升迁，争斗乃是常态。同僚可能倾轧，上司可能贪腐，送礼行贿、结党营私之事屡见不鲜。这是一个充满机遇与危险的官场世界，你可以选择成为清正廉明的能臣，亦可成为贪赃枉法的污吏，只要你有足够的能力和手腕。但权力的背后，是无处不在的责任，一步踏错，便是万劫不复，身败名裂。\n然朝廷亦有制衡，官员若鱼肉百姓、贪赃枉法，便会与治下百姓结下冤仇。虽无业报加身，却会在日后升迁考核、政绩考评之时，引来更严厉的审查，平添无数变数。故而多数官员选择在任内勤政爱民，或于官场周旋，以求步步高升，位极人臣。政务行政——断案、收税、兴修水利、教化百姓，在此界发展到了极致，共同构筑了一个无比兴盛、却也无比残酷的官场文明。',
+    description: '此方地界名为"江南水乡"，乃是一处水网密布、物产丰饶的富庶之地。其核心法则是"以民为本，为官一任，造福一方"，无论是县令、知州，还是道台、巡抚，皆需以民生为重，为民请命。\n官民之别在此界泾渭分明，宛若天渊。平民百姓日出而作，日落而息，受赋税徭役之苦，终日为生计奔波；而官员一旦踏入仕途，便能享受俸禄，掌管一方百姓，动辄影响千人万户的生计。在百姓眼中，官员是高高在上的"父母官"，一言可定一家兴衰，一念可改全村命运。然而，这种权力并非毫无代价。\n此界奉行"有官必有责"的铁则，朝廷予官员权力，却也降下无尽责任。治安良好、赋税充足、百姓安居，皆是官员之功。但若遇天灾人祸、盗匪横行、民不聊生，便是官员失职，轻则降职罚俸，重则革职查办。官员之间，为求升迁，争斗乃是常态。同僚可能倾轧，上司可能贪腐，送礼行贿、结党营私之事屡见不鲜。这是一个充满机遇与危险的官场世界，你可以选择成为清正廉明的能臣，亦可成为贪赃枉法的污吏，只要你有足够的能力和手腕。但权力的背后，是无处不在的责任，一步踏错，便是万劫不复，身败名裂。\n然朝廷亦有制衡，官员若鱼肉百姓、贪赃枉法，便会与治下百姓结下冤仇。虽无业报加身，却会在日后升迁考核、政绩考评之时，引来更严厉的审查，平添无数变数。故而多数官员选择在任内勤政爱民，或于官场周旋，以求步步高升，位极人臣。政务行政——断案、收税、兴修水利、教化百姓，在此界发展到了极致，共同构筑了一个无比兴盛、却也无比残酷的官场文明。',
   },
   {
     id: 2,
@@ -68,53 +68,53 @@ export const LOCAL_WORLDS: Omit<World, 'source'>[] = [
 ];
 
 // =======================================================================
-//                           本地天资数据
+//                           本地出身数据 (原天资等级)
 // =======================================================================
-export const LOCAL_TALENT_TIERS: Omit<TalentTier, 'source'>[] = [
-  { id: 1, name: '贫民', description: '出身寒微，毫无背景，仕途艰难。虽有报国之志，奈何门第所限，每一步都需付出常人百倍的努力。', total_points: 10, rarity: 1, color: '#718096' },
+export const LOCAL_BACKGROUNDS: Omit<Background, 'source'>[] = [
+  { id: 1, name: '寒门', description: '出身寒微，毫无背景，仕途艰难。虽有报国之志，奈何门第所限，每一步都需付出常人百倍的努力。', total_points: 10, rarity: 1, color: '#718096' },
   { id: 2, name: '平民', description: '普通百姓出身，不好不坏，有缘可入仕途。若有大机缘，亦可成就一番事业。', total_points: 20, rarity: 2, color: '#E2E8F0' },
   { id: 3, name: '小吏', description: '百里挑一的人才，略有不凡，在衙门中可为得力干吏。能力尚可，勤勉工作有望得到提拔。', total_points: 35, rarity: 3, color: '#63B3ED' },
   { id: 4, name: '士绅', description: '地方名流，注定耀眼，是官场未来的希望。门第不错，升迁速度远超常人，往往能越级晋升。', total_points: 50, rarity: 4, color: '#9F7AEA' },
-  { id: 5, name: '贵族', description: '显赫世家，权势滔天，可与当朝权贵比肩。打破常理的存在，朝廷似乎都对其格外优待。', total_points: 70, rarity: 5, color: '#F6E05E' },
+  { id: 5, name: '权贵', description: '显赫世家，权势滔天，可与当朝权贵比肩。打破常理的存在，朝廷似乎都对其格外优待。', total_points: 70, rarity: 5, color: '#F6E05E' },
   { id: 6, name: '皇族', description: '皇室宗亲，天生尊贵，记忆蒙尘但灵性不昧，升迁一日千里。自带威严，官场法则难以束缚。', total_points: 85, rarity: 6, color: '#F56565' },
   { id: 7, name: '天命之子', description: '天命所归，天生与官场相合，万法皆通，是此时代的应运之人。言出法随，气运逆天，整个官场都在为其让路。', total_points: 100, rarity: 7, color: '#ED8936' },
 ];
 
 // =======================================================================
-//                           本地出身数据
+//                           本地天资数据 (原出身数据)
 // =======================================================================
-export const LOCAL_ORIGINS: Omit<Origin, 'source'>[] = [
-  { id: 1, name: '孤儿出身', description: '自幼父母双亡，吃百家饭长大，磨练出坚韧的意志和过人的体魄。', talent_cost: 0, attribute_modifiers: { root_bone: 1 }, rarity: 3 },
-  { id: 2, name: '书香门第', description: '出身于官宦世家，饱读诗书，对治国之道有超乎常人的理解力。', talent_cost: 2, attribute_modifiers: { comprehension: 2 }, rarity: 3 },
-  { id: 3, name: '商贾之家', description: '生于富贵之家，精通人情世故，处事圆滑，魅力非凡。', talent_cost: 2, attribute_modifiers: { charm: 2 }, rarity: 3 },
-  { id: 4, name: '将门之后', description: '名将的后代，血脉中流淌着勇武与煞气，心性坚定。', talent_cost: 3, attribute_modifiers: { temperament: 2, root_bone: 1 }, rarity: 3 },
-  { id: 5, name: '幕僚出身', description: '你的恩师是一位游历四方的大幕僚，你继承了他的部分衣钵和见识。', talent_cost: 4, attribute_modifiers: { comprehension: 1, temperament: 1 }, rarity: 4 },
-  { id: 6, name: '卧底探子', description: '你出身名门正派，却被派往敌对势力执行卧底任务，心性远超常人。', talent_cost: 1, attribute_modifiers: { temperament: 3 }, rarity: 4 },
-  { id: 7, name: '前朝遗臣', description: '你保留着前朝的记忆，虽然官位尽失，但对官场和未来的大事了如指掌。', talent_cost: 5, attribute_modifiers: { comprehension: 2, luck: 1 }, rarity: 5 },
-  { id: 8, name: '世家子弟', description: '你的家族中流淌着稀薄的高官血脉，天生威严十足，升迁速度略快于常人。', talent_cost: 6, attribute_modifiers: { spirit: 2, root_bone: 1 }, rarity: 5 },
-  { id: 9, name: '革职复起', description: '你是一名被革职后重新起用的老臣，虽然占据了新的职位，但灵魂中蕴含着庞大的经验。', talent_cost: 7, attribute_modifiers: { comprehension: 3, temperament: -1 }, rarity: 5 },
-  { id: 10, name: '庙祝之子', description: '你从小在庙里长大，日夜与香火为伴，神魂受到滋养，对鬼神之事有特殊感应。', talent_cost: 2, attribute_modifiers: { spirit: 2 }, rarity: 3 },
-  { id: 11, name: '渔民之后', description: '祖上世代捕鱼为生，水性极佳，体魄强健。', talent_cost: 1, attribute_modifiers: { root_bone: 2 }, rarity: 2 },
-  { id: 12, name: '皇室宗亲', description: '生于皇家的权力之巅，自幼享受锦衣玉食和最好的教育，但与基层官场的接触较少。', talent_cost: 3, attribute_modifiers: { charm: 2, temperament: 1 }, rarity: 4 },
-  { id: 13, name: '药铺伙计', description: '自幼在药铺长大，日夜与药材为伴，对药理有超常的敏感。', talent_cost: 2, attribute_modifiers: { spirit: 1, comprehension: 1 }, rarity: 3 },
-  { id: 14, name: '账房学徒', description: '师从账房先生，自小研习账目，对数字极其敏锐。', talent_cost: 3, attribute_modifiers: { comprehension: 2, spirit: 1 }, rarity: 4 },
-  { id: 15, name: '捕快世家', description: '祖上世代捕快，血脉中蕴含微弱的武学之力，对罪犯极其敏感。', talent_cost: 4, attribute_modifiers: { root_bone: 2, temperament: 1 }, rarity: 4 },
-  { id: 16, name: '乞丐出身', description: '自幼流落街头，饱经风霜，磨练出超凡的意志和适应能力。', talent_cost: -1, attribute_modifiers: { temperament: 2, luck: -1 }, rarity: 2 },
-  { id: 17, name: '矿工余生', description: '曾是矿工，在暗无天日的矿洞中挣扎求生，体魄强健但缺乏灵性。', talent_cost: 0, attribute_modifiers: { root_bone: 3, spirit: -1 }, rarity: 2 },
-  { id: 18, name: '画师弟子', description: '师承名家，精通书画之道，对文书有天生的理解力。', talent_cost: 3, attribute_modifiers: { comprehension: 1, charm: 2 }, rarity: 3 },
-  { id: 19, name: '守墓人', description: '世代守护祖坟，长期与死者打交道，对鬼道有独特感悟。', talent_cost: 2, attribute_modifiers: { temperament: 2, spirit: 1 }, rarity: 4 },
-  { id: 20, name: '戏班出身', description: '自幼学戏，擅长察言观色，魅力非凡，但为官之心不够坚定。', talent_cost: 1, attribute_modifiers: { charm: 3, temperament: -1 }, rarity: 2 },
-  { id: 21, name: '风水世家', description: '家族世代看风水，你自小研习相地之术，对地利有独特理解。', talent_cost: 5, attribute_modifiers: { comprehension: 2, luck: 2 }, rarity: 5 },
-  { id: 22, name: '部落首领', description: '出身蛮荒部落，继承了首领的血脉，对统治有天生的亲和。', talent_cost: 4, attribute_modifiers: { spirit: 2, root_bone: 1 }, rarity: 4 },
-  { id: 23, name: '海岛遗民', description: '生于与世隔绝的海岛，保留着上古时代的原始统治法门。', talent_cost: 3, attribute_modifiers: { temperament: 2, comprehension: 1 }, rarity: 4 },
-  { id: 24, name: '亡国之臣', description: '国破家亡，历经苦难，心性坚韧如铁，但背负着沉重的仇恨。', talent_cost: 2, attribute_modifiers: { temperament: 3, luck: -1 }, rarity: 3 }
+export const LOCAL_APTITUDES: Omit<Aptitude, 'source'>[] = [
+  { id: 1, name: '孤儿出身', description: '自幼父母双亡，吃百家饭长大，磨练出坚韧的意志和过人的体魄。', talent_cost: 0, attribute_modifiers: { 政务: 1 }, rarity: 3 },
+  { id: 2, name: '书香门第', description: '出身于官宦世家，饱读诗书，对治国之道有超乎常人的理解力。', talent_cost: 2, attribute_modifiers: { 经济: 2 }, rarity: 3 },
+  { id: 3, name: '商贾之家', description: '生于富贵之家，精通人情世故，处事圆滑，魅力非凡。', talent_cost: 2, attribute_modifiers: { 民生: 2 }, rarity: 3 },
+  { id: 4, name: '将门之后', description: '名将的后代，血脉中流淌着勇武与煞气，心性坚定。', talent_cost: 3, attribute_modifiers: { 军事: 2, 威望: 1 }, rarity: 3 },
+  { id: 5, name: '幕僚出身', description: '你的恩师是一位游历四方的大幕僚，你继承了他的部分衣钵和见识。', talent_cost: 4, attribute_modifiers: { 经济: 1, 文化: 1 }, rarity: 4 },
+  { id: 6, name: '卧底探子', description: '你出身名门正派，却被派往敌对势力执行卧底任务，心性远超常人。', talent_cost: 1, attribute_modifiers: { 威望: 3 }, rarity: 4 },
+  { id: 7, name: '前朝遗臣', description: '你保留着前朝的记忆，虽然官位尽失，但对官场和未来的大事了如指掌。', talent_cost: 5, attribute_modifiers: { 经济: 2, 文化: 1 }, rarity: 5 },
+  { id: 8, name: '世家子弟', description: '你的家族中流淌着稀薄的高官血脉，天生威严十足，升迁速度略快于常人。', talent_cost: 6, attribute_modifiers: { 威望: 2, 政务: 1 }, rarity: 5 },
+  { id: 9, name: '革职复起', description: '你是一名被革职后重新起用的老臣，虽然占据了新的职位，但灵魂中蕴含着庞大的经验。', talent_cost: 7, attribute_modifiers: { 经济: 3, 威望: -1 }, rarity: 5 },
+  { id: 10, name: '庙祝之子', description: '你从小在庙里长大，日夜与香火为伴，神魂受到滋养，对鬼神之事有特殊感应。', talent_cost: 2, attribute_modifiers: { 文化: 2 }, rarity: 3 },
+  { id: 11, name: '渔民之后', description: '祖上世代捕鱼为生，水性极佳，体魄强健。', talent_cost: 1, attribute_modifiers: { 政务: 2 }, rarity: 2 },
+  { id: 12, name: '皇室宗亲', description: '生于皇家的权力之巅，自幼享受锦衣玉食和最好的教育，但与基层官场的接触较少。', talent_cost: 3, attribute_modifiers: { 民生: 2, 威望: 1 }, rarity: 4 },
+  { id: 13, name: '药铺伙计', description: '自幼在药铺长大，日夜与药材为伴，对医理有超常的敏感。', talent_cost: 2, attribute_modifiers: { 民生: 1, 经济: 1 }, rarity: 3 },
+  { id: 14, name: '账房学徒', description: '师从账房先生，自小研习账目，对数字极其敏锐。', talent_cost: 3, attribute_modifiers: { 经济: 2, 民生: 1 }, rarity: 4 },
+  { id: 15, name: '捕快世家', description: '祖上世代捕快，血脉中蕴含微弱的武学之力，对罪犯极其敏感。', talent_cost: 4, attribute_modifiers: { 军事: 2, 威望: 1 }, rarity: 4 },
+  { id: 16, name: '乞丐出身', description: '自幼流落街头，饱经风霜，磨练出超凡的意志和适应能力。', talent_cost: -1, attribute_modifiers: { 威望: 2, 民生: -1 }, rarity: 2 },
+  { id: 17, name: '矿工余生', description: '曾是矿工，在暗无天日的矿洞中挣扎求生，体魄强健但缺乏灵性。', talent_cost: 0, attribute_modifiers: { 政务: 3, 文化: -1 }, rarity: 2 },
+  { id: 18, name: '画师弟子', description: '师承名家，精通书画之道，对文书有天生的理解力。', talent_cost: 3, attribute_modifiers: { 文化: 1, 民生: 2 }, rarity: 3 },
+  { id: 19, name: '守墓人', description: '世代守护祖坟，长期与死者打交道，对鬼道有独特感悟。', talent_cost: 2, attribute_modifiers: { 威望: 2, 文化: 1 }, rarity: 4 },
+  { id: 20, name: '戏班出身', description: '自幼学戏，擅长察言观色，魅力非凡，但为官之心不够坚定。', talent_cost: 1, attribute_modifiers: { 民生: 3, 威望: -1 }, rarity: 2 },
+  { id: 21, name: '风水世家', description: '家族世代看风水，你自小研习相地之术，对地利有独特理解。', talent_cost: 5, attribute_modifiers: { 经济: 2, 文化: 2 }, rarity: 5 },
+  { id: 22, name: '部落首领', description: '出身蛮荒部落，继承了首领的血脉，对统治有天生的亲和。', talent_cost: 4, attribute_modifiers: { 威望: 2, 政务: 1 }, rarity: 4 },
+  { id: 23, name: '海岛遗民', description: '生于与世隔绝的海岛，保留着上古时代的原始统治法门。', talent_cost: 3, attribute_modifiers: { 威望: 2, 经济: 1 }, rarity: 4 },
+  { id: 24, name: '亡国之臣', description: '国破家亡，历经苦难，心性坚韧如铁，但背负着沉重的仇恨。', talent_cost: 2, attribute_modifiers: { 威望: 3, 民生: -1 }, rarity: 3 }
 ];
 
 // =======================================================================
-//                           本地才能数据 (品级优化版本)
+//                           本地后天数据 (原才能/灵根数据)
 // =======================================================================
-export const LOCAL_SPIRIT_ROOTS: Omit<SpiritRoot, 'source'>[] = [
-  // 上品才能 - 基础五项
+export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
+  // 上品后天 - 基础六项
   {
     id: 1,
     name: '断案之才',
@@ -171,7 +171,7 @@ export const LOCAL_SPIRIT_ROOTS: Omit<SpiritRoot, 'source'>[] = [
     rarity: 3
   },
 
-  // 中品才能 - 常见选择
+  // 中品后天 - 常见选择
   {
     id: 9,
     name: '断案之才',
@@ -195,7 +195,7 @@ export const LOCAL_SPIRIT_ROOTS: Omit<SpiritRoot, 'source'>[] = [
     rarity: 2
   },
 
-  // 极品才能 - 稀有特质
+  // 极品后天 - 稀有特质
   {
     id: 11,
     name: '神探天赋',
@@ -219,7 +219,7 @@ export const LOCAL_SPIRIT_ROOTS: Omit<SpiritRoot, 'source'>[] = [
     rarity: 4
   },
 
-  // 神品才能 - 传说级别
+  // 神品后天 - 传说级别
   {
     id: 6,
     name: '全能之才',
@@ -232,7 +232,7 @@ export const LOCAL_SPIRIT_ROOTS: Omit<SpiritRoot, 'source'>[] = [
     rarity: 5
   },
 
-  // 特殊才能
+  // 特殊后天
   {
     id: 7,
     name: '清廉之体',
@@ -245,7 +245,7 @@ export const LOCAL_SPIRIT_ROOTS: Omit<SpiritRoot, 'source'>[] = [
     rarity: 4
   },
 
-  // 凡品和下品才能
+  // 凡品和下品后天
   {
     id: 8,
     name: '平庸之辈',
@@ -391,7 +391,7 @@ export const LOCAL_SPIRIT_ROOTS: Omit<SpiritRoot, 'source'>[] = [
   },
   {
     id: 25,
-    name: '人望之才',
+    name: '民望之才',
     tier: '神品',
     description: '吸纳民望的稀世才能，与民意共鸣。处理缓慢但根基稳固，可借民望之力突破瓶颈。',
     cultivation_speed: '0.85x(前期) -> 2.9x(后期)',
@@ -413,11 +413,10 @@ export const LOCAL_SPIRIT_ROOTS: Omit<SpiritRoot, 'source'>[] = [
   },
 ];
 
-
 // =======================================================================
-//                           本地天赋数据 (预留)
+//                           本地能力数据 (原天赋数据)
 // =======================================================================
-export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
+export const LOCAL_ABILITIES: Omit<Ability, 'source'>[] = [
   {
     id: 1,
     name: '天命县令',
@@ -425,7 +424,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 15,
     rarity: 5,
     effects: [
-      { 类型: '后天六司', 目标: '气运', 数值: 8 },
+      { 类型: '县令六司', 目标: '文化', 数值: 8 },
       { 类型: '特殊能力', 名称: '逢凶化吉', 数值: 0.1 }
     ]
   },
@@ -437,7 +436,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     rarity: 5,
     effects: [
       { 类型: '技能加成', 技能: '断案', 数值: 0.2 },
-      { 类型: '后天六司', 目标: '根骨', 数值: 3 }
+      { 类型: '县令六司', 目标: '政务', 数值: 3 }
     ]
   },
   {
@@ -448,7 +447,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     rarity: 5,
     effects: [
       { 类型: '技能加成', 技能: '理财', 数值: 0.15 },
-      { 类型: '后天六司', 目标: '悟性', 数值: 2 }
+      { 类型: '县令六司', 目标: '经济', 数值: 2 }
     ]
   },
   {
@@ -459,7 +458,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     rarity: 4,
     effects: [
       { 类型: '技能加成', 技能: '治理', 数值: 0.12 },
-      { 类型: '后天六司', 目标: '悟性', 数值: 2 }
+      { 类型: '县令六司', 目标: '经济', 数值: 2 }
     ]
   },
   {
@@ -480,7 +479,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 7,
     rarity: 4,
     effects: [
-      { 类型: '后天六司', 目标: '气运', 数值: 3 },
+      { 类型: '县令六司', 目标: '文化', 数值: 3 },
       { 类型: '特殊能力', 名称: '寻宝天赋', 数值: 0.15 }
     ]
   },
@@ -491,7 +490,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 5,
     rarity: 3,
     effects: [
-      { 类型: '后天六司', 目标: '根骨', 数值: 3 },
+      { 类型: '县令六司', 目标: '军事', 数值: 3 },
       { 类型: '特殊能力', 名称: '武学天赋', 数值: 0.1 }
     ]
   },
@@ -502,7 +501,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 5,
     rarity: 3,
     effects: [
-      { 类型: '后天六司', 目标: '悟性', 数值: 3 },
+      { 类型: '县令六司', 目标: '文化', 数值: 3 },
       { 类型: '特殊能力', 名称: '蒙骗抗性', 数值: 0.1 }
     ]
   },
@@ -513,7 +512,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 4,
     rarity: 3,
     effects: [
-      { 类型: '后天六司', 目标: '灵性', 数值: 2 },
+      { 类型: '县令六司', 目标: '民生', 数值: 2 },
       { 类型: '特殊能力', 名称: '应变天赋', 数值: 0.08 }
     ]
   },
@@ -524,7 +523,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 2,
     rarity: 2,
     effects: [
-      { 类型: '后天六司', 目标: '心性', 数值: 1 },
+      { 类型: '县令六司', 目标: '威望', 数值: 1 },
       { 类型: '特殊能力', 名称: '农业亲和', 数值: 0.1 }
     ]
   },
@@ -535,7 +534,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 2,
     rarity: 2,
     effects: [
-      { 类型: '后天六司', 目标: '悟性', 数值: 2 }
+      { 类型: '县令六司', 目标: '文化', 数值: 2 }
     ]
   },
   {
@@ -555,7 +554,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 3,
     rarity: 2,
     effects: [
-      { 类型: '后天六司', 目标: '魅力', 数值: 2 }
+      { 类型: '县令六司', 目标: '民生', 数值: 2 }
     ]
   },
   {
@@ -567,7 +566,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     effects: [
       { 类型: '特殊能力', 名称: '不畏权贵', 数值: 1 },
       { 类型: '技能加成', 技能: '执法', 数值: 0.15 },
-      { 类型: '后天六司', 目标: '魅力', 数值: -2 }
+      { 类型: '县令六司', 目标: '民生', 数值: -2 }
     ]
   },
   {
@@ -588,7 +587,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 8,
     rarity: 4,
     effects: [
-      { 类型: '后天六司', 目标: '魅力', 数值: 5 },
+      { 类型: '县令六司', 目标: '民生', 数值: 5 },
       { 类型: '特殊能力', 名称: '魅力光环', 数值: 0.2 },
       { 类型: '特殊能力', 名称: '社交天赋', 数值: 0.15 }
     ]
@@ -600,7 +599,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 6,
     rarity: 4,
     effects: [
-      { 类型: '后天六司', 目标: '心性', 数值: 3 },
+      { 类型: '县令六司', 目标: '威望', 数值: 3 },
       { 类型: '特殊能力', 名称: '贿赂抗性', 数值: 0.3 }
     ]
   },
@@ -611,7 +610,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 5,
     rarity: 3,
     effects: [
-      { 类型: '后天六司', 目标: '根骨', 数值: 4 },
+      { 类型: '县令六司', 目标: '军事', 数值: 4 },
       { 类型: '特殊能力', 名称: '近战增幅', 数值: 0.2 }
     ]
   },
@@ -622,7 +621,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 4,
     rarity: 3,
     effects: [
-      { 类型: '后天六司', 目标: '灵性', 数值: 3 },
+      { 类型: '县令六司', 目标: '民生', 数值: 3 },
       { 类型: '特殊能力', 名称: '危险感知', 数值: 1 }
     ]
   },
@@ -643,7 +642,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 10,
     rarity: 5,
     effects: [
-      { 类型: '后天六司', 目标: '气运', 数值: 5 },
+      { 类型: '县令六司', 目标: '文化', 数值: 5 },
       { 类型: '特殊能力', 名称: '升迁成功率', 数值: 0.2 },
       { 类型: '特殊能力', 名称: '政敌削弱', 数值: 0.15 }
     ]
@@ -655,7 +654,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 10,
     rarity: 5,
     effects: [
-      { 类型: '后天六司', 目标: '根骨', 数值: 2 },
+      { 类型: '县令六司', 目标: '军事', 数值: 2 },
       { 类型: '技能加成', 技能: '断案', 数值: 0.25 },
       { 类型: '特殊能力', 名称: '正气感悟', 数值: 0.2 }
     ]
@@ -667,8 +666,8 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 18,
     rarity: 5,
     effects: [
-      { 类型: '后天六司', 目标: '悟性', 数值: 4 },
-      { 类型: '后天六司', 目标: '灵性', 数值: 4 },
+      { 类型: '县令六司', 目标: '文化', 数值: 4 },
+      { 类型: '县令六司', 目标: '民生', 数值: 4 },
       { 类型: '特殊能力', 名称: '万法精通', 数值: 0.3 }
     ]
   },
@@ -679,7 +678,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 7,
     rarity: 4,
     effects: [
-      { 类型: '后天六司', 目标: '悟性', 数值: 2 },
+      { 类型: '县令六司', 目标: '文化', 数值: 2 },
       { 类型: '技能加成', 技能: '文书', 数值: 0.2 },
       { 类型: '特殊能力', 名称: '文书精通', 数值: 0.15 }
     ]
@@ -691,7 +690,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 6,
     rarity: 4,
     effects: [
-      { 类型: '后天六司', 目标: '魅力', 数值: 2 },
+      { 类型: '县令六司', 目标: '民生', 数值: 2 },
       { 类型: '特殊能力', 名称: '下属契约', 数值: 0.3 },
       { 类型: '特殊能力', 名称: '部属能力', 数值: 0.2 }
     ]
@@ -703,7 +702,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 5,
     rarity: 4,
     effects: [
-      { 类型: '后天六司', 目标: '心性', 数值: -2 },
+      { 类型: '县令六司', 目标: '威望', 数值: -2 },
       { 类型: '特殊能力', 名称: '权谋加速', 数值: 0.4 },
       { 类型: '特殊能力', 名称: '结党营私', 数值: 0.15 }
     ]
@@ -715,7 +714,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 9,
     rarity: 4,
     effects: [
-      { 类型: '后天六司', 目标: '悟性', 数值: 2 },
+      { 类型: '县令六司', 目标: '文化', 数值: 2 },
       { 类型: '技能加成', 技能: '建设', 数值: 0.25 },
       { 类型: '特殊能力', 名称: '精品概率', 数值: 0.1 }
     ]
@@ -727,7 +726,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: -3,
     rarity: 3,
     effects: [
-      { 类型: '后天六司', 目标: '气运', 数值: -5 },
+      { 类型: '县令六司', 目标: '文化', 数值: -5 },
       { 类型: '特殊能力', 名称: '绝境突破', 数值: 0.3 }
     ]
   },
@@ -738,8 +737,8 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 8,
     rarity: 5,
     effects: [
-      { 类型: '后天六司', 目标: '悟性', 数值: 2 },
-      { 类型: '后天六司', 目标: '气运', 数值: 3 },
+      { 类型: '县令六司', 目标: '文化', 数值: 2 },
+      { 类型: '县令六司', 目标: '民生', 数值: 3 },
       { 类型: '特殊能力', 名称: '预知危险', 数值: 1 }
     ]
   },
@@ -750,7 +749,7 @@ export const LOCAL_TALENTS: Omit<Talent, 'source'>[] = [
     talent_cost: 12,
     rarity: 5,
     effects: [
-      { 类型: '后天六司', 目标: '根骨', 数值: 3 },
+      { 类型: '县令六司', 目标: '军事', 数值: 3 },
       { 类型: '特殊能力', 名称: '寿命延长', 数值: 0.3 }
     ]
   }

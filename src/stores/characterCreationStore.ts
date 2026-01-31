@@ -12,11 +12,11 @@ import { aiService } from '@/services/aiService';
 // Import the Tavern helper to interact with Tavern's variable system
 import { getTavernHelper, getCurrentCharacterName } from '../utils/tavern';
 import {
-  LOCAL_WORLDS,
-  LOCAL_TALENT_TIERS,
-  LOCAL_ORIGINS,
-  LOCAL_SPIRIT_ROOTS,
-  LOCAL_TALENTS,
+  LOCAL_REGIONS,
+  LOCAL_BACKGROUNDS,
+  LOCAL_APTITUDES,
+  LOCAL_POST_HEAVENS,
+  LOCAL_ABILITIES,
 } from '../data/creationData';
 
 // =======================================================================
@@ -418,11 +418,11 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
       console.log("【创世神殿】初始化单机模式，加载本地数据和自定义数据！");
 
       // 加载本地预设数据
-      const localWorlds = LOCAL_WORLDS.map(w => ({ ...w, source: 'local' as DataSource }));
-      const localTalentTiers = LOCAL_TALENT_TIERS.map(t => ({ ...t, source: 'local' as DataSource }));
-      const localOrigins = LOCAL_ORIGINS.map(o => ({ ...o, source: 'local' as DataSource }));
-      const localSpiritRoots = LOCAL_SPIRIT_ROOTS.map(s => ({ ...s, source: 'local' as DataSource }));
-      const localTalents = LOCAL_TALENTS.map(t => ({ ...t, source: 'local' as DataSource }));
+      const localWorlds = LOCAL_REGIONS.map(w => ({ ...w, source: 'local' as DataSource }));
+      const localTalentTiers = LOCAL_BACKGROUNDS.map(t => ({ ...t, source: 'local' as DataSource }));
+      const localOrigins = LOCAL_APTITUDES.map(o => ({ ...o, source: 'local' as DataSource }));
+      const localSpiritRoots = LOCAL_POST_HEAVENS.map(s => ({ ...s, source: 'local' as DataSource }));
+      const localTalents = LOCAL_ABILITIES.map(t => ({ ...t, source: 'local' as DataSource }));
 
       // 尝试加载自定义数据（从 IndexedDB）
       let savedData: DADCustomData = { worlds: [], talentTiers: [], origins: [], spiritRoots: [], talents: [] };
@@ -473,11 +473,11 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     } catch (e) {
       console.error("加载数据失败:", e);
       error.value = "加载数据失败";
-      creationData.value.worlds = LOCAL_WORLDS.map(w => ({ ...w, source: 'local' as DataSource }));
-      creationData.value.talentTiers = LOCAL_TALENT_TIERS.map(t => ({ ...t, source: 'local' as DataSource }));
-      creationData.value.origins = LOCAL_ORIGINS.map(o => ({ ...o, source: 'local' as DataSource }));
-      creationData.value.spiritRoots = LOCAL_SPIRIT_ROOTS.map(s => ({ ...s, source: 'local' as DataSource }));
-      creationData.value.talents = LOCAL_TALENTS.map(t => ({ ...t, source: 'local' as DataSource }));
+      creationData.value.worlds = LOCAL_REGIONS.map(w => ({ ...w, source: 'local' as DataSource }));
+      creationData.value.talentTiers = LOCAL_BACKGROUNDS.map(t => ({ ...t, source: 'local' as DataSource }));
+      creationData.value.origins = LOCAL_APTITUDES.map(o => ({ ...o, source: 'local' as DataSource }));
+      creationData.value.spiritRoots = LOCAL_POST_HEAVENS.map(s => ({ ...s, source: 'local' as DataSource }));
+      creationData.value.talents = LOCAL_ABILITIES.map(t => ({ ...t, source: 'local' as DataSource }));
     } finally {
       isLoading.value = false;
     }
@@ -664,11 +664,11 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
       const newRootWithId = { ...spiritRoot, id: newId };
       addSpiritRoot(newRootWithId);
       existingRoot = creationData.value.spiritRoots.find(r => r.name === spiritRoot.name); // Re-find it to be safe
-      console.log(`[创世神殿] AI生成了新的才能（灵根） "${spiritRoot.name}" 并已添加到列表中 (ID: ${newId})`);
+      console.log(`[创世神殿] AI生成了新的后天 "${spiritRoot.name}" 并已添加到列表中 (ID: ${newId})`);
     }
     if (existingRoot) {
         characterPayload.value.spirit_root_id = existingRoot.id;
-        console.log(`[创世神殿] 已将玩家选择的才能（灵根）更新为AI生成的结果: "${existingRoot.name}"`);
+        console.log(`[创世神殿] 已将玩家选择的后天更新为AI生成的结果: "${existingRoot.name}"`);
     }
   }
 

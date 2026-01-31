@@ -1,6 +1,6 @@
 import type { InnateAttributes, Item, Equipment, SaveData } from '@/types/game';
-import type { Talent } from '../types/index';
-import { LOCAL_TALENTS } from '../data/creationData';
+import type { Ability } from '../types/index';
+import { LOCAL_ABILITIES } from '../data/creationData';
 
 /**
  * 中文键名到英文键名的映射（用于组件传参）
@@ -98,17 +98,17 @@ export function calculateTalentBonusesFromCharacter(saveData: SaveData): InnateA
 
   // 遍历角色的每个天赋
   characterTalents.forEach((talent: any) => {
-    let talentData: Talent | undefined;
+    let talentData: Ability | undefined;
     let talentName: string;
 
     if (typeof talent === 'string') {
       talentName = talent;
-      // 在LOCAL_TALENTS中查找对应的天赋数据
-      talentData = LOCAL_TALENTS.find(t => t.name === talentName);
+      // 在LOCAL_ABILITIES中查找对应的天赋数据
+      talentData = LOCAL_ABILITIES.find(t => t.name === talentName);
     } else if (talent && typeof talent === 'object') {
       talentName = talent.名称 || '';
-      // 先尝试在LOCAL_TALENTS中查找
-      talentData = LOCAL_TALENTS.find(t => t.name === talentName);
+      // 先尝试在LOCAL_ABILITIES中查找
+      talentData = LOCAL_ABILITIES.find(t => t.name === talentName);
 
       // 如果找不到预定义天赋，但天赋对象本身有effects，直接使用
       if (!talentData && talent.effects) {
@@ -140,7 +140,7 @@ export function calculateTalentBonusesFromCharacter(saveData: SaveData): InnateA
 /**
  * 计算才干提供的后天六司加成
  */
-export function calculateTalentBonuses(talents: Talent[]): InnateAttributes {
+export function calculateTalentBonuses(talents: Ability[]): InnateAttributes {
   const bonuses: InnateAttributes = {
     根骨: 0,
     灵性: 0,

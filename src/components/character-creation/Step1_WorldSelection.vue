@@ -65,9 +65,9 @@
           <div class="map-options" v-show="showMapOptions">
             <div class="map-options-header">{{ $t('世界规模配置') }}</div>
 
-            <!-- 修仙难度选择 -->
+            <!-- 治理难度选择 -->
             <div class="difficulty-section">
-              <div class="difficulty-label">{{ $t('修仙难度') }}</div>
+              <div class="difficulty-label">{{ $t('治理难度') }}</div>
               <div class="difficulty-options">
                 <label
                   v-for="diff in difficultyOptions"
@@ -234,10 +234,10 @@ const editingWorld = ref<World | null>(null);
 
 // 难度选项配置
 const difficultyOptions = [
-  { value: '简单', label: '简单', desc: '机缘频繁，敌人较弱' },
-  { value: '普通', label: '普通', desc: '机缘与危险并存' },
-  { value: '困难', label: '困难', desc: '机缘稀少，敌人较强' },
-  { value: '噩梦', label: '噩梦', desc: '九死一生，举步维艰' }
+  { value: '简单', label: '简单', desc: '民风淳朴，政通人和' },
+  { value: '普通', label: '普通', desc: '事务繁杂，偶有刁民' },
+  { value: '困难', label: '困难', desc: '内忧外患，举步维艰' },
+  { value: '噩梦', label: '噩梦', desc: '天灾人祸，官不聊生' }
 ];
 
 // --- 世界生成配置 ---

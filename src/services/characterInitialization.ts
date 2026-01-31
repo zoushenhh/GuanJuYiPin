@@ -22,7 +22,7 @@ import { migrateSaveDataToLatest } from '@/utils/saveMigration';
 // import { WorldGenerationConfig } from '@/utils/worldGeneration/gameWorldConfig';
 import { EnhancedWorldGenerator } from '@/utils/worldGeneration/enhancedWorldGenerator';
 // 导入本地数据库用于随机生成
-import { LOCAL_SPIRIT_ROOTS, LOCAL_ORIGINS } from '@/data/creationData';
+import { LOCAL_POST_HEAVENS, LOCAL_APTITUDES } from '@/data/creationData';
 
 /**
  * 判断是否为随机才干（县令主题：才干替代灵根/才能）
@@ -818,7 +818,7 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
 
       // 🔥 后备逻辑：使用本地数据库随机生成
       const 天资 = baseInfo.天资;
-      let 才干池 = LOCAL_SPIRIT_ROOTS.filter(root => {
+      let 才干池 = LOCAL_POST_HEAVENS.filter(root => {
         // 根据天资筛选合适的才干，排除特殊才干(神品、仙品等)
         // 神品才干应该是极其罕见的,不应该作为随机结果
         if (天资.name === '废柴' || 天资.name === '凡人') {
@@ -837,7 +837,7 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
 
       if (才干池.length === 0) {
         // 如果过滤结果为空，使用所有才干
-        才干池 = LOCAL_SPIRIT_ROOTS;
+        才干池 = LOCAL_POST_HEAVENS;
       }
 
       const 随机才干 = 才干池[Math.floor(Math.random() * 才干池.length)];
@@ -864,7 +864,7 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
 
       // 🔥 后备逻辑：使用本地数据库随机生成
       // 从本地数据库中随机选择一个出身
-      const 随机出身 = LOCAL_ORIGINS[Math.floor(Math.random() * LOCAL_ORIGINS.length)];
+      const 随机出身 = LOCAL_APTITUDES[Math.floor(Math.random() * LOCAL_APTITUDES.length)];
       mergedBaseInfo.出生 = 随机出身;
       console.log(`[数据最终化] ✅ 已从本地数据库生成随机出身: ${随机出身.name}`);
     }
