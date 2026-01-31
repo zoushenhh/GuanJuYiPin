@@ -1,0 +1,1040 @@
+<template>
+  <div class="sect-members">
+    <!-- 我的衙门身份 -->
+    <div class="my-sect-identity">
+      <div class="identity-header">
+        <Crown :size="16" />
+        <span>我的衙门身份</span>
+      </div>
+      <div class="identity-content">
+        <div class="identity-stats">
+          <div class="stat-item">
+            <span class="stat-label">所属衙门</span>
+            <span class="stat-value sect-name">{{ playerSectName }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">职位</span>
+            <span class="stat-value position">{{ playerPosition }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">贡献点</span>
+            <span class="stat-value contribution">{{ playerContribution }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">声望</span>
+            <span class="stat-value reputation">{{ playerReputation }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">加入时间</span>
+            <span class="stat-value join-date">{{ formatJoinDate(playerJoinDate) }}</span>
+          </div>
+        </div>
+        <div class="identity-actions">
+          <button class="leave-sect-btn" @click="requestLeaveSect">
+            <LogOut :size="14" />
+            <span>离职</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 衙门领导层（来自势力信息/宗门档案，不依赖NPC关系） -->
+    <div class="leadership-card" v-if="playerSectName !== '未加入衙门'">
+      <div class="leadership-header">
+        <div class="leadership-title">
+          <Crown :size="14" />
+          <span>衙门高层</span>
+        </div>
+        <button v-if="!sectLeadership" class="ask-btn small" @click="generateLeadership" :disabled="isGeneratingLeadership">
+          <RefreshCw :size="14" :class="{ spin: isGeneratingLeadership }" />
+          <span>{{ isGeneratingLeadership ? '生成中...' : '生成高层' }}</span>
+        </button>
+      </div>
+
+      <div v-if="sectLeadership" class="leadership-grid">
+        <div class="leader-item primary">
+          <span class="role">县令</span>
+          <span class="name">{{ sectLeadership.宗主 }}</span>
+          <span class="realm" v-if="sectLeadership.宗主修为">{{ sectLeadership.宗主修为 }}</span>
+          <button class="link" @click="sendPrompt(`我想拜见${playerSectName}县令「${sectLeadership.宗主}」`)">拜见</button>
+        </div>
+        <div class="leader-item" v-if="sectLeadership.副宗主">
+          <span class="role">副县令</span>
+          <span class="name">{{ sectLeadership.副宗主 }}</span>
+          <button class="link" @click="sendPrompt(`我想向${playerSectName}副县令「${sectLeadership.副宗主}」请教`)">请教</button>
+        </div>
+        <div class="leader-item" v-if="sectLeadership.太上长老">
+          <span class="role">太上幕僚</span>
+          <span class="name">{{ sectLeadership.太上长老 }}</span>
+          <span class="realm" v-if="sectLeadership.太上长老修为">{{ sectLeadership.太上长老修为 }}</span>
+          <button class="link" @click="sendPrompt(`我想拜见${playerSectName}太上幕僚「${sectLeadership.太上长老}」`)">拜见</button>
+        </div>
+        <div class="leader-item" v-if="sectLeadership.长老数量">
+          <span class="role">幕僚数量</span>
+          <span class="name">{{ sectLeadership.长老数量 }}位</span>
+        </div>
+        <div class="leader-item" v-if="sectLeadership.最强修为">
+          <span class="role">最强修为</span>
+          <span class="name">{{ sectLeadership.最强修为 }}</span>
+        </div>
+        <div class="leader-item" v-if="sectLeadership.综合战力">
+          <span class="role">战力</span>
+          <span class="name">{{ sectLeadership.综合战力 }}/100</span>
+        </div>
+      </div>
+
+      <div v-else class="leadership-empty">
+        <span>暂无衙门高层信息（可在"衙门概览"生成势力信息，或点击上方"询问高层"）</span>
+      </div>
+    </div>
+
+    <!-- 成员分类 -->
+    <div class="member-tabs">
+      <button
+        v-for="tab in memberTabs"
+        :key="tab.key"
+        class="tab-btn"
+        :class="{ active: activeTab === tab.key }"
+        @click="activeTab = tab.key"
+      >
+        <component :is="tab.icon" :size="14" />
+        <span>{{ tab.label }}</span>
+        <span v-if="getMemberCount(tab.key) > 0" class="count-badge">{{ getMemberCount(tab.key) }}</span>
+      </button>
+    </div>
+
+    <!-- 成员列表 -->
+    <div class="member-list">
+      <div v-if="filteredMembers.length === 0" class="empty-state">
+        <Users :size="48" class="empty-icon" />
+        <p class="empty-text">暂无同僚信息</p>
+        <p class="empty-hint">同僚信息由AI根据剧情生成</p>
+        <button class="ask-btn" @click="generateMembers" :disabled="isGeneratingMembers">
+          <RefreshCw :size="14" :class="{ spin: isGeneratingMembers }" />
+          <span>{{ isGeneratingMembers ? '生成中...' : '生成同僚' }}</span>
+        </button>
+      </div>
+
+      <div v-else class="members">
+        <div
+          v-for="member in filteredMembers"
+          :key="member.id"
+          class="member-card"
+          :class="{ 'is-self': member.isSelf }"
+          @click="selectMember(member)"
+        >
+          <div class="member-avatar">
+            <span class="avatar-text">{{ member.name.charAt(0) }}</span>
+            <span class="gender-badge" :class="member.gender === '女' ? 'female' : 'male'">
+              {{ member.gender === '女' ? '♀' : '♂' }}
+            </span>
+          </div>
+
+          <div class="member-info">
+            <div class="member-header">
+              <span class="member-name">{{ member.name }}</span>
+              <span class="member-position" :class="getPositionClass(member.position)">
+                {{ member.position }}
+              </span>
+            </div>
+            <div class="member-details">
+              <span class="detail-item realm">
+                <Zap :size="12" />
+                {{ member.realm }}
+              </span>
+              <span class="detail-item relation" :class="getRelationClass(member.relation)">
+                <Heart :size="12" />
+                {{ member.relation }}
+              </span>
+            </div>
+          </div>
+
+          <ChevronRight :size="16" class="arrow-icon" />
+        </div>
+      </div>
+    </div>
+
+
+    <!-- 提示信息 -->
+    <div class="members-notice">
+      <Info :size="14" />
+      <span>同僚关系会影响游戏发展，可在对话中与同僚互动</span>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useGameStateStore } from '@/stores/gameStateStore';
+import { useCharacterStore } from '@/stores/characterStore';
+import {
+  Users, ChevronRight, Zap, Heart, Info,
+  Crown, User, UserCircle, LogOut, RefreshCw
+} from 'lucide-vue-next';
+import { toast } from '@/utils/toast';
+import { sendChat } from '@/utils/chatBus';
+import { generateWithRawPrompt } from '@/utils/tavernCore';
+import { parseJsonSmart } from '@/utils/jsonExtract';
+import { aiService } from '@/services/aiService';
+import { detectPlayerSectLeadership } from '@/utils/sectLeadershipUtils';
+import type { WorldFaction, WorldInfo } from '@/types/game';
+
+const gameStateStore = useGameStateStore();
+const characterStore = useCharacterStore();
+const activeTab = ref<string>('all');
+const isGeneratingLeadership = ref(false);
+const isGeneratingMembers = ref(false);
+
+// 获取玩家名字
+const playerName = computed(() => gameStateStore.character?.名字 || '');
+
+// 获取所有宗门列表
+const allSects = computed(() => {
+  const data = gameStateStore.getCurrentSaveData();
+  const worldInfo = (data as any)?.世界?.信息 as WorldInfo | undefined;
+  return (worldInfo?.势力信息 || []) as WorldFaction[];
+});
+
+// 检测玩家宗门领导地位
+const leaderInfo = computed(() => {
+  return detectPlayerSectLeadership(
+    playerName.value,
+    allSects.value,
+    gameStateStore.sectMemberInfo
+  );
+});
+
+// 成员分类
+const memberTabs = [
+  { key: 'all', label: '全部', icon: Users },
+  { key: '长老', label: '幕僚', icon: Crown },
+  { key: '真传', label: '真传', icon: UserCircle },
+  { key: '同辈', label: '同辈', icon: User }
+];
+
+// 玩家衙门信息
+const playerSectInfo = computed(() => gameStateStore.sectMemberInfo);
+const playerSectName = computed(() => leaderInfo.value.sectName || playerSectInfo.value?.宗门名称 || '未加入衙门');
+const playerPosition = computed(() => leaderInfo.value.position || playerSectInfo.value?.职位 || '散修');
+const playerContribution = computed(() => playerSectInfo.value?.贡献 || 0);
+const playerReputation = computed(() => playerSectInfo.value?.声望 || 0);
+const playerJoinDate = computed(() => playerSectInfo.value?.加入日期 || '');
+
+// 格式化加入日期
+function formatJoinDate(dateStr: string | undefined): string {
+  if (!dateStr) return '未知';
+  try {
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+// 离职衙门
+function requestLeaveSect() {
+  if (!playerSectInfo.value?.宗门名称) {
+    toast.error('你还未加入任何衙门');
+    return;
+  }
+  // 清空衙门信息
+  gameStateStore.sectMemberInfo = null;
+  toast.success('已离职');
+}
+
+const currentSectFaction = computed(() => {
+  const sectName = String(playerSectName.value || '').trim();
+  if (!sectName || sectName === '未加入衙门') return null;
+  const fromSystem = (gameStateStore.sectSystem as any)?.宗门档案?.[sectName] ?? null;
+  if (fromSystem) return fromSystem;
+  const list = gameStateStore.worldInfo?.势力信息;
+  if (!Array.isArray(list)) return null;
+  return (list as any[]).find((f) => f?.名称 === sectName) ?? null;
+});
+
+const sectLeadership = computed(() => {
+  const leadership = currentSectFaction.value?.领导层;
+  if (!leadership || typeof leadership !== 'object') return null;
+  const master = String((leadership as any).宗主 || '').trim();
+  if (!master) return null;
+  return leadership as any;
+});
+
+// 从人物关系中获取同僚
+const sectMembers = computed(() => {
+  const relations = gameStateStore.relationships || {};
+
+  // 筛选同衙门NPC
+  return Object.entries(relations)
+    .filter(([_, npc]: [string, any]) => {
+      // 检查是否属于同一衙门
+      const npcSect = npc.势力归属 || npc.宗门;
+      return npcSect === playerSectName.value;
+    })
+    .map(([name, npc]: [string, any]) => ({
+      id: name,
+      name: npc.名字 || name,
+      gender: npc.性别 || '男',
+      position: npc.职位 || '弟子',
+      realm: formatRealm(npc.境界),
+      relation: getRelationText(npc.好感度),
+      favorability: npc.好感度 || 50,
+      isSelf: false,
+      category: getCategory(npc.职位)
+    }));
+});
+
+// 过滤后的成员
+const filteredMembers = computed(() => {
+  if (activeTab.value === 'all') return sectMembers.value;
+  return sectMembers.value.filter(m => m.category === activeTab.value);
+});
+
+// 获取各分类成员数量
+function getMemberCount(tabKey: string): number {
+  if (tabKey === 'all') return sectMembers.value.length;
+  return sectMembers.value.filter(m => m.category === tabKey).length;
+}
+
+// 格式化境界
+function formatRealm(realm: any): string {
+  if (!realm) return '未知';
+  if (typeof realm === 'string') return realm;
+  if (typeof realm === 'object') {
+    return `${realm.名称 || ''}${realm.阶段 || ''}`;
+  }
+  return '未知';
+}
+
+// 好感度转关系文本
+function getRelationText(favorability: number | undefined): string {
+  const fav = favorability || 50;
+  if (fav >= 90) return '挚友';
+  if (fav >= 75) return '好友';
+  if (fav >= 60) return '友好';
+  if (fav >= 40) return '普通';
+  if (fav >= 20) return '冷淡';
+  return '敌视';
+}
+
+// 获取成员分类
+function getCategory(position: string | undefined): string {
+  if (!position) return '同辈';
+  if (position.includes('县令') || position.includes('长官')) return '幕僚';
+  if (position.includes('副县令') || position.includes('副长官')) return '幕僚';
+  if (position.includes('长老') || position.includes('幕僚') || position.includes('太上')) return '幕僚';
+  if (position.includes('真传') || position.includes('核心')) return '真传';
+  return '同辈';
+}
+
+// 职位样式
+function getPositionClass(position: string): string {
+  if (position.includes('宗主') || position.includes('掌门')) return 'position-leader';
+  if (position.includes('副宗主') || position.includes('副掌门')) return 'position-leader';
+  if (position.includes('长老')) return 'position-elder';
+  if (position.includes('真传')) return 'position-true';
+  if (position.includes('内门')) return 'position-inner';
+  return 'position-outer';
+}
+
+// 关系样式
+function getRelationClass(relation: string): string {
+  const classMap: Record<string, string> = {
+    '挚友': 'relation-best',
+    '好友': 'relation-good',
+    '友好': 'relation-friendly',
+    '普通': 'relation-normal',
+    '冷淡': 'relation-cold',
+    '敌视': 'relation-hostile'
+  };
+  return classMap[relation] || 'relation-normal';
+}
+
+// 选择成员
+function selectMember(member: { name: string }) {
+  const prompt = `我想和${member.name}交谈`;
+  sendPrompt(prompt);
+}
+
+function sendPrompt(text: string) {
+  sendChat(text);
+  toast.success('已发送到对话');
+}
+
+// 生成宗门高层信息
+async function generateLeadership() {
+  if (isGeneratingLeadership.value) return;
+  const sectName = playerSectName.value;
+  if (!sectName || sectName === '未加入衙门') {
+    toast.warning('未加入衙门');
+    return;
+  }
+  isGeneratingLeadership.value = true;
+  try {
+    const worldInfo = gameStateStore.worldInfo;
+    const sectProfile = (gameStateStore.sectSystem as any)?.宗门档案?.[sectName] ?? null;
+
+    const worldContext = worldInfo ? {
+      世界名称: worldInfo.世界名称,
+      世界背景: worldInfo.世界背景,
+    } : null;
+
+    const prompt = `
+# 任务：生成【衙门高层】信息
+为衙门「${sectName}」生成领导层信息。
+
+## 输出格式
+只输出 1 个 JSON 对象：
+{"leadership":{...}}
+
+## leadership 对象字段
+{
+  "宗主": "string（名字）",
+  "宗主修为": "string（境界）",
+  "副宗主": "string（可选）",
+  "太上长老": "string（可选）",
+  "太上长老修为": "string（可选）",
+  "长老数量": number,
+  "最强修为": "string",
+  "综合战力": number（1-100）
+}
+
+## 世界背景
+${JSON.stringify(worldContext).slice(0, 400)}
+
+## 衙门档案
+${JSON.stringify(sectProfile).slice(0, 800)}
+    `.trim();
+
+    const raw = await generateWithRawPrompt('生成衙门高层', prompt, false, 'sect_generation');
+    const parsed = parseJsonSmart(raw, aiService.isForceJsonEnabled('sect_generation')) as {
+      leadership?: any;
+    };
+
+    if (!parsed.leadership) {
+      throw new Error('leadership 字段缺失');
+    }
+
+    // 更新宗门档案中的领导层
+    const saveData = gameStateStore.getCurrentSaveData();
+    if (saveData) {
+      const updated = typeof structuredClone === 'function'
+        ? structuredClone(saveData)
+        : JSON.parse(JSON.stringify(saveData));
+
+      const socialRoot = ((updated as any).社交 ??= {});
+      const sectRoot = (socialRoot.宗门 ??= {});
+      const profileRoot = (sectRoot.宗门档案 ??= {});
+      const profile = (profileRoot[sectName] ??= {});
+      profile.领导层 = parsed.leadership;
+
+      gameStateStore.loadFromSaveData(updated);
+      await characterStore.saveCurrentGame();
+    }
+    toast.success('衙门高层信息已生成');
+  } catch (e) {
+    console.error('[SectMembers] generate leadership failed', e);
+    toast.error('生成失败');
+  } finally {
+    isGeneratingLeadership.value = false;
+  }
+}
+
+// 生成同僚成员信息
+async function generateMembers() {
+  if (isGeneratingMembers.value) return;
+  const sectName = playerSectName.value;
+  if (!sectName || sectName === '未加入衙门') {
+    toast.warning('未加入衙门');
+    return;
+  }
+  isGeneratingMembers.value = true;
+  try {
+    const worldInfo = gameStateStore.worldInfo;
+    const sectProfile = (gameStateStore.sectSystem as any)?.宗门档案?.[sectName] ?? null;
+
+    const worldContext = worldInfo ? {
+      世界名称: worldInfo.世界名称,
+      世界背景: worldInfo.世界背景,
+    } : null;
+
+    const prompt = `
+# 任务：生成【衙门同僚】信息
+为衙门「${sectName}」生成同僚吏员信息。
+
+## 输出格式
+只输出 1 个 JSON 对象：
+{"members":[...]}
+
+## member 对象字段
+{
+  "名字": "string",
+  "性别": "男|女",
+  "职位": "外门弟子|内门弟子|真传弟子|核心弟子|幕僚",
+  "境界": "string",
+  "势力归属": "${sectName}",
+  "好感度": number（30-70）
+}
+
+## 约束
+- 生成 5-10 个同僚
+- 职位分布合理
+
+## 世界背景
+${JSON.stringify(worldContext).slice(0, 400)}
+
+## 衙门档案
+${JSON.stringify(sectProfile).slice(0, 600)}
+    `.trim();
+
+    const raw = await generateWithRawPrompt('生成同僚信息', prompt, false, 'sect_generation');
+    const parsed = parseJsonSmart(raw, aiService.isForceJsonEnabled('sect_generation')) as {
+      members?: any[];
+    };
+
+    if (!Array.isArray(parsed.members)) {
+      throw new Error('members 字段缺失');
+    }
+
+    // 更新人物关系
+    const saveData = gameStateStore.getCurrentSaveData();
+    if (saveData) {
+      const updated = typeof structuredClone === 'function'
+        ? structuredClone(saveData)
+        : JSON.parse(JSON.stringify(saveData));
+
+      // 正确路径：社交.关系（与 gameStateStore.loadFromSaveData 一致）
+      const socialRoot = ((updated as any).社交 ??= {});
+      const relRoot = (socialRoot.关系 ??= {});
+      for (const m of parsed.members) {
+        const name = m.名字;
+        if (!name) continue;
+        relRoot[name] = {
+          ...m,
+          宗门: sectName,
+        };
+      }
+
+      gameStateStore.loadFromSaveData(updated);
+      await characterStore.saveCurrentGame();
+    }
+    toast.success('同僚信息已生成');
+  } catch (e) {
+    console.error('[SectMembers] generate members failed', e);
+    toast.error('生成失败');
+  } finally {
+    isGeneratingMembers.value = false;
+  }
+}
+</script>
+
+<style scoped>
+.sect-members {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 我的宗门身份卡片 - 紧凑版 */
+.my-sect-identity {
+  border: 1px solid rgba(147, 51, 234, 0.25);
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.08), rgba(168, 85, 247, 0.03));
+  border-radius: 8px;
+  padding: 8px 10px;
+  flex-shrink: 0;
+}
+
+.identity-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #9333ea;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(147, 51, 234, 0.15);
+}
+
+.identity-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.identity-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--color-background);
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+}
+
+.stat-value {
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
+.stat-value.sect-name { color: var(--color-text); }
+.stat-value.position { color: #9333ea; }
+.stat-value.contribution { color: #f59e0b; }
+.stat-value.reputation { color: #3b82f6; }
+.stat-value.join-date { color: var(--color-text-secondary); font-size: 0.72rem; }
+
+.identity-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quick-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.08);
+  color: #3b82f6;
+}
+
+.leave-sect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 4px;
+  color: #ef4444;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.leave-sect-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.leadership-card {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.leadership-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.leadership-title {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.leadership-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.leader-item {
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+}
+
+.leader-item.primary {
+  border-color: rgba(168, 85, 247, 0.35);
+  background: rgba(168, 85, 247, 0.06);
+}
+
+.leader-item .role {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+}
+
+.leader-item .name {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.leader-item .realm {
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+}
+
+.leader-item .link {
+  border: none;
+  background: transparent;
+  color: #9333ea;
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 0;
+  margin-left: 4px;
+}
+
+.leader-item .link:hover {
+  text-decoration: underline;
+}
+
+.leadership-empty {
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+}
+
+.ask-btn.small {
+  padding: 4px 8px;
+  font-size: 0.72rem;
+}
+
+.position-leader {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.35);
+  color: #a855f7;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-label {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.info-value {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.info-value.sect-name { color: var(--color-text); }
+.info-value.position { color: #9333ea; }
+
+.member-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 4px 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--color-text);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #3b82f6;
+}
+
+.count-badge {
+  background: #3b82f6;
+  color: white;
+  font-size: 0.65rem;
+  padding: 0 0.3rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.member-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--color-text-secondary);
+}
+
+.empty-icon {
+  opacity: 0.5;
+  margin-bottom: 0.4rem;
+}
+
+.empty-text {
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+  font-size: 0.85rem;
+}
+
+.empty-hint {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-bottom: 0.75rem;
+}
+
+.ask-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ask-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.members {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.member-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 6px 8px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.member-card:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  background: var(--color-surface);
+}
+
+.member-card.is-self {
+  border-color: rgba(147, 51, 234, 0.3);
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.05), rgba(168, 85, 247, 0.02));
+}
+
+.member-avatar {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9333ea, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-text {
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.gender-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-background);
+}
+
+.gender-badge.male {
+  background: #3b82f6;
+  color: white;
+}
+
+.gender-badge.female {
+  background: #ec4899;
+  color: white;
+}
+
+.member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+}
+
+.member-name {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.82rem;
+}
+
+.member-position {
+  font-size: 0.65rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.position-elder { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.position-true { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+.position-inner { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.position-outer { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
+
+.member-details {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+}
+
+.detail-item.realm { color: #8b5cf6; }
+
+.relation-best { color: #ec4899 !important; }
+.relation-good { color: #f59e0b !important; }
+.relation-friendly { color: #22c55e !important; }
+.relation-normal { color: var(--color-text-secondary) !important; }
+.relation-cold { color: #6b7280 !important; }
+.relation-hostile { color: #ef4444 !important; }
+
+.arrow-icon {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.quick-actions {
+  padding: 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.actions-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.05);
+  color: #3b82f6;
+}
+
+.members-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 4px 8px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+</style>

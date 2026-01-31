@@ -1,0 +1,728 @@
+﻿<template>
+  <div class="sect-contribution">
+    <!-- 玩家信息栏 -->
+    <div class="player-info-bar">
+      <div class="info-item">
+        <span class="info-label">职位</span>
+        <span class="info-value position">{{ playerPosition }}</span>
+      </div>
+      <div class="info-item highlight">
+        <span class="info-label">可用贡献点</span>
+        <span class="info-value contribution">{{ playerContribution }}</span>
+      </div>
+      <div class="info-actions">
+        <button class="gen-btn" @click="generateShopContent" :disabled="isGenerating || !canGenerate">
+          <RefreshCw :size="14" :class="{ spin: isGenerating }" />
+          <span>{{ hasItems ? '换一批' : '生成商店' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 兑换分类 -->
+    <div class="exchange-tabs">
+      <button
+        v-for="tab in exchangeTabs"
+        :key="tab.key"
+        class="tab-btn"
+        :class="{ active: activeTab === tab.key }"
+        @click="activeTab = tab.key"
+      >
+        <component :is="tab.icon" :size="14" />
+        <span>{{ tab.label }}</span>
+      </button>
+    </div>
+
+    <!-- 兑换物品列表 -->
+    <div class="exchange-list">
+      <div v-if="filteredItems.length === 0" class="empty-state">
+        <Package :size="48" class="empty-icon" />
+        <p class="empty-text">暂无可兑换物品</p>
+        <p class="empty-hint">可兑换物品由AI根据衙门设定生成（可在上方点击"生成商店"）</p>
+      </div>
+
+      <div v-else class="items-grid">
+        <div
+          v-for="item in filteredItems"
+          :key="item.id"
+          class="item-card"
+          :class="{ 'can-afford': playerContribution >= item.cost, 'out-of-stock': item.stock === 0 }"
+        >
+          <div class="item-header">
+            <span class="item-icon">{{ item.icon }}</span>
+            <div class="item-info">
+              <span class="item-name">{{ item.name }}</span>
+              <span class="item-quality" :class="getQualityClass(item.quality)">{{ item.quality }}</span>
+            </div>
+          </div>
+
+          <p class="item-desc">{{ item.description }}</p>
+
+          <div class="item-footer">
+            <div class="item-cost">
+              <Coins :size="14" />
+              <span>{{ item.cost }} 贡献</span>
+            </div>
+            <div class="item-stock" v-if="item.stock !== undefined">
+              <Package :size="12" />
+              <span>{{ item.stock > 0 ? `剩余 ${item.stock}` : '已售罄' }}</span>
+            </div>
+          </div>
+
+          <button
+            class="exchange-btn"
+            :disabled="playerContribution < item.cost || item.stock === 0"
+            @click="exchangeItem(item)"
+          >
+            <ShoppingCart :size="14" />
+            <span>{{ getButtonText(item) }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 贡献获取途径 -->
+    <div class="exchange-notice">
+      <Info :size="14" />
+      <span>兑换会直接扣除贡献并把物品放入背包（不会发送到主对话）。</span>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useGameStateStore } from '@/stores/gameStateStore';
+import {
+  Coins, Package, ShoppingCart, Info, RefreshCw,
+  Pill, Sword, BookOpen, Gem
+} from 'lucide-vue-next';
+import { toast } from '@/utils/toast';
+import { useCharacterStore } from '@/stores/characterStore';
+import { generateWithRawPrompt } from '@/utils/tavernCore';
+import { parseJsonSmart } from '@/utils/jsonExtract';
+import { aiService } from '@/services/aiService';
+
+const gameStateStore = useGameStateStore();
+const characterStore = useCharacterStore();
+const activeTab = ref<string>('all');
+const isGenerating = ref(false);
+
+// 兑换分类
+const exchangeTabs = [
+  { key: 'all', label: '全部', icon: Package },
+  { key: '丹药', label: '丹药', icon: Pill },
+  { key: '功法', label: '功法', icon: BookOpen },
+  { key: '装备', label: '装备', icon: Sword },
+  { key: '材料', label: '材料', icon: Gem }
+];
+
+// 玩家宗门信息
+const playerSectInfo = computed(() => gameStateStore.sectMemberInfo);
+const playerPosition = computed(() => playerSectInfo.value?.职位 || '散修');
+const playerContribution = computed(() => playerSectInfo.value?.贡献 || 0);
+const canGenerate = computed(() => !!playerSectInfo.value?.宗门名称 && !!gameStateStore.sectSystem);
+
+// 可兑换物品列表（来自宗门系统）
+type ExchangeItem = {
+  id: string;
+  name: string;
+  icon: string;
+  type: string;
+  quality: string;
+  description: string;
+  cost: number;
+  stock?: number;
+};
+
+const normalizeExchangeItem = (raw: any, index: number): ExchangeItem => ({
+  id: raw?.id || raw?.物品ID || `sect_item_${index}`,
+  name: raw?.name || raw?.名称 || '未知物品',
+  icon: raw?.icon || 'O',
+  type: raw?.type || raw?.类型 || '其他',
+  quality: raw?.quality || raw?.品质 || '凡品',
+  description: raw?.description || raw?.描述 || '',
+  cost: Number(raw?.cost ?? raw?.价格 ?? 0),
+  stock: raw?.stock ?? raw?.库存,
+});
+
+const exchangeItems = computed<ExchangeItem[]>(() => {
+  const sectName = playerSectInfo.value?.宗门名称;
+  if (!sectName) return [];
+
+  const rawItems = gameStateStore.sectSystem?.宗门贡献商店?.[sectName];
+  if (!Array.isArray(rawItems)) return [];
+
+  return rawItems.map(normalizeExchangeItem);
+});
+const hasItems = computed(() => exchangeItems.value.length > 0);
+// 过滤后的物品
+const filteredItems = computed(() => {
+  if (activeTab.value === 'all') return exchangeItems.value;
+  return exchangeItems.value.filter(item => item.type === activeTab.value);
+});
+
+// 品质样式
+function getQualityClass(quality: string): string {
+  if (quality.includes('凡')) return 'quality-common';
+  if (quality.includes('黄')) return 'quality-yellow';
+  if (quality.includes('玄')) return 'quality-xuan';
+  if (quality.includes('地')) return 'quality-earth';
+  if (quality.includes('天')) return 'quality-heaven';
+  return 'quality-common';
+}
+
+// 按钮文字
+function getButtonText(item: { cost: number; stock?: number }): string {
+  if (item.stock === 0) return '已售罄';
+  if (playerContribution.value < item.cost) return '贡献不足';
+  return '兑换';
+}
+
+// 兑换物品
+async function exchangeItem(item: ExchangeItem) {
+  if (!canGenerate.value) {
+    toast.warning('未加入衙门或衙门数据未加载');
+    return;
+  }
+  if (playerContribution.value < item.cost) {
+    toast.warning('贡献不足');
+    return;
+  }
+  if (item.stock === 0) {
+    toast.warning('已售罄');
+    return;
+  }
+
+  try {
+    const sectName = String(playerSectInfo.value?.宗门名称 || '').trim();
+    if (!sectName) {
+      toast.warning('未加入衙门');
+      return;
+    }
+
+    const saveData = gameStateStore.getCurrentSaveData();
+    if (!saveData) {
+      toast.error('未加载存档，无法兑换');
+      return;
+    }
+
+    const next = typeof structuredClone === 'function'
+      ? structuredClone(saveData)
+      : JSON.parse(JSON.stringify(saveData));
+
+    // 扣贡献
+    const socialRoot = ((next as any).社交 ??= {});
+    const sectRoot = (socialRoot.宗门 ??= {});
+    const memberInfo = (sectRoot.成员信息 ??= {});
+    const currentContribution = Number(memberInfo.贡献 ?? 0);
+    if (!Number.isFinite(currentContribution) || currentContribution < item.cost) {
+      toast.warning('贡献不足（存档数据不同步）');
+      return;
+    }
+    memberInfo.贡献 = Math.max(0, Math.floor(currentContribution - item.cost));
+
+    // 扣库存（如有）
+    const shopRoot = (sectRoot.宗门贡献商店 ??= {});
+    const list = Array.isArray(shopRoot[sectName]) ? shopRoot[sectName] : [];
+    const idx = list.findIndex((v: any) => String(v?.id || v?.物品ID || '') === item.id);
+    if (idx >= 0) {
+      const raw = list[idx];
+      const rawStock = raw?.库存 ?? raw?.stock;
+      const stockNum = rawStock === undefined ? undefined : Number(rawStock);
+      if (stockNum !== undefined && Number.isFinite(stockNum)) {
+        const nextStock = Math.max(0, Math.floor(stockNum) - 1);
+        if ('库存' in raw) raw.库存 = nextStock;
+        if ('stock' in raw) raw.stock = nextStock;
+        // 若原对象没有任何字段，则仍写入一个兼容字段
+        if (!('库存' in raw) && !('stock' in raw)) raw.库存 = nextStock;
+      }
+      list[idx] = raw;
+      shopRoot[sectName] = list;
+    }
+
+    // 发放物品到背包
+    const invRoot = (((next as any).角色 ??= {}).背包 ??= {});
+    const items = (invRoot.物品 ??= {});
+    const itemId = `item_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const quality = ensureQualitySuffix(String(item.quality || '凡品'));
+    const mappedType = mapItemType(String(item.type || '其他'));
+    items[itemId] = {
+      物品ID: itemId,
+      名称: item.name,
+      类型: mappedType,
+      品质: { quality, grade: 0 },
+      数量: 1,
+      描述: item.description || `衙门兑换所得之物：${item.name}。`,
+      ...(mappedType === '功法'
+        ? {
+            功法效果: item.description || '',
+            功法技能: [{ 技能名称: `${item.name}·入门`, 技能描述: '基础运转之法。', 熟练度要求: 0, 消耗: '灵气5%' }],
+            修炼进度: 0,
+            已解锁技能: [],
+            已装备: false,
+          }
+        : {}),
+    };
+
+    gameStateStore.loadFromSaveData(next as any);
+    gameStateStore.addToShortTermMemory(`【衙门兑换】以${item.cost}贡献兑换「${item.name}」。`);
+    await characterStore.saveCurrentGame();
+    toast.success('兑换成功，已放入背包');
+  } catch (e) {
+    console.error('[SectContribution] exchange failed', e);
+    toast.error('兑换失败');
+  }
+}
+
+function ensureQualitySuffix(quality: string): string {
+  const q = String(quality || '').trim() || '凡品';
+  return q.endsWith('品') ? q : `${q}品`;
+}
+
+function mapItemType(type: string): string {
+  const t = String(type || '').trim();
+  if (['丹药', '功法', '装备', '材料', '其他'].includes(t)) return t;
+  if (t.includes('丹')) return '丹药';
+  if (t.includes('功')) return '功法';
+  if (t.includes('装') || t.includes('器')) return '装备';
+  if (t.includes('材')) return '材料';
+  return '其他';
+}
+
+async function generateShopContent() {
+  if (!canGenerate.value) {
+    toast.warning('未加入衙门或衙门数据未加载');
+    return;
+  }
+  if (isGenerating.value) return;
+  isGenerating.value = true;
+  try {
+    const sectName = String(playerSectInfo.value?.宗门名称 || '').trim();
+    if (!sectName) {
+      toast.warning('未加入衙门');
+      return;
+    }
+
+    const saveData = gameStateStore.getCurrentSaveData();
+    if (!saveData) {
+      toast.error('未加载存档，无法生成');
+      return;
+    }
+
+    const sectProfile = (gameStateStore.sectSystem as any)?.宗门档案?.[sectName] ?? null;
+    const worldInfo = gameStateStore.worldInfo;
+    const sectSystem = gameStateStore.sectSystem;
+    const existing = (sectSystem as any)?.宗门贡献商店?.[sectName] ?? [];
+    const existingNames = Array.isArray(existing)
+      ? existing
+          .map((v: any) => String(v?.name || v?.名称 || '').trim())
+          .filter(Boolean)
+          .slice(0, 20)
+      : [];
+
+    const nowIso = new Date().toISOString();
+
+    // 构建世界背景信息
+    const worldContext = worldInfo ? {
+      世界名称: worldInfo.世界名称,
+      世界背景: worldInfo.世界背景,
+      世界纪元: worldInfo.世界纪元,
+    } : null;
+
+    // 构建衙门完整信息
+    const sectContext = {
+      宗门档案: sectProfile,
+      宗门成员: (sectSystem as any)?.宗门成员?.[sectName],
+    };
+
+    const prompt = `
+# 任务：生成【衙门贡献商店】可兑换物品
+你将为衙门「${sectName}」生成贡献点兑换商店的物品条目。
+
+## 输出格式
+只输出 1 个 JSON 对象：
+{"text":"...","items":[...],"evolve_count":1,"last_updated":"${nowIso}"}
+
+## 顶层字段限制
+- 只允许：text / items / evolve_count / last_updated
+- items 必须是数组
+
+## 物品对象字段
+{
+  "id": "string（唯一）",
+  "name": "string（物品名）",
+  "icon": "string（1-2字符）",
+  "type": "丹药|功法|装备|材料|其他",
+  "quality": "凡品|黄品|玄品|地品|天品|仙品|神品",
+  "description": "string（20-80字）",
+  "cost": number（贡献点）
+}
+可选字段："stock" "使用效果" "限购数量" "职位要求"
+
+## 约束
+- 生成 12-24 件物品，type 至少覆盖 4 类
+- cost 需拉开梯度，高品阶更贵
+- 物品风格必须与衙门特色和世界背景匹配
+
+## 世界背景
+${JSON.stringify(worldContext).slice(0, 600)}
+
+## 衙门信息
+- 玩家职位：${playerPosition.value}
+- 玩家贡献点：${playerContribution.value}
+- 衙门详情：${JSON.stringify(sectContext).slice(0, 1200)}
+
+## 现有物品（避免重复）
+${existingNames.join('，') || '（无）'}
+    `.trim();
+
+    const raw = await generateWithRawPrompt('生成衙门贡献商店', prompt, false, 'sect_generation');
+    const parsed = parseJsonSmart(raw, aiService.isForceJsonEnabled('sect_generation')) as {
+      text?: string;
+      items?: unknown;
+      evolve_count?: number;
+      last_updated?: string;
+    };
+
+    if (!Array.isArray(parsed.items)) {
+      throw new Error('items 字段缺失或不是数组');
+    }
+
+    const updated = typeof structuredClone === 'function'
+      ? structuredClone(saveData)
+      : JSON.parse(JSON.stringify(saveData));
+
+    const socialRoot = ((updated as any).社交 ??= {});
+    const sectRoot = (socialRoot.宗门 ??= {});
+    const shopRoot = (sectRoot.宗门贡献商店 ??= {});
+    shopRoot[sectName] = parsed.items;
+
+    const statusRoot = (sectRoot.内容状态 ??= {});
+    const status = (statusRoot[sectName] ??= {});
+    const prevCount = typeof status.演变次数 === 'number' ? status.演变次数 : 0;
+    const evolveCount = typeof parsed.evolve_count === 'number' && Number.isFinite(parsed.evolve_count)
+      ? parsed.evolve_count
+      : prevCount + 1;
+    const lastUpdated = typeof parsed.last_updated === 'string' && parsed.last_updated.trim()
+      ? parsed.last_updated
+      : nowIso;
+
+    status.贡献商店已初始化 = true;
+    status.最后更新时间 = lastUpdated;
+    status.演变次数 = evolveCount;
+
+    gameStateStore.loadFromSaveData(updated);
+    await characterStore.saveCurrentGame();
+    toast.success('衙门贡献商店已更新');
+  } catch (e) {
+    console.error('[SectShop] generate failed', e);
+    toast.error('生成失败，请稍后重试');
+  } finally {
+    isGenerating.value = false;
+  }
+}
+</script>
+
+<style scoped>
+.sect-contribution {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.player-info-bar {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(168, 85, 247, 0.05));
+  border-radius: 8px;
+  border: 1px solid rgba(147, 51, 234, 0.2);
+}
+
+.info-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.gen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.08);
+  color: #f59e0b;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.gen-btn:hover:not(:disabled) {
+  border-color: rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.gen-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-item.highlight {
+  padding: 0.25rem 0.75rem;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.info-label {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.info-value {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.info-value.position { color: #9333ea; }
+.info-value.contribution { color: #f59e0b; font-size: 1.1rem; }
+
+.exchange-tabs {
+  left: 4px;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  border-color: rgba(245, 158, 11, 0.3);
+  color: var(--color-text);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+}
+
+.exchange-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-secondary);
+}
+
+.empty-icon {
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+
+.empty-text {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.empty-hint {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
+.ask-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ask-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.item-card {
+  padding: 0.75rem;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.item-card:hover {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.item-card.can-afford {
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.item-card.out-of-stock {
+  opacity: 0.5;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.item-icon {
+  font-size: 1.5rem;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.item-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.item-quality {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.quality-common { background: rgba(156, 163, 175, 0.2); color: #6b7280; }
+.quality-yellow { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+.quality-xuan { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+.quality-earth { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.quality-heaven { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+.item-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.item-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f59e0b;
+}
+
+.item-stock {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+}
+
+.exchange-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exchange-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.exchange-btn:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+}
+
+
+
+
+
+
+
+
+
+.exchange-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #3b82f6;
+}
+</style>
