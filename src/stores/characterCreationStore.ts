@@ -135,7 +135,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     generateOnlyContinents: true // 默认只生成大陆（开局优化）
   });
 
-  // 修仙难度配置
+  // 县治难度配置
   type DifficultyLevel = '简单' | '普通' | '困难' | '噩梦';
   const gameDifficulty = ref<DifficultyLevel>('普通');
 
@@ -144,22 +144,22 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     简单: `【难度模式：简单】
 - 世界对主角较为友善，机缘频繁出现
 - 敌人实力普遍较弱，战斗容易获胜
-- 资源获取容易，修炼进度较快
-- 突破瓶颈的难度降低
+- 资源获取容易，治理进度较快
+- 提升官阶的难度降低
 - NPC对主角态度友好，容易获得帮助
 - 判定难度-10，幸运点+5`,
     普通: `【难度模式：普通】
-- 世界遵循正常修仙规则，机缘与危险并存
+- 世界遵循正常县治规则，机缘与危险并存
 - 敌人实力与主角相当，战斗需要策略
-- 资源获取需要努力，修炼进度正常
-- 突破瓶颈需要积累和机缘
+- 资源获取需要努力，治理进度正常
+- 提升官阶需要积累和机缘
 - NPC态度中立，需要建立关系
 - 判定难度正常，无额外修正`,
-    困难: `【难度模式：困难】天道对主角格外严苛！
+    困难: `【难度模式：困难】朝廷对主角格外严苛！
 - 世界充满危险，机缘稀少且竞争激烈
 - 敌人实力普遍较强，战斗需要谨慎
-- 资源稀缺，修炼进度缓慢
-- 突破瓶颈困难重重，需要特殊机缘
+- 资源稀缺，治理进度缓慢
+- 提升官阶困难重重，需要特殊机缘
 - NPC对主角态度冷淡，需要付出代价获得帮助
 【困难模式惩罚】
 - 所有判定难度+10
@@ -167,11 +167,11 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
 - 大失败阈值扩大：<难度-10即为大失败
 - 失败必有代价，不可轻描淡写
 - 敌人境界普遍比主角高半级到一级`,
-    噩梦: `【难度模式：噩梦】天道要看这只蝼蚁如何挣扎！
+    噩梦: `【难度模式：噩梦】朝廷要看这只蝼蚁如何挣扎！
 - 世界极度危险，处处是陷阱和敌人
 - 敌人实力远超主角，战斗九死一生
-- 资源极度稀缺，修炼举步维艰
-- 突破瓶颈几乎不可能，需要逆天机缘
+- 资源极度稀缺，治理举步维艰
+- 提升官阶几乎不可能，需要逆天机缘
 - NPC对主角充满敌意，信任难以建立
 - 死亡风险极高，每一步都需谨慎
 【噩梦模式惩罚】
@@ -180,8 +180,8 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
 - 大失败阈值扩大：<难度-5即为大失败
 - 大失败惩罚翻倍（重伤变濒死，损失翻倍）
 - 失败也有严重代价
-- 敌人境界普遍比主角高一到两级
-- 开局自带负面状态：【天道试炼】（所有判定-5，持续整个游戏）
+- 敌人官品普遍比主角高一到两级
+- 开局自带负面状态：【朝廷试炼】（所有判定-5，持续整个游戏）
 - 机缘出现概率减半，陷阱出现概率翻倍`
   };
 
@@ -310,7 +310,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     let points = 0;
     if (selectedTalents.value.some(t => t.name === '霸王血脉')) {
       points += 1;
-      console.log('[天道点计算] 检测到 "霸王血脉" 天赋, 增加 1 天道点');
+      console.log('[功勋点计算] 检测到 "霸王血脉" 天赋, 增加 1 功勋点');
     }
     return points;
   });
@@ -319,32 +319,32 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     if (!selectedTalentTier.value) return 0;
 
     let points = selectedTalentTier.value.total_points;
-    console.log('[天道点计算] 初始天道点:', points);
+    console.log('[功勋点计算] 初始功勋点:', points);
 
     // Add bonus points from talents
     points += bonusTalentPoints.value;
 
     if (selectedOrigin.value) {
-      console.log('[天道点计算] 出生消耗:', selectedOrigin.value.talent_cost);
+      console.log('[功勋点计算] 出生消耗:', selectedOrigin.value.talent_cost);
       points -= selectedOrigin.value.talent_cost;
     }
 
     if (selectedSpiritRoot.value) {
-      console.log('[天道点计算] 灵根消耗:', selectedSpiritRoot.value.talent_cost);
+      console.log('[功勋点计算] 才能消耗:', selectedSpiritRoot.value.talent_cost);
       points -= selectedSpiritRoot.value.talent_cost;
     }
 
     const talentCost = selectedTalents.value.reduce((total, talent) => total + talent.talent_cost, 0);
-    console.log('[天道点计算] 已选天赋数量:', selectedTalents.value.length);
-    console.log('[天道点计算] 已选天赋列表:', selectedTalents.value.map(t => ({ 名称: t.name, 消耗: t.talent_cost })));
-    console.log('[天道点计算] 天赋总消耗:', talentCost);
+    console.log('[功勋点计算] 已选天赋数量:', selectedTalents.value.length);
+    console.log('[功勋点计算] 已选天赋列表:', selectedTalents.value.map(t => ({ 名称: t.name, 消耗: t.talent_cost })));
+    console.log('[功勋点计算] 天赋总消耗:', talentCost);
     points -= talentCost;
 
     const allocatedAttributePoints = Object.values(attributes.value).reduce((sum, val) => sum + val, 0);
-    console.log('[天道点计算] 先天六司总和:', allocatedAttributePoints);
+    console.log('[功勋点计算] 先天六司总和:', allocatedAttributePoints);
     points -= allocatedAttributePoints;
 
-    console.log('[天道点计算] 最终剩余:', points);
+    console.log('[功勋点计算] 最终剩余:', points);
     return points;
   });
 

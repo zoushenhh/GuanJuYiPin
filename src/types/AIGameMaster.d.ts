@@ -38,12 +38,12 @@ export interface GameCharacter {
     description: string;
   };
 
-  // ==================== 修为境界 ====================
-  cultivation: {
-    realm: string;
-    realm_progress: number;
+  // ==================== 施政官品 ====================
+  administration: {
+    rank: string;
+    rank_progress: number;
     lifespan_remaining: number;
-    breakthrough_bottleneck?: string;
+    promotion_bottleneck?: string;
   };
 
   // ==================== 六维根骨 ====================
@@ -58,9 +58,9 @@ export interface GameCharacter {
 
   // ==================== 三大资源 ====================
   resources: {
-    qi: { current: number; max: number };   // 气血
-    ling: { current: number; max: number }; // 灵气
-    shen: { current: number; max: number }; // 神识
+    health: { current: number; max: number };   // 健康
+    prestige: { current: number; max: number }; // 威望
+    wisdom: { current: number; max: number };   // 智慧
   };
 
   // ==================== 天赋资质 ====================
@@ -69,7 +69,7 @@ export interface GameCharacter {
       name: string;
       effects: string[];
     };
-    spiritRoot: {
+    talent: {
       name: string;
       quality: string;
       attributes: string[];
@@ -85,7 +85,7 @@ export interface GameCharacter {
     }>;
   };
 
-  // ==================== 修仙百艺 ====================
+  // ==================== 施政技能 ====================
   skills: {
     [key: string]: { // 动态支持多种技艺
       level: number;
@@ -94,9 +94,9 @@ export interface GameCharacter {
     };
   };
 
-  // ==================== 功法装备 ====================
-  cultivation_arts: {
-    main_technique?: {
+  // ==================== 方略装备 ====================
+  strategy_arts: {
+    main_strategy?: {
       name: string;
       rank: string;
       proficiency: number;
@@ -202,8 +202,8 @@ export interface GM_Response {
   json?: any;
   /** 处理后的具体出身（从随机出身转化而来） */
   processedOrigin?: string;
-  /** 处理后的具体灵根（从随机灵根转化而来） */
-  processedSpiritRoot?: string;
+  /** 处理后的具体才能（从随机才能转化而来） */
+  processedTalent?: string;
   /** AI缓存的世界数据 */
   cachedWorldData?: any;
   /** 可选：当触发【判定】时，返回本次判定的结构化结果 */

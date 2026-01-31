@@ -10,12 +10,15 @@
  * - src/stores/characterStore.ts
  */
 
-import type { SaveData, Item, NpcProfile, GameTime, Realm, PlayerAttributes, PlayerLocation } from '@/types/game';
+import type { SaveData, Item, NpcProfile, GameTime, Realm, PlayerAttributes, PlayerLocation, ItemType } from '@/types/game';
 import type { GradeType } from '@/data/itemQuality';
 import { cloneDeep } from 'lodash';
 import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
 import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { normalizeBackpackCurrencies } from '@/utils/currencySystem';
+
+// 有效的物品类型
+const validTypes: ItemType[] = ['装备', '功法', '方略', '丹药', '材料', '其他'];
 
 /**
  * 修复并清洗存档数据，确保所有必需字段存在且格式正确
@@ -54,7 +57,7 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
     repaired.角色 = repaired.角色 && typeof repaired.角色 === 'object' ? repaired.角色 : createMinimalSaveDataV3().角色;
     repaired.角色.身份 = repaired.角色.身份 && typeof repaired.角色.身份 === 'object' ? repaired.角色.身份 : createMinimalSaveDataV3().角色.身份;
 
-    repaired.角色.身份.名字 = repaired.角色.身份.名字 || '无名修士';
+    repaired.角色.身份.名字 = repaired.角色.身份.名字 || '无名官员';
     repaired.角色.身份.性别 = repaired.角色.身份.性别 || '男';
     if (!repaired.角色.身份.出生日期) repaired.角色.身份.出生日期 = { 年: 982, 月: 1, 日: 1 };
     if (!repaired.角色.身份.先天六司 || typeof repaired.角色.身份.先天六司 !== 'object') {
@@ -78,9 +81,9 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
       repaired.角色.属性 = createDefaultAttributes();
     } else {
       repaired.角色.属性.境界 = repairRealm(repaired.角色.属性.境界);
-      repaired.角色.属性.气血 = repairValuePair(repaired.角色.属性.气血, 100, 100);
-      repaired.角色.属性.灵气 = repairValuePair(repaired.角色.属性.灵气, 50, 50);
-      repaired.角色.属性.神识 = repairValuePair(repaired.角色.属性.神识, 30, 30);
+      repaired.角色.属性.健康 = repairValuePair(repaired.角色.属性.健康, 100, 100);
+      repaired.角色.属性.威望 = repairValuePair(repaired.角色.属性.威望, 50, 50);
+      repaired.角色.属性.智慧 = repairValuePair(repaired.角色.属性.智慧, 30, 30);
       repaired.角色.属性.寿命 = repairValuePair(repaired.角色.属性.寿命, 18, 80);
       repaired.角色.属性.声望 = validateNumber(repaired.角色.属性.声望, 0, 999999, 0);
     }
@@ -266,8 +269,8 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
 
     // --- 角色子模块最小化补全 ---
     if (!repaired.角色.大道 || typeof repaired.角色.大道 !== 'object') repaired.角色.大道 = { 大道列表: {} };
-    if (!repaired.角色.功法 || typeof repaired.角色.功法 !== 'object') repaired.角色.功法 = { 当前功法ID: null, 功法进度: {}, 功法套装: { 主修: null, 辅修: [] } };
-    if (!repaired.角色.修炼 || typeof repaired.角色.修炼 !== 'object') repaired.角色.修炼 = { 修炼功法: null, 修炼状态: { 模式: '未修炼' } };
+    if (!repaired.角色.方略 || typeof repaired.角色.方略 !== 'object') repaired.角色.方略 = { 当前方略ID: null, 方略进度: {}, 方略套装: { 主修: null, 辅修: [] } };
+    if (!repaired.角色.施政 || typeof repaired.角色.施政 !== 'object') repaired.角色.施政 = { 施政方略: null, 施政状态: { 模式: '未施政' } };
     if (!repaired.角色.技能 || typeof repaired.角色.技能 !== 'object') repaired.角色.技能 = { 掌握技能: [], 装备栏: [], 冷却: {} };
 
     // --- 社交.事件 ---
@@ -287,15 +290,15 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
       }
     }
 
-    // --- 修炼.修炼功法引用校验 ---
-    if (repaired.角色.修炼?.修炼功法 && typeof repaired.角色.修炼.修炼功法 === 'object') {
-      const technique = repaired.角色.修炼.修炼功法 as any;
+    // --- 施政.施政方略引用校验 ---
+    if (repaired.角色.施政?.施政方略 && typeof repaired.角色.施政.施政方略 === 'object') {
+      const technique = repaired.角色.施政.施政方略 as any;
       if (!technique.物品ID) {
-        repaired.角色.修炼.修炼功法 = null;
+        repaired.角色.施政.施政方略 = null;
       } else {
         const referencedItem = repaired.角色?.背包?.物品?.[technique.物品ID];
-        if (!referencedItem || referencedItem.类型 !== '功法') {
-          repaired.角色.修炼.修炼功法 = null;
+        if (!referencedItem || referencedItem.类型 !== '方略') {
+          repaired.角色.施政.施政方略 = null;
         } else if (!technique.名称 || technique.名称 !== referencedItem.名称) {
           technique.名称 = referencedItem.名称;
         }
@@ -312,93 +315,93 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
 }
 
 /**
- * 根据境界和阶段生成修仙小说风格的突破描述
+ * 根据官品和阶段生成施政小说风格的晋升描述
  */
 function getDefaultBreakthroughDescription(realmName?: string, stage?: string): string {
   const name = realmName || '凡人';
   const currentStage = stage || '';
 
-  // 凡人境界
+  // 凡人官品
   if (name === '凡人') {
-    return '引气入体，感悟天地灵气，踏上修仙第一步';
+    return '初入仕途，感悟政理之道，踏上县令第一步';
   }
 
-  // 定义各境界的突破描述
+  // 定义各官品的晋升描述
   const realmDescriptions: Record<string, Record<string, string>> = {
-    '练气': {
-      '初期': '凝聚丹田灵气，打通任督二脉，冲击练气中期',
-      '中期': '拓宽经脉，提升灵气容量，冲击练气后期',
-      '后期': '凝实根基，感悟天地法则，冲击练气圆满',
-      '圆满': '灵气贯通周天，凝练灵根本源，准备筑基',
-      '': '搬运周天，凝聚灵气，夯实练气根基'
+    '九品': {
+      '初期': '凝聚民心，打通政务经脉，冲击九品中期',
+      '中期': '拓宽政务，提升威望容量，冲击九品后期',
+      '后期': '凝实根基，感悟政理法则，冲击九品圆满',
+      '圆满': '威望贯通周天，凝练根本源，准备八品',
+      '': '搬运周天，凝聚威望，夯实九品根基'
     },
-    '筑基': {
-      '初期': '凝聚道台，将灵气压缩凝实，冲击筑基中期',
-      '中期': '稳固道基，扩充丹田容量，冲击筑基后期',
-      '后期': '感悟天地法则，凝练金丹雏形，冲击筑基圆满',
-      '圆满': '道基圆满，破而后立，将灵气凝聚成金丹',
-      '': '夯实道基，压缩灵气，提升筑基境界'
+    '八品': {
+      '初期': '凝聚政台，将威望压缩凝实，冲击八品中期',
+      '中期': '稳固政基，扩充容量，冲击八品后期',
+      '后期': '感悟政理法则，凝练七品雏形，冲击八品圆满',
+      '圆满': '政基圆满，破而后立，将威望凝聚成七品',
+      '': '夯实政基，压缩威望，提升八品境界'
     },
-    '金丹': {
-      '初期': '凝实金丹，刻画符文，冲击金丹中期',
-      '中期': '淬炼金丹，领悟道韵，冲击金丹后期',
-      '后期': '金丹大成，蕴养元神，冲击金丹圆满',
-      '圆满': '破丹成婴，元神出窍，踏入元婴境界',
-      '': '淬炼金丹本源，刻画天地符文，提升金丹品质'
+    '七品': {
+      '初期': '凝实七品，刻画符文，冲击七品中期',
+      '中期': '淬炼七品，领悟政韵，冲击七品后期',
+      '后期': '七品大成，蕴养智慧，冲击七品圆满',
+      '圆满': '破品升六，智慧出窍，踏入六品境界',
+      '': '淬炼七品本源，刻画政理符文，提升七品品质'
     },
-    '元婴': {
-      '初期': '稳固元婴，凝练神魂，冲击元婴中期',
-      '中期': '元婴壮大，感悟大道，冲击元婴后期',
-      '后期': '元婴大成，凝练元神，冲击元婴圆满',
-      '圆满': '元神蜕变，肉身成圣，准备化神',
-      '': '壮大元婴，淬炼神魂，提升元婴境界'
+    '六品': {
+      '初期': '稳固六品，凝练智慧，冲击六品中期',
+      '中期': '六品壮大，感悟大道，冲击六品后期',
+      '后期': '六品大成，凝练智慧，冲击六品圆满',
+      '圆满': '智慧蜕变，体魄成圣，准备五品',
+      '': '壮大六品，淬炼智慧，提升六品境界'
     },
-    '化神': {
-      '初期': '神魂合一，领悟法则，冲击化神中期',
-      '中期': '凝聚神格，参悟天道，冲击化神后期',
-      '后期': '神格大成，融合法则，冲击化神圆满',
-      '圆满': '炼虚合道，肉身不灭，准备突破炼虚',
-      '': '感悟大道法则，凝练神格，提升化神境界'
+    '五品': {
+      '初期': '智慧合一，领悟法则，冲击五品中期',
+      '中期': '凝聚政格，参悟天道，冲击五品后期',
+      '后期': '政格大成，融合法则，冲击五品圆满',
+      '圆满': '炼虚合道，体魄不灭，准备四品',
+      '': '感悟政理法则，凝练政格，提升五品境界'
     },
-    '炼虚': {
-      '初期': '炼虚化实，虚空凝形，冲击炼虚中期',
-      '中期': '虚实合一，参悟空间法则，冲击炼虚后期',
-      '后期': '撕裂虚空，掌控空间，冲击炼虚圆满',
-      '圆满': '虚空大成，与天地合一，准备渡劫',
-      '': '炼化虚空之力，感悟空间奥义，提升炼虚境界'
+    '四品': {
+      '初期': '炼虚化实，虚空凝形，冲击四品中期',
+      '中期': '虚实合一，参悟空间法则，冲击四品后期',
+      '后期': '撕裂虚空，掌控空间，冲击四品圆满',
+      '圆满': '虚空大成，与天地合一，准备三品',
+      '': '炼化虚空之力，感悟空间奥义，提升四品境界'
     },
-    '合体': {
-      '初期': '天人合一，与天地共鸣，冲击合体中期',
-      '中期': '领悟天道，掌控天地之力，冲击合体后期',
-      '后期': '天地认可，法则加身，冲击合体圆满',
-      '圆满': '与道合真，天劫将至，准备渡劫飞升',
-      '': '感悟天地大道，与天地共鸣，提升合体境界'
+    '三品': {
+      '初期': '天人合一，与天地共鸣，冲击三品中期',
+      '中期': '领悟天道，掌控天地之力，冲击三品后期',
+      '后期': '天地认可，法则加身，冲击三品圆满',
+      '圆满': '与道合真，天劫将至，准备二品',
+      '': '感悟天地大道，与天地共鸣，提升三品境界'
     },
-    '大乘': {
-      '初期': '大道圆满，法则入体，冲击大乘中期',
-      '中期': '天道认可，参悟仙道，冲击大乘后期',
-      '后期': '仙韵初现，准备渡劫，冲击大乘圆满',
+    '二品': {
+      '初期': '大道圆满，法则入体，冲击二品中期',
+      '中期': '天道认可，参悟仙道，冲击二品后期',
+      '后期': '仙韵初现，准备一品，冲击二品圆满',
       '圆满': '渡九九天劫，飞升仙界，超脱凡尘',
-      '': '感悟仙道奥义，凝练仙体，准备飞升'
+      '': '感悟仙道奥义，凝练仙体，准备一品'
     }
   };
 
-  // 获取对应境界的描述
+  // 获取对应官品的描述
   const stageDescriptions = realmDescriptions[name];
   if (stageDescriptions) {
-    return stageDescriptions[currentStage] || stageDescriptions[''] || `感悟${name}境界奥义，提升修为境界`;
+    return stageDescriptions[currentStage] || stageDescriptions[''] || `感悟${name}官品奥义，提升政绩官品`;
   }
 
-  // 未知境界的通用描述
+  // 未知官品的通用描述
   const genericDescriptions: Record<string, string> = {
     '初期': `凝练${name}初期根基，冲击${name}中期`,
-    '中期': `稳固${name}中期修为，冲击${name}后期`,
-    '后期': `圆满${name}后期境界，冲击${name}圆满`,
-    '圆满': `${name}圆满大成，准备突破下一境界`,
-    '': `感悟${name}境界奥义，提升修为`
+    '中期': `稳固${name}中期政绩，冲击${name}后期`,
+    '后期': `圆满${name}后期官品，冲击${name}圆满`,
+    '圆满': `${name}圆满大成，准备晋升下一官品`,
+    '': `感悟${name}官品奥义，提升政绩`
   };
 
-  return genericDescriptions[currentStage] || `感悟${name}境界，提升修为`;
+  return genericDescriptions[currentStage] || `感悟${name}官品，提升政绩`;
 }
 
 /**
@@ -411,11 +414,11 @@ function repairRealm(realm: any): Realm {
       阶段: "",
       当前进度: 0,
       下一级所需: 100,
-      突破描述: '引气入体，感悟天地灵气，踏上修仙第一步'
+      突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
     };
   }
 
-  // 🔥 修复：保留原有境界数据，只补充缺失字段
+  // 🔥 修复：保留原有官品数据，只补充缺失字段
   const name = realm.名称 || "凡人";
   const stage = realm.阶段 !== undefined ? realm.阶段 : "";
   const progress = validateNumber(realm.当前进度, 0, 999999999, 0);
@@ -487,7 +490,7 @@ function repairItem(item: Item): Item {
   }
 
   // 确保类型有效
-  const validTypes = ['装备', '功法', '丹药', '材料', '其他'];
+  // 修复功法/方略数据类型
   if (!validTypes.includes(repaired.类型)) {
     repaired.类型 = '其他';
   }
@@ -507,7 +510,7 @@ function repairNpc(npc: NpcProfile): NpcProfile {
 
   // 年龄已自动从出生日期计算,删除年龄字段
 
-  // 修复境界
+  // 修复官品
   repaired.境界 = repairRealm(repaired.境界);
 
   // 修复先天六司
@@ -519,14 +522,14 @@ function repairNpc(npc: NpcProfile): NpcProfile {
   if (!repaired.属性 || typeof repaired.属性 !== 'object') {
     repaired.属性 = {
       气血: { 当前: 100, 上限: 100 },
-      灵气: { 当前: 50, 上限: 50 },
-      神识: { 当前: 30, 上限: 30 },
+      灵气: { 当前: 50, 上限: 50 },  // 县令主题: 民心/威望
+      神识: { 当前: 30, 上限: 30 },  // 县令主题: 智慧/洞察
       寿元上限: 100
     };
   } else {
     repaired.属性.气血 = repairValuePair(repaired.属性.气血, 100, 100);
-    repaired.属性.灵气 = repairValuePair(repaired.属性.灵气, 50, 50);
-    repaired.属性.神识 = repairValuePair(repaired.属性.神识, 30, 30);
+    repaired.属性.灵气 = repairValuePair((repaired.属性 as any).灵气, 50, 50);
+    repaired.属性.神识 = repairValuePair((repaired.属性 as any).神识, 30, 30);
     repaired.属性.寿元上限 = typeof repaired.属性.寿元上限 === 'number' ? repaired.属性.寿元上限 : 100;
   }
   // 兼容旧格式：如果有旧的独立字段，迁移到属性对象
@@ -595,7 +598,7 @@ function createDefaultAttributes(): PlayerAttributes {
       阶段: '',
       当前进度: 0,
       下一级所需: 100,
-      突破描述: '引气入体，感悟天地灵气，踏上修仙第一步'
+      突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
     },
     声望: 0,
     气血: { 当前: 100, 上限: 100 },
@@ -650,8 +653,8 @@ function createMinimalSaveDataV3(): SaveData {
       身体: { 总体状况: '', 部位: {} },
       背包: { 灵石: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} },
       装备: { 装备1: null, 装备2: null, 装备3: null, 装备4: null, 装备5: null, 装备6: null },
-      功法: { 当前功法ID: null, 功法进度: {}, 功法套装: { 主修: null, 辅修: [] } },
-      修炼: { 修炼功法: null, 修炼状态: { 模式: '未修炼' } },
+      方略: { 当前方略ID: null, 方略进度: {}, 方略套装: { 主修: null, 辅修: [] } },
+      施政: { 施政方略: null, 施政状态: { 模式: '未施政' } },
       大道: { 大道列表: {} },
       技能: { 掌握技能: [], 装备栏: [], 冷却: {} },
     },

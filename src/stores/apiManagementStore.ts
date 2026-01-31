@@ -30,8 +30,8 @@ export type APIUsageType =
   | 'instruction_generation'  // 指令生成（含思维链推理）
   | 'world_generation'  // 世界生成
   | 'event_generation'  // 世界事件生成（随机事件/世界变革等）
-  | 'sect_generation'  // 宗门内容生成（藏经阁、贡献商店等）
-  | 'crafting';  // 炼丹炼器
+  | 'sect_generation'  // 衙门内容生成（藏经阁、贡献商店等）
+  | 'crafting';  // 生产制作
 
 /**
  * 辅助功能的生成模式（仅酒馆端可选）

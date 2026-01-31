@@ -13,7 +13,7 @@ export interface GameAction {
 
 /**
  * 操作行动暂存系统
- * 用于存储玩家的游戏操作（如修炼功法、装备法宝等），
+ * 用于存储玩家的游戏操作（如研习政略、配备器械等），
  * 在下次发送AI消息时作为附加提示词发送
  */
 export const useActionQueueStore = defineStore('actionQueue', () => {
@@ -44,8 +44,8 @@ export const useActionQueueStore = defineStore('actionQueue', () => {
       );
     }
 
-    // 确保任何时候只有一个修炼操作
-    // 如果添加新的修炼操作，则移除所有旧的
+    // 确保任何时候只有一个研习操作
+    // 如果添加新的研习操作，则移除所有旧的
     if (newAction.type === 'cultivate') {
       pendingActions.value = pendingActions.value.filter(a => a.type !== 'cultivate');
     }
@@ -63,8 +63,8 @@ export const useActionQueueStore = defineStore('actionQueue', () => {
     );
     
     if (existingIndex !== -1) {
-      // 如果存在，则替换它。这对于可以“更新”的操作很有用，
-      // 例如再次点击同一物品的“修炼”。
+      // 如果存在，则替换它。这对于可以"更新"的操作很有用，
+      // 例如再次点击同一物品的"研习"。
       pendingActions.value[existingIndex] = newAction;
     } else {
       // 否则，添加新操作。
@@ -112,10 +112,10 @@ export const useActionQueueStore = defineStore('actionQueue', () => {
           if (action.itemType === '大道') {
             return `感悟了《${action.itemName}》大道`;
           } else {
-            return `修炼了《${action.itemName}》功法`;
+            return `研习了《${action.itemName}》政略`;
           }
         case 'equip':
-          return `装备了《${action.itemName}》${action.itemType || '法宝'}`;
+          return `配备了《${action.itemName}》${action.itemType || '器械'}`;
         case 'use':
           // 使用物品需要包含详细描述（包含效果）
           return action.description || `使用了《${action.itemName}》`;

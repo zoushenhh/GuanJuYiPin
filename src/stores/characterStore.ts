@@ -1,5 +1,5 @@
 /**
- * 仙途 (XianTu) - 角色数据管理
+ * 治途 (ZhiTu) - 角色数据管理
  * @author 千夜 | GitHub: qianye60 | Bilibili: 477576651
  * @license CC BY-NC-SA 4.0 - 商业使用需授权
  */
@@ -52,16 +52,16 @@ function getOnlineSaveSlot(profile: CharacterProfile): SaveSlot | null {
   if (profile.模式 !== '联机') return null;
 
   // 新结构：使用存档列表
-  if (profile.存档列表?.['云端修行']) {
-    return profile.存档列表['云端修行'];
+  if (profile.存档列表?.['云端治理']) {
+    return profile.存档列表['云端治理'];
   }
 
-  // 兼容：部分旧版本/旧数据使用 “存档” 作为联机槽位 key
-  if (profile.存档列表?.['存档'] && !profile.存档列表?.['云端修行']) {
-    debug.log('角色商店', '?? 检测到联机存档槽位 key=存档，正在迁移为 云端修行...');
-    profile.存档列表['云端修行'] = { ...(profile.存档列表['存档'] as any), 存档名: '云端修行' };
+  // 兼容：部分旧版本/旧数据使用 "存档" 作为联机槽位 key
+  if (profile.存档列表?.['存档'] && !profile.存档列表?.['云端治理']) {
+    debug.log('角色商店', '?? 检测到联机存档槽位 key=存档，正在迁移为 云端治理...');
+    profile.存档列表['云端治理'] = { ...(profile.存档列表['存档'] as any), 存档名: '云端治理' };
     delete (profile.存档列表 as any)['存档'];
-    return profile.存档列表['云端修行'];
+    return profile.存档列表['云端治理'];
   }
 
   // 兼容旧数据：如果旧的 profile.存档 存在，迁移到新结构
@@ -72,11 +72,11 @@ function getOnlineSaveSlot(profile: CharacterProfile): SaveSlot | null {
       profile.存档列表 = {};
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    profile.存档列表['云端修行'] = (profile as any).存档;
+    profile.存档列表['云端治理'] = (profile as any).存档;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (profile as any).存档; // 清理旧字段
-    debug.log('角色商店', '✅ 旧存档数据已迁移到 存档列表["云端修行"]');
-    return profile.存档列表['云端修行'];
+    debug.log('角色商店', '✅ 旧存档数据已迁移到 存档列表["云端治理"]');
+    return profile.存档列表['云端治理'];
   }
 
   return null;
@@ -605,7 +605,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       世界: creationStore.selectedWorld!,
       天资: creationStore.selectedTalentTier!,
       出生: creationStore.selectedOrigin || '随机出身',
-      才能: creationStore.selectedSpiritRoot || '随机才能',
+      灵根: creationStore.selectedSpiritRoot || '随机才能',
       天赋: creationStore.selectedTalents,
       // 确保后天六司存在且初始化为0（开局默认全为0）
       后天六司: baseInfo.后天六司 || {
@@ -2468,19 +2468,19 @@ const equipTechnique = async (itemId: string) => {
     完整物品数据: item
   });
 
-  // 1. 卸下当前所有治国方略
+  // 1. 卸下当前所有治国方略（功法类型）
   Object.values(((saveData as any).角色?.背包?.物品 ?? {}) as Record<string, Item>).forEach((i) => {
-    if (i.类型 === '治国方略') {
+    if (i.类型 === '功法') {
       i.已装备 = false;
     }
   });
 
-  // 2. 装备新治国方略
+  // 2. 装备新治国方略（功法类型）
   item.已装备 = true;
 
-  // 🔥 [关键修复] 初始化政绩进度（如果未定义）
+  // 🔥 [关键修复] 初始化政绩进度/修炼进度（如果未定义）
   if (item.政绩进度 === undefined || item.政绩进度 === null) {
-    item.政绩进度 = 0;
+    item.政绩进度 = item.政绩进度 || 0;
     debug.log('角色商店', `初始化治国方略政绩进度为 0`);
   }
 
@@ -2490,10 +2490,11 @@ const equipTechnique = async (itemId: string) => {
   }
 
   // 检查哪些技能应该立即解锁（解锁阈值 <= 当前进度）
-  if (item.方略技能 && Array.isArray(item.方略技能)) {
-    const currentProgress = item.政绩进度 || 0;
-    debug.log('角色商店', `[技能解锁检查] 治国方略: ${item.名称}, 进度: ${currentProgress}%, 技能数: ${item.方略技能.length}`);
-    item.方略技能.forEach((skill: any) => {
+  const skillsToCheck = item.方略技能 || item.功法技能 || [];
+  if (skillsToCheck && Array.isArray(skillsToCheck)) {
+    const currentProgress = item.政绩进度 || item.修炼进度 || 0;
+    debug.log('角色商店', `[技能解锁检查] 治国方略: ${item.名称}, 进度: ${currentProgress}%, 技能数: ${skillsToCheck.length}`);
+    skillsToCheck.forEach((skill: any) => {
       const unlockThreshold = skill.熟练度要求 || 0;
       debug.log('角色商店', `  检查技能: ${skill.技能名称}, 阈值: ${unlockThreshold}%, 当前进度: ${currentProgress}%, 应解锁: ${currentProgress >= unlockThreshold}`);
       if (currentProgress >= unlockThreshold && !item.已解锁技能!.includes(skill.技能名称)) {
@@ -2531,13 +2532,14 @@ const equipTechnique = async (itemId: string) => {
   // 🔥 [关键修复] loadFromSaveData 后再次确保技能解锁状态正确
   // 因为 loadFromSaveData 可能会创建新对象
   const itemInStore = gameStateStore.inventory?.物品?.[itemId];
-  if (itemInStore && itemInStore.类型 === '治国方略') {
+  if (itemInStore && itemInStore.类型 === '功法') {
     if (!itemInStore.已解锁技能) {
       itemInStore.已解锁技能 = [];
     }
-    const currentProgress = itemInStore.政绩进度 || 0;
-    if (itemInStore.方略技能 && Array.isArray(itemInStore.方略技能)) {
-      itemInStore.方略技能.forEach((skill: any) => {
+    const currentProgress = itemInStore.修炼进度 || 0;
+    const skillsToCheck = itemInStore.功法技能 || [];
+    if (skillsToCheck && Array.isArray(skillsToCheck)) {
+      skillsToCheck.forEach((skill: any) => {
         const unlockThreshold = skill.熟练度要求 || 0;
         if (currentProgress >= unlockThreshold && !itemInStore.已解锁技能!.includes(skill.技能名称)) {
           itemInStore.已解锁技能!.push(skill.技能名称);

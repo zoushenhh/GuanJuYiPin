@@ -240,7 +240,7 @@ export async function fetchOrigins(): Promise<Origin[]> {
 }
 
 /**
- * 从服务器获取所有灵根选项
+ * 从服务器获取所有才能选项
  */
 export async function fetchSpiritRoots(): Promise<SpiritRoot[]> {
   try {

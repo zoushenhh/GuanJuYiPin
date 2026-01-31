@@ -224,7 +224,7 @@
       </div>
     </div>
 
-    <DeepCultivationModal
+    <DeepAdministrationModal
       :visible="showDialog"
       :technique="techniqueForModal"
       :current-progress="getCultivationProgress()"
@@ -237,7 +237,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { BookOpen, Clock, Moon, ScrollText, Search, Sparkles, TrendingUp, X, Zap } from 'lucide-vue-next';
-import DeepCultivationModal from '@/components/common/DeepCultivationModal.vue';
+import DeepAdministrationModal from '@/components/common/DeepAdministrationModal.vue';
 import { useI18n } from '@/i18n';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useGameStateStore } from '@/stores/gameStateStore';

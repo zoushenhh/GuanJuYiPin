@@ -26,6 +26,7 @@ export interface SaveMigrationReport {
 export interface SaveDisplayInfo {
   角色名字: string;
   境界: string;
+  官品?: string; // 县令主题：官品
   位置: string;
   游戏时间: GameTime | null;
 }
@@ -433,8 +434,11 @@ export function migrateSaveDataToLatest(raw: SaveData): { migrated: SaveDataV3; 
       装备: flatEquipment,
       功法: flatTechniqueSystem,
       修炼: flatCultivation,
+      方略: flatTechniqueSystem,
+      施政: flatCultivation,
       大道: flatDao,
       技能: flatSkills,
+      理念: flatDao,
     },
     社交: {
       关系: flatRelationships,

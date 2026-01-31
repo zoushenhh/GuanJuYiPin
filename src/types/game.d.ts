@@ -1151,6 +1151,8 @@ export interface SaveSlot {
   游戏时长?: number; // 游戏时长（秒）
   角色名字?: string; // 角色名字
   境界?: string; // 当前境界
+  官品?: string; // 县令主题：官品
+  政绩进度?: number; // 县令主题：政绩进度百分比
   位置?: string; // 当前位置
   修为进度?: number; // 修为进度
   世界地图?: WorldMap;

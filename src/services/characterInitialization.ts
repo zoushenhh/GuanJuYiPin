@@ -27,9 +27,9 @@ import { LOCAL_SPIRIT_ROOTS, LOCAL_ORIGINS } from '@/data/creationData';
 /**
  * 判断是否为随机才能（辅助函数）
  */
-function isRandomSpiritRoot(spiritRoot: string | object): boolean {
-  if (typeof spiritRoot === 'string') {
-    return spiritRoot === '随机才能' || spiritRoot.includes('随机');
+function isRandomTalent(talent: string | object): boolean {
+  if (typeof talent === 'string') {
+    return talent === '随机才能' || talent.includes('随机');
   }
   return false;
 }
@@ -209,7 +209,7 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
     console.log('[角色初始化] 初始化后天六司为全0');
   }
 
-  if (isRandomSpiritRoot(processedBaseInfo.灵根)) {
+  if (isRandomTalent(processedBaseInfo.灵根)) {
     console.log('[才能生成] 检测到随机才能，将由 AI 创造性生成');
     // 保留"随机才能"字符串，让 AI 处理
   } else {
@@ -243,7 +243,7 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
     效果: [],
     // 🔥 时间：使用age作为初始年份，AI可以通过tavern_commands修改
     时间: { 年: age, 月: 1, 日: 1, 小时: Math.floor(Math.random() * 12) + 6, 分钟: Math.floor(Math.random() * 60) },
-    背包: { 灵石: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} },
+    背包: { 钱财: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} },
     装备: { 装备1: null, 装备2: null, 装备3: null, 装备4: null, 装备5: null, 装备6: null },
     功法: {
       当前功法ID: null,
@@ -251,7 +251,7 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
       功法套装: { 主修: null, 辅修: [] },
     },
     修炼: {
-      修炼功法: null,
+      专研内容: null,
     },
     大道: createEmptyThousandDaoSystem(),
     技能: { 掌握技能: [], 装备栏: [], 冷却: {} },
@@ -341,9 +341,9 @@ async function generateWorld(baseInfo: CharacterBaseInfo, world: World): Promise
   const secretRealmsCount = shouldGenerateFactions ? (userWorldConfig.secretRealmsCount || 5) : 0;
 
   if (userWorldConfig.generateOnlyContinents) {
-    console.log('[世界生成] ✅ 开启"仅生成大陆"模式，势力、地点和秘境将在局内动态生成');
+    console.log('[世界生成] ✅ 开启"仅生成大陆"模式，势力、地点和区域将在局内动态生成');
   } else {
-    console.log('[世界生成] 📋 完整世界生成模式，将生成势力、地点和秘境');
+    console.log('[世界生成] 📋 完整世界生成模式，将生成势力、地点和区域');
   }
 
   const enhancedConfig = {

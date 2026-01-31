@@ -44,7 +44,7 @@ import CharacterDetailsPanel from '../components/dashboard/CharacterDetailsPanel
 import InventoryPanel from '../components/dashboard/InventoryPanel.vue';
 import RelationshipNetworkPanel from '../components/dashboard/RelationshipNetworkPanel.vue';
 import SkillsPanel from '../components/dashboard/SkillsPanel.vue'; // 方略面板
-import ThousandDaoPanel from '../components/dashboard/ThousandDaoPanel.vue'; // 新的治国方略面板
+import GovernanceStrategiesPanel from '../components/dashboard/GovernanceStrategiesPanel.vue'; // 新的治国方略面板
 import SettingsPanel from '../components/dashboard/SettingsPanel.vue';
 import SavePanel from '../components/dashboard/SavePanel.vue';
 import WorldMapRoute from '../components/dashboard/WorldMapRoute.vue';
@@ -133,7 +133,7 @@ const routes = [
       {
         path: 'thousand-dao',
         name: 'ThousandDao',
-        component: ThousandDaoPanel, // 治国方略面板
+        component: GovernanceStrategiesPanel, // 治国方略面板
       },
       {
         path: 'settings',

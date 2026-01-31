@@ -295,14 +295,6 @@ export function checkGovernmentOfficeContentNeedsInit(
 ): { library: boolean; shop: boolean } {
   return checkSectContentNeedsInit(sectSystem, sectName);
 }
-    };
-  }
-
-  return {
-    library: !status.藏经阁已初始化,
-    shop: !status.贡献商店已初始化,
-  };
-}
 
 /**
  * 获取衙门主题关键字（用于AI生成提示）

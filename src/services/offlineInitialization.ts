@@ -52,14 +52,14 @@ export async function initializeCharacterOffline(
         境界: playerStatus.境界,
         声望: playerStatus.声望,
         气血: playerStatus.气血,
-        灵气: playerStatus.灵气,
+        精力: playerStatus.灵气,
         神识: playerStatus.神识,
         寿命: playerStatus.寿命,
       },
       位置: playerStatus.位置 as any,
       效果: [],
       背包: {
-        灵石: { 下品: 10, 中品: 0, 上品: 0, 极品: 0 },
+        钱财: { 下品: 10, 中品: 0, 上品: 0, 极品: 0 },
         物品: {
           consumable_xinshou_danyao_01: {
             物品ID: 'consumable_xinshou_danyao_01',
@@ -81,13 +81,13 @@ export async function initializeCharacterOffline(
       },
       装备: { 装备1: null, 装备2: null, 装备3: null, 装备4: null, 装备5: null, 装备6: null },
       功法: { 当前功法ID: null, 功法进度: {}, 功法套装: { 主修: null, 辅修: [] } },
-      修炼: { 修炼功法: null, 修炼状态: { 模式: '未修炼' } },
+      修炼: { 专研内容: null, 修炼状态: { 模式: '未修炼' } },
       大道: createEmptyThousandDaoSystem(),
       技能: { 掌握技能: [], 装备栏: [], 冷却: {} },
     },
     社交: {
       关系: {},
-      宗门: null,
+      衙门: null,
       事件: {
         配置: {
           启用随机事件: true,

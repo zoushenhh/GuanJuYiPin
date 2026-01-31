@@ -17,7 +17,7 @@ const LOCATION_COLOR_MAP: Record<string, string> = {
 
 const FACTION_COLOR_RULES: Array<{ match: RegExp; color: string }> = [
   { match: /(魔|邪|诡|阴|幽)/i, color: '#7F1D1D' },
-  { match: /(正|仙|道|宗门|剑|丹|符|阵)/i, color: '#1D4ED8' },
+  { match: /(正|仙|道|衙门|剑|丹|符|阵)/i, color: '#1D4ED8' },
   { match: /(世家|门阀|家族)/i, color: '#0F766E' },
   { match: /(商会|商盟|商号)/i, color: '#B45309' },
   { match: /(妖|兽|灵族|异族)/i, color: '#047857' },
@@ -43,7 +43,7 @@ const isKnownLocationType = (typeText: string) => Object.prototype.hasOwnPropert
 const isFactionLike = (loc: Record<string, any>, typeText: string) => {
   if (isKnownLocationType(typeText)) return false;
   if (loc.leadership || loc.领导层 || loc.memberCount || loc.成员数量) return true;
-  return /(宗门|世家|商会|联盟|势力|妖族|魔道)/i.test(typeText);
+  return /(衙门|世家|商会|联盟|势力|妖族|魔道)/i.test(typeText);
 };
 
 /**

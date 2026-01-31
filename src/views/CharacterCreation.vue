@@ -58,7 +58,7 @@
               ref="step3Ref"
               @ai-generate="handleAIGenerateClick"
             />
-            <Step4_SpiritRootSelection
+            <Step4_TalentSelection
               v-else-if="store.currentStep === 4"
               ref="step4Ref"
               @ai-generate="handleAIGenerateClick"
@@ -136,7 +136,7 @@ import { useCharacterCreationStore } from '../stores/characterCreationStore';
 import Step1_WorldSelection from '../components/character-creation/Step1_WorldSelection.vue'
 import Step2_TalentTierSelection from '../components/character-creation/Step2_TalentTierSelection.vue'
 import Step3_OriginSelection from '../components/character-creation/Step3_OriginSelection.vue'
-import Step4_SpiritRootSelection from '../components/character-creation/Step4_SpiritRootSelection.vue'
+import Step4_TalentSelection from '../components/character-creation/Step4_TalentSelection.vue'
 import Step5_TalentSelection from '../components/character-creation/Step5_TalentSelection.vue'
 import Step6_AttributeAllocation from '../components/character-creation/Step6_AttributeAllocation.vue'
 import Step7_Preview from '../components/character-creation/Step7_Preview.vue'
@@ -449,7 +449,7 @@ async function handleNext(event?: Event) {
 const step1Ref = ref<InstanceType<typeof Step1_WorldSelection> | null>(null)
 const step2Ref = ref<InstanceType<typeof Step2_TalentTierSelection> | null>(null)
 const step3Ref = ref<InstanceType<typeof Step3_OriginSelection> | null>(null)
-const step4Ref = ref<InstanceType<typeof Step4_SpiritRootSelection> | null>(null)
+const step4Ref = ref<InstanceType<typeof Step4_TalentSelection> | null>(null)
 const step5Ref = ref<InstanceType<typeof Step5_TalentSelection> | null>(null)
 
 // 处理仙缘信物提交 (仅联机模式)

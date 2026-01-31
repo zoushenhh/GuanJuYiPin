@@ -1,5 +1,5 @@
 /**
- * 仙途 (XianTu) - 游戏状态管理
+ * 治途 (ZhiTu) - 游戏状态管理
  * @author 千夜 | GitHub: qianye60 | Bilibili: 477576651
  * @license CC BY-NC-SA 4.0 - 商业使用需授权
  */
@@ -373,12 +373,12 @@ export const useGameStateStore = defineStore('gameState', {
       this.location = location;
 
       // 才能/官品品质字段容错（AI偶尔会返回 {quality,grade} 结构）
-      if (this.character?.才能 && typeof this.character.才能 === 'object') {
-        normalizeQualitySuffix(this.character.才能 as any, 'tier');
+      if ((this.character as any)?.灵根 && typeof (this.character as any).灵根 === 'object') {
+        normalizeQualitySuffix((this.character as any).灵根, 'tier');
       }
-      if (this.attributes?.官品 && typeof this.attributes.官品 === 'object') {
-        normalizeQualitySuffix(this.attributes.官品 as any, '品质');
-        normalizeQualitySuffix(this.attributes.官品 as any, '品阶');
+      if ((this.attributes as any)?.官品 && typeof (this.attributes as any).官品 === 'object') {
+        normalizeQualitySuffix((this.attributes as any).官品, '品质');
+        normalizeQualitySuffix((this.attributes as any).官品, '品阶');
       }
 
       this.inventory = inventory;

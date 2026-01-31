@@ -202,14 +202,14 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
           阶段: '',
           当前进度: 0,
           下一级所需: 100,
-          突破描述: '引气入体，感悟天地灵气，踏上修仙第一步'
+          突破描述: '引气入体，感悟天地灵气，踏上仕途第一步'
         };
       } else {
         if (typeof repairedNpc.境界.名称 !== 'string') repairedNpc.境界.名称 = '凡人';
         if (typeof repairedNpc.境界.阶段 !== 'string') repairedNpc.境界.阶段 = '';
         if (typeof repairedNpc.境界.当前进度 !== 'number' || isNaN(repairedNpc.境界.当前进度)) repairedNpc.境界.当前进度 = 0;
         if (typeof repairedNpc.境界.下一级所需 !== 'number' || isNaN(repairedNpc.境界.下一级所需)) repairedNpc.境界.下一级所需 = 100;
-        if (typeof repairedNpc.境界.突破描述 !== 'string') repairedNpc.境界.突破描述 = '引气入体，感悟天地灵气，踏上修仙第一步';
+        if (typeof repairedNpc.境界.突破描述 !== 'string') repairedNpc.境界.突破描述 = '引气入体，感悟天地灵气，踏上仕途第一步';
       }
     } catch (e) {
       console.warn('[NPC校验] 境界字段修复失败，使用默认值:', e);
@@ -218,7 +218,7 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
         阶段: '',
         当前进度: 0,
         下一级所需: 100,
-        突破描述: '引气入体，感悟天地灵气，踏上修仙第一步'
+        突破描述: '引气入体，感悟天地灵气，踏上仕途第一步'
       };
     }
 
