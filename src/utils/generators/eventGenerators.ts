@@ -93,10 +93,12 @@ export async function generateSpecialNpcEvent(args: {
     const playerName =
       anySave?.角色?.身份?.名字 ||
       anySave?.角色?.名字 ||
-      '无名修士';
+      '无名氏';
 
-    const realmName = anySave?.角色?.属性?.境界?.名称 || '凡人';
-    const realmStage = anySave?.角色?.属性?.境界?.阶段 || '';
+    // 优先使用官品字段，回退到境界字段以保持兼容性
+    const rankInfo = anySave?.角色?.属性?.官品 || anySave?.角色?.属性?.境界 || {};
+    const rankName = rankInfo?.名称 || '平民';
+    const rankStage = rankInfo?.阶段 || '';
     const locationDesc = String(anySave?.角色?.位置?.描述 || '未知');
     const worldInfo = (anySave?.世界?.信息 ?? null) as WorldInfo | null;
 
@@ -132,7 +134,7 @@ export async function generateSpecialNpcEvent(args: {
 # 当前状态
 - 时间: ${now.年}年${now.月}月${now.日}日 ${String(now.小时).padStart(2, '0')}:${String(now.分钟).padStart(2, '0')}
 - 玩家: ${playerName}
-- 境界: ${realmName}${realmStage ? '-' + realmStage : ''}
+- 官品: ${rankName}${rankStage ? '-' + rankStage : ''}
 - 位置: ${locationDesc}
 - 世界: ${String(worldInfo?.世界名称 || '未知')}
 - 世界背景: ${String(worldInfo?.世界背景 || '').slice(0, 200)}
@@ -159,12 +161,12 @@ ${extra}
       worldInfo,
     });
 
-    const eventName = String((parsed as any)?.event_name || `异人现世·${npcProfile.名字}`).trim();
+    const eventName = String((parsed as any)?.event_name || `贵客来访·${npcProfile.名字}`).trim();
     const eventType = String((parsed as any)?.event_type || '人物风波').trim();
 
     const event: GameEvent = {
       事件ID: buildEventId(),
-      事件名称: eventName || `异人现世·${npcProfile.名字}`,
+      事件名称: eventName || `贵客来访·${npcProfile.名字}`,
       事件类型: eventType || '人物风波',
       事件描述: eventStory,
       影响等级: '轻微',
@@ -197,22 +199,28 @@ export async function generateWorldEvent(args: {
     const playerName =
       (saveData as any)?.角色?.身份?.名字 ||
       (saveData as any)?.角色?.名字 ||
-      '无名修士';
+      '无名氏';
 
-    const realmName = (saveData as any)?.角色?.属性?.境界?.名称 || '凡人';
-    const realmStage = (saveData as any)?.角色?.属性?.境界?.阶段 || '';
+    // 优先使用官品字段，回退到境界字段以保持兼容性
+    const rankInfo = (saveData as any)?.角色?.属性?.官品 || (saveData as any)?.角色?.属性?.境界 || {};
+    const rankName = rankInfo?.名称 || '平民';
+    const rankStage = rankInfo?.阶段 || '';
     const locationDesc = (saveData as any)?.角色?.位置?.描述 || '未知';
     const reputation = Number((saveData as any)?.角色?.属性?.声望 ?? 0);
 
     const relations = (saveData as any)?.社交?.关系 || {};
     const relationList = Object.values(relations)
       .filter((n: any) => n && typeof n === 'object')
-      .map((n: any) => ({
-        名字: String(n.名字 || ''),
-        与玩家关系: String(n.与玩家关系 || ''),
-        好感度: Number(n.好感度 ?? 0),
-        境界: n.境界 ? `${n.境界.名称 || ''}${n.境界.阶段 ? '-' + n.境界.阶段 : ''}` : '',
-      }))
+      .map((n: any) => {
+        // 优先使用官品字段，回退到境界字段以保持兼容性
+        const npcRankInfo = n.官品 || n.境界 || {};
+        return {
+          名字: String(n.名字 || ''),
+          与玩家关系: String(n.与玩家关系 || ''),
+          好感度: Number(n.好感度 ?? 0),
+          官品: npcRankInfo ? `${npcRankInfo.名称 || ''}${npcRankInfo.阶段 ? '-' + npcRankInfo.阶段 : ''}` : '',
+        };
+      })
       .filter((n: any) => n.名字)
       .sort((a: any, b: any) => b.好感度 - a.好感度)
       .slice(0, 6);
@@ -224,12 +232,12 @@ export async function generateWorldEvent(args: {
 # 当前状态
 - 时间: ${now.年}年${now.月}月${now.日}日 ${String(now.小时).padStart(2, '0')}:${String(now.分钟).padStart(2, '0')}
 - 玩家: ${playerName}
-- 境界: ${realmName}${realmStage ? '-' + realmStage : ''}
+- 官品: ${rankName}${rankStage ? '-' + rankStage : ''}
 - 位置: ${locationDesc}
 - 声望: ${reputation}
 
 # 玩家关系（好感度Top）
-${relationList.length ? relationList.map(r => `- ${r.名字} | 关系:${r.与玩家关系 || '未知'} | 好感:${r.好感度} | 境界:${r.境界 || '未知'}`).join('\n') : '- （暂无）'}
+${relationList.length ? relationList.map(r => `- ${r.名字} | 关系:${r.与玩家关系 || '未知'} | 好感:${r.好感度} | 官品:${r.官品 || '未知'}`).join('\n') : '- （暂无）'}
 `.trim();
 
     const finalPrompt = `${promptTemplate}\n\n---\n\n${context}${extra}`.trim();
