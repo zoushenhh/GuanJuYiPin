@@ -82,25 +82,25 @@ export function buildCraftingNarrativePrompts(input: CraftingNarrativeInput): { 
 
 硬性规则：
 1) 只输出一个 JSON 对象，禁止输出 Markdown、代码块、解释文字、前后缀。
-2) 禁止虚构未提供的材料与关键信息；可合理补全细节（火候变化、气机、药香、金铁之声等）。
+2) 禁止虚构未提供的材料与关键信息；可合理补全细节（火候变化、工艺、声响等）。
 3) 必须严格遵守结果：success=false 表示失败（成品为废品/残次品等），success=true 表示成功。
 4) 必须严格遵守物品品质体系：仅使用给定 resultQuality（quality 与 grade），不要自行更改。
-5) 若提供 resources（灵气/神识消耗计划），文案与事件描述必须与其一致，不要写出超过当前值的消耗。
+5) 若提供 resources（民心/智慧消耗计划），文案与事件描述必须与其一致，不要写出超过当前值的消耗。
 
 ## 【城市等级】-品质上限（文案必须体现）
 生产成品品质受角色城市等级严格限制，文案描写必须与此一致：
-- 荒村/集镇：最高只能生产【黄品】，通常只能生产【凡品】
-- 县城：最高只能生产【玄品】
-- 府城：最高只能生产【地品】
-- 州城：最高可生产【天品】
-- 都城及以上：最高可生产【仙品】
-- 皇城及以上：可生产【神品】，需要特殊机缘或高官身份
+- 荒村/集镇：最高只能生产【中等】，通常只能生产【初等】
+- 县城：最高只能生产【良好】
+- 府城：最高只能生产【优秀】
+- 州城：最高可生产【卓越】
+- 都城及以上：最高可生产【完美】
+- 皇城及以上：可生产【传奇】，需要特殊机缘或高官身份
 
-## 【大道熟练度】限制
-无对应生产大道（生产之道/制造之道等）或大道等级过低时：
-- 无大道/入门：文案应体现手法生疏、险象环生
-- 略有所得/小有成就：文案应体现尚在摸索、偶有失误
-- 登堂入室及以上：文案可体现从容不迫、技艺娴熟
+## 【方略熟练度】限制
+无对应方略（生产方略/制造方略等）或方略等级过低时：
+- 无方略/入门：文案应体现手法生疏、险象环生
+- 初窥/小成：文案应体现尚在摸索、偶有失误
+- 大成及以上：文案可体现从容不迫、技艺娴熟
 
 输出 JSON 结构：
 {
@@ -118,7 +118,7 @@ ${generateQualitySystemPrompt()}
 
 生产类型：${input.type}
 火候强度：${input.fire.percent}%（${input.fire.label}）
-阵法：${input.formation.name}（额外：民心+${input.formation.extraManaPercent}% / 智慧+${input.formation.extraSpiritPercent}%）
+工艺技法：${input.formation.name}（额外：民心+${input.formation.extraManaPercent}% / 智慧+${input.formation.extraSpiritPercent}%）
 成功率：${input.successRate}%
 结果是否成功：${input.success ? '成功' : '失败'}
 结果品质：${input.resultQuality.quality}·${String(input.resultQuality.grade)}
@@ -135,31 +135,31 @@ ${JSON.stringify(input.materials, null, 2)}
 
 export function buildCraftingSimulationPrompts(input: CraftingSimulationInput): { systemPrompt: string; userPrompt: string } {
   const systemPrompt = `
-你是"官场游戏制造推演器"。你需要根据材料、火候、阵法、角色信息与大道加成，推演制造的成功率与预期品质。
+你是"官场游戏制造推演器"。你需要根据材料、火候、工艺技法、角色信息与方略加成，推演制造的成功率与预期品质。
 
 硬性规则：
 1) 只输出一个 JSON 对象，禁止输出 Markdown、代码块、解释文字、前后缀。
 2) successRate 必须是 5-95 的整数。
-3) predictedQuality 必须符合物品品质体系：quality 只能是 神/仙/天/地/玄/黄/凡，grade 只能是 0-10 的整数。
+3) predictedQuality 必须符合物品品质体系：quality 只能是 传奇/完美/卓越/优秀/良好/中等/初等，grade 只能是 0-10 的整数。
 4) 这是"推演"，不是最终结果：不要输出成品物品，不要输出战斗/剧情延伸。
-5) 若提供 resources：视作"投入强度约束"，推演应考虑投入与阵法额外消耗，但不得写出超过当前值的消耗。
+5) 若提供 resources：视作"投入强度约束"，推演应考虑投入与技法额外消耗，但不得写出超过当前值的消耗。
 
 ## 【城市等级】-品质上限（绝对不可突破）
 生产成品品质受角色城市等级严格限制，这是硬性天花板：
-- 荒村/集镇：最高只能生产【黄品】，通常只能生产【凡品】
-- 县城：最高只能生产【玄品】
-- 府城：最高只能生产【地品】
-- 州城：最高可生产【天品】
-- 都城及以上：最高可生产【仙品】
-- 皇城及以上：可生产【神品】，需要特殊机缘或高官身份
+- 荒村/集镇：最高只能生产【中等】，通常只能生产【初等】
+- 县城：最高只能生产【良好】
+- 府城：最高只能生产【优秀】
+- 州城：最高可生产【卓越】
+- 都城及以上：最高可生产【完美】
+- 皇城及以上：可生产【传奇】，需要特殊机缘或高官身份
 
-## 【大道熟练度】限制
-无对应生产大道（生产之道/制造之道等）或大道等级过低时：
-- 无大道/入门：成功率极低(5-15%)，最高凡品下品
-- 略有所得：成功率低(15-30%)，最高凡品中品
-- 小有成就：成功率一般(30-50%)，可尝试黄品
-- 登堂入室：成功率中等(40-60%)，黄品稳定
-- 融会贯通及以上：可尝试更高品质，但仍受城市等级限制
+## 【方略熟练度】限制
+无对应方略（生产方略/制造方略等）或方略等级过低时：
+- 无方略/入门：成功率极低(5-15%)，最高初等下品
+- 初窥：成功率低(15-30%)，最高初等中品
+- 小成：成功率一般(30-50%)，可尝试中等
+- 大成：成功率中等(40-60%)，中等稳定
+- 圆满及以上：可尝试更高品质，但仍受城市等级限制
 
 ## 【材料品质】限制
 成品品质不可能超过主材料品质，且通常会略低于主材料。
@@ -167,7 +167,7 @@ export function buildCraftingSimulationPrompts(input: CraftingSimulationInput): 
 输出 JSON 结构：
 {
   "successRate": number,
-  "predictedQuality": { "quality": "凡|黄|玄|地|天|仙|神", "grade": 0-10 },
+  "predictedQuality": { "quality": "初等|中等|良好|优秀|卓越|完美|传奇", "grade": 0-10 },
   "analysis": "string（简短推演依据，1-3句）",
   "warnings": ["string"...]
 }
@@ -180,7 +180,7 @@ ${generateQualitySystemPrompt()}
 
 生产类型：${input.type}
 火候强度：${input.fire.percent}%（${input.fire.label}）
-阵法：${input.formation.name}（额外：民心+${input.formation.extraManaPercent}% / 智慧+${input.formation.extraSpiritPercent}%）
+工艺技法：${input.formation.name}（额外：民心+${input.formation.extraManaPercent}% / 智慧+${input.formation.extraSpiritPercent}%）
 
 材料清单：
 ${JSON.stringify(input.materials, null, 2)}
