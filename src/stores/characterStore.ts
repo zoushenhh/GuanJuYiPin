@@ -402,17 +402,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
   };
 
   /**
-   * [新增] 同步整个根状态到云端（占位符）
-   * @todo 需要实现后端API
-   */
-  const syncRootStateToCloud = async (): Promise<void> => {
-    debug.log('角色商店', 'syncRootStateToCloud called. (Placeholder - no backend implementation yet)');
-    // 在这里实现将 rootState.value 同步到后端的逻辑
-    // 例如: await cloudApi.saveRootState(rootState.value);
-    return Promise.resolve();
-  };
-
-  /**
    * 创建一个全新的角色 (AI增强版)
    * @param payload 包含角色和世界数据的数据包
    * @returns 创建成功则返回角色的基础信息，否则返回 undefined
@@ -1194,14 +1183,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
     await commitMetadataToStorage();
 
     console.log('[角色商店-删除存档] IndexedDB 保存完成');
-
-    // 🔥 同步到云端
-    try {
-      await syncRootStateToCloud();
-      debug.log('角色商店', '删除存档后已同步到云端');
-    } catch (error) {
-      debug.error('角色商店', '删除存档后同步云端失败', error);
-    }
 
     toast.success('存档已删除');
     console.log('[角色商店-删除存档] 删除存档完成');

@@ -516,10 +516,6 @@ const openLegacyMigration = () => {
     toast.info('请先选择一个单机角色');
     return;
   }
-  if (selectedCharacter.value.模式 !== '单机') {
-    toast.error('联机角色不支持旧存档转化/导入');
-    return;
-  }
   legacyMigrationStandalone.value = false;
   showLegacyMigrationModal.value = true;
 };
@@ -750,7 +746,7 @@ const handleDeleteSave = (charId: string, slotKey: string) => {
 
 // 检查是否可以删除存档的逻辑
 const canDeleteSave = (character: CharacterProfile | null, slotKey: string): boolean => {
-  if (!character || character.模式 === '联机') {
+  if (!character) {
     return false;
   }
 
@@ -829,10 +825,6 @@ const handleClose = () => {
   } else {
     goBack();
   }
-};
-
-const handleLogin = () => {
-  emit('login');
 };
 
 const normalizeSaveDataV3 = (saveData: unknown): SaveDataV3 | null => {
@@ -2038,10 +2030,6 @@ const handleImportFile = async (event: Event) => {
   border-left: 3px solid var(--color-success);
 }
 
-.character-card.online-mode {
-  border-left: 3px solid var(--color-primary);
-}
-
 /* 卡片头部 - 简化 */
 .card-header {
   display: flex;
@@ -2065,10 +2053,6 @@ const handleImportFile = async (event: Event) => {
   background: linear-gradient(135deg, #10b981, #3b82f6);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.char-avatar.联机 {
-  background: linear-gradient(135deg, #3b82f6, #0ea5e9);
 }
 
 .char-info {
@@ -2109,12 +2093,6 @@ const handleImportFile = async (event: Event) => {
   background: rgba(16, 185, 129, 0.15);
   color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.mode-badge.online {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .char-meta {
