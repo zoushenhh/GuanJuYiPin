@@ -80,8 +80,19 @@ export { RANK_CONFIG, getRankOrder, compareRanks, getNextRank, isMagistrateRank 
 // 旧类型系统导出（已废弃，标记 @deprecated）
 // ============================================================================
 
-// 从 game.d.ts 导出 TechniqueItem 类型以修复编译错误
-export type { TechniqueItem } from './game.d';
+// 向后兼容别名：TechniqueItem -> StrategyItem（修仙主题 -> 县令主题）
+// StrategyItem 在 game.d.ts 中定义，这里不重复导出
+export type { StrategyItem as TechniqueItem } from './game.d';
+
+// 旧版物品类型（用于存档迁移和数据修复，向后兼容）
+export type LegacyItemType =
+  | '装备'      // 装备类物品
+  | '功法'      // 修仙主题：功法（已废弃，映射到'方略'）
+  | '方略'      // 县令主题：治国方略
+  | '丹药'      // 修仙主题：丹药（已废弃，映射到'药品'）
+  | '药品'      // 县令主题：药品
+  | '材料'      // 材料类物品
+  | '其他';     // 其他物品
 import type { SaveDataV3 } from './saveSchemaV3';
 import type { APIUsageType } from '@/stores/apiManagementStore';
 

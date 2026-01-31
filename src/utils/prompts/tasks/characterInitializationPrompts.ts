@@ -4,7 +4,7 @@
  * 开局流程：世界生成 → 角色初始化（本文件）
  */
 
-import type { World, TalentTier, Origin, TalentAptitude, Talent } from '@/types';
+import type { World, TalentTier, Origin, SpiritRoot, Talent } from '@/types';
 import type { WorldInfo, WorldMapConfig, SystemConfig } from '@/types/game';
 import { SAVE_DATA_STRUCTURE, stripNsfwContent } from '../definitions/dataDefinitions';
 import { assembleSystemPrompt } from '../promptAssembler';
@@ -245,7 +245,7 @@ export function buildCharacterSelectionsSummary(
     world: World;
     talentTier: TalentTier;
     origin: Origin | string;
-    spiritRoot: TalentAptitude | string;
+    spiritRoot: SpiritRoot | string;
     talents: Talent[];
     attributes: Record<string, number>;
     difficultyPrompt?: string; // 难度提示词
@@ -299,7 +299,7 @@ ${talentTier.name}: ${talentTier.description}
 ${originIsObj ? (origin as Origin).name : origin}: ${originIsObj ? (origin as Origin).description : '(随机，需AI生成)'}
 
 ## 根基
-${spiritRootIsObj ? `${(spiritRoot as TalentAptitude).name} (${(spiritRoot as TalentAptitude).tier})` : spiritRoot}: ${spiritRootIsObj ? (spiritRoot as TalentAptitude).description : '(随机，需AI生成)'}
+${spiritRootIsObj ? `${(spiritRoot as SpiritRoot).name} (${(spiritRoot as SpiritRoot).tier})` : spiritRoot}: ${spiritRootIsObj ? (spiritRoot as SpiritRoot).description : '(随机，需AI生成)'}
 
 ## 天赋
 ${talentsList}

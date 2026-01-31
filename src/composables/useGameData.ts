@@ -116,9 +116,9 @@ export function useGameData() {
   const currentLocation = computed(() => gameState.location?.描述 || '未知');
 
   /**
-   * 灵石（分品阶）
+   * 银两（分品阶）
    */
-  const spiritStones = computed(() => gameState.inventory?.灵石 ?? { 下品: 0, 中品: 0, 上品: 0, 极品: 0 });
+  const silver = computed(() => gameState.inventory?.货币?.银两 ?? { 下品: 0, 中品: 0, 上品: 0, 极品: 0 });
 
   /**
    * 背包物品数量
@@ -177,29 +177,8 @@ export function useGameData() {
    * @returns 政绩增加量
    */
   const reviewDocuments = (count: number = 1) => {
-    // 获取当前政绩方略
-    const cultivation = gameState.cultivation as any;
-    const strategy = cultivation?.政绩方略;
-
     // 计算基础政绩增长
     const baseMeritGain = 1; // 每份公文基础政绩
-
-    // 方略加成
-    let strategyBonus = 1;
-    if (strategy) {
-      const quality = strategy.品质 || '凡';
-      const proficiency = strategy.政绩进度 || strategy.熟练度 || 0;
-      const qualityBonusMap: Record<string, number> = {
-        '凡': 1,
-        '黄品': 1.2,
-        '玄品': 1.5,
-        '地品': 1.8,
-        '天品': 2.2,
-        '仙品': 2.5,
-      };
-      const baseBonus = qualityBonusMap[quality] || 1;
-      strategyBonus = baseBonus * (1 + proficiency / 100);
-    }
 
     // 六司加成
     const character = gameState.character;
@@ -217,7 +196,7 @@ export function useGameData() {
     }
 
     // 计算最终政绩增长
-    const finalMeritGain = Math.floor(baseMeritGain * strategyBonus * sixSiBonus * count);
+    const finalMeritGain = Math.floor(baseMeritGain * sixSiBonus * count);
 
     // 更新政绩
     if (gameState.attributes) {
@@ -309,7 +288,7 @@ export function useGameData() {
     currentRealm,
     currentRank,
     currentLocation,
-    spiritStones,
+    silver,
     inventoryItemCount,
 
     // 更新方法

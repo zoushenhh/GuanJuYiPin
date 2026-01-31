@@ -1,6 +1,7 @@
 
 
-import type { SaveData, MasteredSkill, TechniqueItem } from '@/types/game';
+import type { SaveData, MasteredSkill } from '@/types/game';
+import type { TechniqueItem } from '@/types';
 import { debug } from './debug';
 
 /**

@@ -530,7 +530,7 @@ function repairRealm(realm: any): Realm {
       阶段: '初期',
       当前进度: 0,
       下一级所需: 100,
-      突破描述: getDefaultBreakthroughDescription(mappedName, '初期')
+      晋升描述: getDefaultBreakthroughDescription(mappedName, '初期')
     };
   }
 
@@ -541,7 +541,7 @@ function repairRealm(realm: any): Realm {
       阶段: "初期",
       当前进度: 0,
       下一级所需: 100,
-      突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
+      晋升描述: '初入仕途，感悟政理之道，踏上县令第一步'
     };
   }
 
@@ -560,7 +560,7 @@ function repairRealm(realm: any): Realm {
     阶段: stage,
     当前进度: progress,
     下一级所需: required,
-    突破描述: realm.突破描述 || getDefaultBreakthroughDescription(name, stage)
+    晋升描述: realm.晋升描述 || getDefaultBreakthroughDescription(name, stage)
   };
 }
 
@@ -734,7 +734,7 @@ function createDefaultAttributes(): PlayerAttributes {
       阶段: '初期',
       当前进度: 0,
       下一级所需: 100,
-      突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
+      晋升描述: '初入仕途，感悟政理之道，踏上县令第一步'
     },
     声望: 0,
     气血: { 当前: 100, 上限: 100 },

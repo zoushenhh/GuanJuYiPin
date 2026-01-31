@@ -1,281 +1,482 @@
 /**
- * @fileoverview 施政效率计算模块（县令主题）
+ * @fileoverview 县令政务判定计算器
  *
- * 【职责】
- * - 计算施政效率的各项因子
- * - 综合计算最终施政速度
- * - 预估升职时间
+ * 基于"短板乘区"理论设计的政务判定系统
+ * 核心公式：最终判定值 = (基础效能 + 骰子修正) × 状态乘区 - 阻力值
  *
- * 【核心公式】
- * 最终速度 = 基础速度 × 民心系数 × 六司系数 × 状态系数 × (1 + 方略加成 + 环境加成)
- * 六司系数 = 先天六司系数 × 0.7 + 后天六司系数 × 0.3
- *
- * 【术语对照】
- * - 政绩增长 = 效率 × 时间 × 难度系数
- * - 税收 = 人口 × 税率 × 治安系数
- * - 民心变化 = 政策效果 + 突发事件影响
+ * 设计理念：
+ * - 使用乘法产生"短板效应"（精力低/民心低会严重拖累整体表现）
+ * - 动态难度（随繁荣度和任期增长）
+ * - 阈值锁定（地区属性不满足时，最高判定结果受限）
+ * - 季节/天时影响（不同季节对不同政务有显著加成/减益）
  */
 
-// 从修炼速度计算器导出所有相关类型和函数
-export {
-  // 六司相关
-  calculateInnateSixSiFactor,
-  calculateAcquiredSixSiFactor,
-  calculateCombinedSixSiFactor,
-  type SixSiData,
-
-  // 民心支持度（灵气浓度的别名）
-  calculatePublicTrustFactor,
-  getPublicTrustDescription,
-
-  // 方略加成（功法加成的别名）
-  calculateStrategyBonus,
-
-  // 状态效果
-  calculateStatusEffectFactor,
-  type StatusEffect,
-
-  // 官品晋升（境界突破的别名）
-  RANK_PROMOTION_STANDARDS,
-  getBreakthroughStandard,
-  validateCultivationProgress,
-
-  // 施政速度（修炼速度的别名）
-  calculateAdministrationSpeed,
-  type AdministrationSpeedInput,
-  type AdministrationSpeedResult,
-  type AdministrationSpeedFactors,
-
-  // 常量
-  SIX_SI_WEIGHTS,
-} from '@/utils/cultivationSpeedCalculator';
+import type { Magistrate } from '@/types/magistrate';
+import type { CountyState } from '@/types/county';
 
 // ============================================================================
-// 县治特有计算公式
+// 类型定义
 // ============================================================================
 
 /**
- * 县治核心参数
+ * 季节类型
  */
-export interface CountyParams {
-  人口: number;
-  人口上限: number;
-  税率: number; // 0.1 - 0.5
-  民心: number; // 0-100
-  治安: number; // 0-100
-  教育: number; // 0-100
+export type Season = '春' | '夏' | '秋' | '冬';
+
+/**
+ * 政务类型
+ */
+export type GovernmentTaskType =
+  | '断案'       // 依赖: 断案能力 + 治安 + 民心
+  | '征税'       // 依赖: 经济能力 + 繁荣度 + 民心
+  | '建设'       // 依赖: 建设能力 + 库银 + 人口
+  | '教化'       // 依赖: 教化能力 + 学堂 + 民心
+  | '赈灾'       // 依赖: 威望 + 库银 + 民心
+  | '治安'       // 依赖: 治安能力 + 城墙 + 衙役
+  | '外交'       // 依赖: 外交能力 + 威望 + 交通
+  | '考核';      // 依赖: 综合政绩 + 上级关系
+
+/**
+ * 判定结果等级
+ */
+export type JudgmentResult =
+  | '大失败'  // 判定值 < 难度-30，严重后果
+  | '失败'    // 判定值 < 难度，有代价的挫折
+  | '成功'    // 判定值 >= 难度，正常收益
+  | '大成功'  // 判定值 >= 难度+30，额外收益
+  | '完美';   // 判定值 >= 难度+50，特殊解锁
+
+/**
+ * 判定上下文
+ */
+export interface JudgmentContext {
+  magistrate: Magistrate;
+  county: CountyState;
+  taskType: GovernmentTaskType;
+  baseDifficulty: number;  // 基础难度 0-100
+  season: Season;
 }
 
 /**
- * 计算税收
- * 公式：税收 = 人口 × 税率 × 治安系数 × 民心系数
+ * 判定结果详情
  */
-export function calculateTaxRevenue(params: CountyParams): number {
-  const baseTax = params.人口 * params.税率;
-  const securityFactor = params.治安 / 100;
-  const supportFactor = params.民心 / 100;
-  return Math.floor(baseTax * securityFactor * supportFactor);
+export interface JudgmentResultDetail {
+  result: JudgmentResult;
+  finalScore: number;
+  targetDifficulty: number;
+  breakdown: {
+    basePower: number;        // 基础效能
+    statusMultiplier: number;  // 状态乘区
+    rollBonus: number;         // 骰子修正
+    resistance: number;        // 阻力值
+    seasonalModifier: number;  // 季节修正
+    criticalFactor?: string;   // 关键因素（用于AI叙事）
+    thresholdLock?: string;    // 阈值锁定说明
+  };
 }
 
 /**
- * 计算民心变化
- * @param currentSupport 当前民心
- * @param policyEffect 政策效果
- * @param randomEventEffect 随机事件影响（默认0）
- * @returns 新的民心值（0-100）
+ * 基础设施等级对应的数值加成
  */
-export function calculatePublicSupportChange(
-  currentSupport: number,
-  policyEffect: number,
-  randomEventEffect: number = 0
-): number {
-  const change = policyEffect + randomEventEffect;
-  const newValue = currentSupport + change;
-  return Math.max(0, Math.min(100, newValue));
-}
-
-/**
- * 计算治安变化
- */
-export function calculateSecurityChange(
-  currentSecurity: number,
-  policyEffect: number,
-  randomEventEffect: number = 0
-): number {
-  const change = policyEffect + randomEventEffect;
-  const newValue = currentSecurity + change;
-  return Math.max(0, Math.min(100, newValue));
-}
-
-/**
- * 计算人口增长
- * @param params 县治参数
- * @param foodStock 粮食库存
- * @returns 人口变化量
- */
-export function calculatePopulationGrowth(params: CountyParams, foodStock: number): number {
-  const { 人口, 人口上限, 民心, 治安 } = params;
-
-  // 粮食不足时人口减少
-  if (foodStock < 人口 * 0.1) {
-    const decrease = Math.floor(人口 * 0.01);
-    return -Math.max(0, decrease);
-  }
-
-  // 民心和治安都较好时人口增长
-  if (民心 >= 60 && 治安 >= 60 && 人口 < 人口上限) {
-    const growth = Math.floor(人口 * 0.005);
-    return Math.min(人口上限 - 人口, growth);
-  }
-
-  return 0;
-}
-
-/**
- * 计算政绩增长（批阅公文）
- * 公式：政绩增长 = 效率 × 时间 × 难度系数
- *
- * @param efficiency 施政效率（来自 calculateAdministrationSpeed）
- * @param timeSpent 花费时间（小时）
- * @param difficulty 公文难度系数（0.5 - 2.0，默认1.0）
- * @returns 政绩增长量
- */
-export function calculateMeritGain(
-  efficiency: number,
-  timeSpent: number,
-  difficulty: number = 1.0
-): number {
-  return Math.floor(efficiency * timeSpent * difficulty);
-}
-
-/**
- * 公文难度配置
- */
-export const DOCUMENT_DIFFICULTY = {
-  容易: 0.5,
-  普通: 1.0,
-  困难: 1.5,
-  极难: 2.0,
-} as const;
-
-/**
- * 民心等级描述
- */
-export function getPublicSupportLevel(support: number): string {
-  if (support >= 80) return '民心鼎盛';
-  if (support >= 60) return '民心安稳';
-  if (support >= 40) return '民心平平';
-  if (support >= 20) return '民心不稳';
-  return '民心动荡';
-}
-
-/**
- * 治安等级描述
- */
-export function getSecurityLevel(security: number): string {
-  if (security >= 80) return '路不拾遗';
-  if (security >= 60) return '治安良好';
-  if (security >= 40) return '治安一般';
-  if (security >= 20) return '盗匪横行';
-  return '民不聊生';
-}
-
-/**
- * 官品等级映射
- */
-export const RANK_LEVELS = [
-  { 品级: '九品', 上限: 100 },
-  { 品级: '八品', 上限: 200 },
-  { 品级: '七品', 上限: 400 },
-  { 品级: '六品', 上限: 800 },
-  { 品级: '五品', 上限: 1500 },
-  { 品级: '四品', 上限: 3000 },
-  { 品级: '三品', 上限: 6000 },
-  { 品级: '二品', 上限: 10000 },
-  { 品级: '一品', 上限: 99999 },
-] as const;
-
-/**
- * 根据政绩计算对应官品
- */
-export function calculateRankByMerit(totalMerit: number): string {
-  for (const rank of RANK_LEVELS) {
-    if (totalMerit < rank.上限) {
-      return rank.品级;
-    }
-  }
-  return '一品';
-}
-
-/**
- * 计算到下一官品所需政绩
- */
-export function getMeritToNextRank(currentRank: string, currentMerit: number): number {
-  const currentIndex = RANK_LEVELS.findIndex(r => r.品级 === currentRank);
-  if (currentIndex === -1 || currentIndex === RANK_LEVELS.length - 1) {
-    return 0; // 已达最高品级
-  }
-  const nextRank = RANK_LEVELS[currentIndex + 1];
-  return nextRank.上限 - currentMerit;
-}
-
-// ============================================================================
-// 政策效果配置
-// ============================================================================
-
-/**
- * 政策效果类型
- */
-export interface PolicyEffect {
-  民心?: number;
-  治安?: number;
-  经济?: number;
-  教育?: number;
-}
-
-/**
- * 预设政策效果
- */
-export const POLICY_EFFECTS: Record<string, PolicyEffect> = {
-  减免税赋: { 民心: 10, 经济: -5 },
-  严打盗匪: { 治安: 15, 民心: -5 },
-  兴办学堂: { 教育: 20, 民心: 5 },
-  修缮水利: { 经济: 15, 民心: 10 },
-  赈济灾民: { 民心: 20, 经济: -10 },
-  招募兵勇: { 治安: 10, 经济: -15 },
-  发展商业: { 经济: 20, 民心: 5 },
-  推广农技: { 经济: 10, 民心: 8 },
+const FACILITY_LEVEL_VALUES: Record<string, number> = {
+  '破败': -20,
+  '简陋': -10,
+  '普通': 0,
+  '完善': 10,
+  '精良': 20,
+  '宏伟': 30
 };
 
 /**
- * 计算政策实施后的综合效果
+ * 人口密度对应的数值
  */
-export function calculatePolicyEffect(
-  policyName: string,
-  params: CountyParams
-): {
-  民心变化: number;
-  治安变化: number;
-  经济变化: number;
-  教育变化: number;
-  新民心: number;
-  新治安: number;
-  新教育: number;
-} {
-  const effect = POLICY_EFFECTS[policyName] || {};
+const POPULATION_DENSITY_VALUES: Record<string, number> = {
+  '稀疏': 20,
+  '适中': 50,
+  '稠密': 80,
+  '拥挤': 100
+};
 
-  const 民心变化 = effect.民心 || 0;
-  const 治安变化 = effect.治安 || 0;
-  const 经济变化 = effect.经济 || 0;
-  const 教育变化 = effect.教育 || 0;
+// ============================================================================
+// 核心判定函数
+// ============================================================================
+
+/**
+ * 计算政务判定结果
+ *
+ * @param context 判定上下文
+ * @returns 判定结果详情
+ */
+export function calculateJudgment(context: JudgmentContext): JudgmentResultDetail {
+  const { magistrate, county, taskType, baseDifficulty, season } = context;
+
+  // 1. 检查阈值锁定（地区属性不满足时，最高判定结果受限）
+  const thresholdLock = checkThresholdLock(county, taskType);
+  if (thresholdLock) {
+    // 即使数值达标，也被锁定在较低等级
+    return createLockedResult(context, thresholdLock);
+  }
+
+  // 2. 计算基础效能
+  const basePower = calculateBasePower(magistrate, county, taskType);
+
+  // 3. 计算状态乘区（短板效应核心）
+  const statusMultiplier = calculateStatusMultiplier(magistrate, county);
+
+  // 4. 计算季节修正
+  const seasonalModifier = getSeasonalModifier(taskType, season);
+
+  // 5. 计算骰子修正（根据心境决定波动范围）
+  const rollBonus = calculateRollBonus(magistrate);
+
+  // 6. 计算阻力值
+  const resistance = calculateResistance(county, baseDifficulty, season);
+
+  // 7. 最终计算
+  const rawScore = (basePower + rollBonus) * statusMultiplier;
+  const finalScore = rawScore - resistance + seasonalModifier;
+
+  // 8. 动态难度判定
+  const dynamicDifficulty = calculateDynamicDifficulty(baseDifficulty, county, magistrate);
+
+  // 9. 判定结果等级
+  const result = determineResultLevel(finalScore, dynamicDifficulty);
+
+  // 10. 提取关键因素（用于AI叙事）
+  const criticalFactor = extractCriticalFactor(magistrate, county, statusMultiplier, result);
 
   return {
-    民心变化,
-    治安变化,
-    经济变化,
-    教育变化,
-    新民心: calculatePublicSupportChange(params.民心, 民心变化),
-    新治安: calculateSecurityChange(params.治安, 治安变化),
-    新教育: Math.min(100, Math.max(0, params.教育 + 教育变化)),
+    result,
+    finalScore: Math.round(finalScore),
+    targetDifficulty: Math.round(dynamicDifficulty),
+    breakdown: {
+      basePower: Math.round(basePower),
+      statusMultiplier: parseFloat(statusMultiplier.toFixed(3)),
+      rollBonus: Math.round(rollBonus),
+      resistance: Math.round(resistance),
+      seasonalModifier,
+      criticalFactor
+    }
   };
+}
+
+// ============================================================================
+// 辅助计算函数
+// ============================================================================
+
+/**
+ * 检查阈值锁定
+ * 若关键地区属性不满足，返回锁定说明
+ */
+function checkThresholdLock(county: CountyState, taskType: GovernmentTaskType): string | null {
+  const locks: Record<GovernmentTaskType, () => string | null> = {
+    '断案': () => {
+      if (county.治安.当前 < 20) return '治安崩坏（<20），县令权威不足，最高判定锁定为"失败"';
+      if (county.民心.当前 < 30) return '民心过低（<30），百姓不信任，最高判定锁定为"成功"';
+      return null;
+    },
+    '征税': () => {
+      if (county.民心.当前 < 20) return '民心极低（<20），抗税风险极高，最高判定锁定为"失败"';
+      if (county.繁荣度.当前 < 20) return '县治破败（<20），无税可征，最高判定锁定为"成功"';
+      return null;
+    },
+    '建设': () => {
+      if (county.人口.总人口 < 100) return '人口过少（<100），劳动力不足，最高判定锁定为"成功"';
+      if (county.库银.现有库银 < 50) return '库银枯竭（<50），无法建设，最高判定锁定为"失败"';
+      return null;
+    },
+    '教化': () => {
+      if (county.基础设施.学堂 === '破败') return '学堂破败，无法施教，最高判定锁定为"失败"';
+      if (county.民心.当前 < 30) return '民心冷漠，不愿配合，最高判定锁定为"成功"';
+      return null;
+    },
+    '赈灾': () => {
+      if (county.库银.现有库银 < 100) return '库银不足（<100），无力赈灾，最高判定锁定为"失败"';
+      return null;
+    },
+    '治安': () => {
+      if (county.基础设施.城墙 === '破败') return '城墙破败，无法防御，最高判定锁定为"失败"';
+      return null;
+    },
+    '外交': () => {
+      if (county.地理位置.交通 === '闭塞') return '交通闭塞，无法联络，最高判定锁定为"成功"';
+      return null;
+    },
+    '考核': () => {
+      if (county.民心.当前 < 40) return '民心不足（<40），政绩不彰，最高判定锁定为"成功"';
+      if (county.治安.当前 < 40) return '治安不靖（<40），考核扣分，最高判定锁定为"成功"';
+      return null;
+    }
+  };
+
+  return locks[taskType]?.() ?? null;
+}
+
+/**
+ * 创建锁定结果
+ */
+function createLockedResult(context: JudgmentContext, lockReason: string): JudgmentResultDetail {
+  return {
+    result: '失败',  // 锁定时返回失败
+    finalScore: 0,
+    targetDifficulty: 999,  // 表示无法达成
+    breakdown: {
+      basePower: 0,
+      statusMultiplier: 0,
+      rollBonus: 0,
+      resistance: 0,
+      seasonalModifier: 0,
+      thresholdLock: lockReason
+    }
+  };
+}
+
+/**
+ * 计算基础效能
+ * = 能力×0.4 + 六司×1.5 + 基建加成
+ */
+function calculateBasePower(magistrate: Magistrate, county: CountyState, taskType: GovernmentTaskType): number {
+  // 获取对应的能力值
+  const abilityMap = {
+    '断案': magistrate.治理能力.断案能力,
+    '征税': magistrate.治理能力.经济能力,
+    '建设': magistrate.治理能力.建设能力,
+    '教化': magistrate.治理能力.教化能力,
+    '赈灾': magistrate.威望.当前 / 100,  // 威望转换为0-100
+    '治安': magistrate.治理能力.治安能力,
+    '外交': magistrate.治理能力.外交能力,
+    '考核': Object.values(magistrate.治理能力).reduce((a, b) => a + b, 0) / 6  // 平均能力
+  };
+
+  const ability = abilityMap[taskType] ?? 50;
+
+  // 六司加成（上限10，权重1.5）
+  const sixSi = Object.values(magistrate.先天六司).reduce((a, b) => a + b, 0) * 1.5;
+
+  // 基建加成
+  const facilityBonus = getFacilityBonus(county, taskType);
+
+  return ability * 0.4 + sixSi + facilityBonus;
+}
+
+/**
+ * 获取基建加成
+ */
+function getFacilityBonus(county: CountyState, taskType: GovernmentTaskType): number {
+  const facilityMap = {
+    '断案': county.基础设施.县衙,
+    '征税': county.基础设施.市场,
+    '建设': county.基础设施.道路,
+    '教化': county.基础设施.学堂,
+    '赈灾': county.基础设施.县衙,  // 县衙组织能力强
+    '治安': county.基础设施.城墙,
+    '外交': county.基础设施.道路,
+    '考核': county.基础设施.县衙
+  };
+
+  const facilityLevel = facilityMap[taskType] ?? '普通';
+  return FACILITY_LEVEL_VALUES[facilityLevel] ?? 0;
+}
+
+/**
+ * 计算状态乘区（短板效应核心）
+ * 使用乘法而非加法，任一状态差都会严重影响整体表现
+ */
+function calculateStatusMultiplier(magistrate: Magistrate, county: CountyState): number {
+  let multiplier = 1.0;
+
+  // 精力系数（疲劳惩罚）
+  const energyRatio = magistrate.精力.当前 / magistrate.精力.上限;
+  if (energyRatio < 0.2) multiplier *= 0.5;   // 极度疲劳
+  else if (energyRatio < 0.3) multiplier *= 0.6;  // 非常疲劳
+  else if (energyRatio < 0.5) multiplier *= 0.8;  // 疲劳
+  else if (energyRatio > 0.9) multiplier *= 1.1;  // 精力充沛
+
+  // 健康系数
+  const healthRatio = magistrate.健康.当前 / magistrate.健康.上限;
+  if (healthRatio < 0.3) multiplier *= 0.6;   // 重伤
+  else if (healthRatio < 0.5) multiplier *= 0.8;  // 轻伤
+
+  // 心境系数
+  const moodRatio = magistrate.心境.当前 / magistrate.心境.上限;
+  if (moodRatio < 0.3) multiplier *= 0.7;   // 心境混乱
+  else if (moodRatio < 0.5) multiplier *= 0.9;  // 心境不稳
+
+  // 民心系数（刁民难管）
+  if (county.民心.当前 < 30) multiplier *= 0.7;
+  else if (county.民心.当前 > 70) multiplier *= 1.1;
+
+  // 协同系数（路不拾遗，治理轻松）
+  if (county.治安.当前 > 80 && county.教化.当前 > 80) {
+    multiplier *= 1.15;
+  }
+
+  return multiplier;
+}
+
+/**
+ * 计算骰子修正
+ * 根据心境决定波动范围：心境越稳，波动越小
+ */
+function calculateRollBonus(magistrate: Magistrate): number {
+  const moodRatio = magistrate.心境.当前 / magistrate.心境.上限;
+
+  // 不稳定度：心境越低，波动越大
+  const instability = (1 - moodRatio) * 20;  // 最大波动 ±20
+
+  const random = Math.random() * 2 - 1;  // -1 到 1
+  return random * instability;
+}
+
+/**
+ * 计算阻力值
+ */
+function calculateResistance(county: CountyState, baseDifficulty: number, season: Season): number {
+  let resistance = baseDifficulty;
+
+  // 地形修正
+  if (county.地理位置.地形 === '山地' || county.地理位置.地形 === '盆地') {
+    resistance += 10;  // 交通不便，治理更难
+  } else if (county.地理位置.地形 === '平原' || county.地理位置.地形 === '河谷') {
+    resistance -= 5;   // 地利优势
+  }
+
+  // 气候修正
+  if (county.地理位置.气候 === '高原') {
+    resistance += 15;  // 高原环境艰苦
+  }
+
+  return resistance;
+}
+
+/**
+ * 获取季节修正
+ */
+export function getSeasonalModifier(taskType: GovernmentTaskType, season: Season): number {
+  const modifiers: Record<GovernmentTaskType, Record<Season, number>> = {
+    '断案': { '春': 0, '夏': -5, '秋': 5, '冬': 0 },
+    '征税': { '春': -10, '夏': 0, '秋': 20, '冬': -5 },
+    '建设': { '春': 20, '夏': -10, '秋': 0, '冬': -30 },
+    '教化': { '春': 0, '夏': 5, '秋': 0, '冬': 10 },
+    '赈灾': { '春': 0, '夏': 5, '秋': 0, '冬': 10 },
+    '治安': { '春': -10, '夏': -5, '秋': 0, '冬': 10 },
+    '外交': { '春': 0, '夏': 5, '秋': 10, '冬': -5 },
+    '考核': { '春': 0, '夏': 0, '秋': 10, '冬': 0 }
+  };
+
+  return modifiers[taskType]?.[season] ?? 0;
+}
+
+/**
+ * 计算动态难度
+ * 随繁荣度和任期增长
+ */
+function calculateDynamicDifficulty(baseDifficulty: number, county: CountyState, magistrate: Magistrate): number {
+  const prosperityLevel = county.繁荣度.当前;
+  const tenureYears = magistrate.任期.当前;
+
+  // 动态难度 = 基础难度 + (繁荣度等级 × 5) + (任期年数 × 2)
+  const dynamicBonus = (prosperityLevel / 20) * 5 + tenureYears * 2;
+
+  return baseDifficulty + dynamicBonus;
+}
+
+/**
+ * 判定结果等级
+ */
+function determineResultLevel(finalScore: number, difficulty: number): JudgmentResult {
+  const diff = finalScore - difficulty;
+
+  if (diff >= 50) return '完美';
+  if (diff >= 30) return '大成功';
+  if (diff >= 0) return '成功';
+  if (diff >= -30) return '失败';
+  return '大失败';
+}
+
+/**
+ * 提取关键因素（用于AI叙事）
+ */
+function extractCriticalFactor(
+  magistrate: Magistrate,
+  county: CountyState,
+  statusMultiplier: number,
+  result: JudgmentResult
+): string {
+  const factors: string[] = [];
+
+  // 精力状态
+  const energyRatio = magistrate.精力.当前 / magistrate.精力.上限;
+  if (energyRatio < 0.3) factors.push('精力极度疲劳');
+  else if (energyRatio > 0.9) factors.push('精力充沛');
+
+  // 健康状态
+  const healthRatio = magistrate.健康.当前 / magistrate.健康.上限;
+  if (healthRatio < 0.5) factors.push('带伤坚持');
+
+  // 心境状态
+  const moodRatio = magistrate.心境.当前 / magistrate.心境.上限;
+  if (moodRatio < 0.5) factors.push('心境不稳');
+  else if (moodRatio > 0.8) factors.push('心境澄明');
+
+  // 民心状态
+  if (county.民心.当前 < 30) factors.push('民心冷漠');
+  else if (county.民心.当前 > 70) factors.push('民心拥戴');
+
+  // 状态乘区异常
+  if (statusMultiplier < 0.8) factors.push('状态不佳严重影响发挥');
+  else if (statusMultiplier > 1.1) factors.push('状态绝佳，如有神助');
+
+  // 根据结果选择关键因素
+  if (result === '大失败' || result === '失败') {
+    // 失败时，找负面因素
+    const negativeFactors = factors.filter(f =>
+      f.includes('疲劳') || f.includes('带伤') || f.includes('不稳') ||
+      f.includes('冷漠') || f.includes('严重影响')
+    );
+    return negativeFactors.length > 0 ? negativeFactors[0] : '判定值不足';
+  } else if (result === '大成功' || result === '完美') {
+    // 成功时，找正面因素
+    const positiveFactors = factors.filter(f =>
+      f.includes('充沛') || f.includes('澄明') || f.includes('拥戴') ||
+      f.includes('神助')
+    );
+    return positiveFactors.length > 0 ? positiveFactors[0] : '发挥出色';
+  }
+
+  return '正常发挥';
+}
+
+// ============================================================================
+// 导出函数
+// ============================================================================
+
+/**
+ * 快速判定（简化版，用于不需要详细分解的场景）
+ */
+export function quickJudgment(
+  magistrate: Magistrate,
+  county: CountyState,
+  taskType: GovernmentTaskType,
+  difficulty: number = 50
+): JudgmentResult {
+  const context: JudgmentContext = {
+    magistrate,
+    county,
+    taskType,
+    baseDifficulty: difficulty,
+    season: '春'  // 默认春季
+  };
+
+  return calculateJudgment(context).result;
+}
+
+/**
+ * 获取当前季节（基于游戏时间）
+ */
+export function getCurrentSeason(month: number): Season {
+  if (month >= 3 && month <= 5) return '春';
+  if (month >= 6 && month <= 8) return '夏';
+  if (month >= 9 && month <= 11) return '秋';
+  return '冬';
 }

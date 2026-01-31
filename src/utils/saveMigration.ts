@@ -9,6 +9,7 @@ export type SaveMigrationIssue =
 export interface SaveMigrationDetection {
   needsMigration: boolean;
   issues: SaveMigrationIssue[];
+  legacyKeysFound: string[]; // 检测到的旧字段键名
 }
 
 export interface SaveMigrationReport {
@@ -153,22 +154,33 @@ export function detectLegacySaveData(saveData: SaveData | null | undefined): Sav
     return {
       needsMigration: true,
       issues: ['invalid-structure'],
+      legacyKeysFound: [],
     };
   }
 
   const anySave = saveData as any;
 
   if (isSaveDataV3(saveData)) {
-    return { needsMigration: false, issues: [] };
+    return { needsMigration: false, issues: [], legacyKeysFound: [] };
   }
 
   const missingRequired = REQUIRED_V3_KEYS.filter((k) => !(k in anySave));
   const issues: SaveMigrationIssue[] = [];
   if (missingRequired.length > 0) issues.push('missing-required-keys');
 
+  // 收集旧版本的键名
+  const legacyKeys: string[] = [];
+  const oldKeyPatterns = ['修为', '境界', '功法', '宗门', '灵石', '灵气', '道法', '突破'];
+  Object.keys(anySave).forEach(key => {
+    if (oldKeyPatterns.some(pattern => key.includes(pattern))) {
+      legacyKeys.push(key);
+    }
+  });
+
   return {
     needsMigration: issues.length > 0,
     issues,
+    legacyKeysFound: legacyKeys,
   };
 }
 

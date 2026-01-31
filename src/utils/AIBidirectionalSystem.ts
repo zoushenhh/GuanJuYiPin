@@ -1804,8 +1804,8 @@ ${step1Text}
             const { createJoinedGovernmentState } = await import('@/utils/governmentSystemFactory');
             const { sectSystem, memberInfo } = createJoinedGovernmentState(ownedSect, { nowIso: new Date().toISOString() });
 
-            // 玩家创建宗门：默认给最高职位（避免"创建了宗门但自己只是外门弟子"的违和感）
-            memberInfo.职位 = '宗主';
+            // 玩家创建衙门：默认给最高职位（避免"创建了衙门但自己只是外门吏员"的违和感）
+            memberInfo.职位 = '县令';
             memberInfo.贡献 = Math.max(0, Number(memberInfo.贡献 || 0));
 
             if (!(saveData as any).社交) (saveData as any).社交 = {};

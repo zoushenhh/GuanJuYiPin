@@ -322,6 +322,12 @@ export class EnhancedWorldGenerator {
       势力信息: (rawData.factions || []).map((faction: Record<string, any>) => {
         // 计算声望与综合战力（若可）
         const calcInput: SectCalculationData = {
+          name: faction.name || faction.名称,
+          type: faction.type || faction.类型 || '修仙宗门',
+          level: faction.level || faction.等级 || '三流',
+          memberCount: (faction.memberCount?.total || 0),
+          overallStrength: 0,
+          // 中文属性名（向后兼容）
           名称: faction.name || faction.名称,
           类型: faction.type || faction.类型 || '修仙宗门',
           等级: faction.level || faction.等级 || '三流',

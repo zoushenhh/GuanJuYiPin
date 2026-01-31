@@ -14,7 +14,6 @@
 
 import { computed, ref } from 'vue';
 import { useGameStateStore } from '@/stores/gameStateStore';
-import { calculateAdministrationSpeed, type AdministrationSpeedInput, type SixSiData } from '@/utils/cultivationSpeedCalculator';
 
 // ============================================================================
 // 类型定义
@@ -318,27 +317,14 @@ export function useCountyState() {
 
     const actualCount = Math.min(count, countyState.value.待办公文);
 
-    // 构建施政速度计算输入
-    const input: AdministrationSpeedInput = {
-      民心支持度: countyState.value.民心,
+    // 简化的政务效率计算
+    // 基础政绩 = 10，受民心和治安影响
+    const baseMerit = 10;
+    const supportFactor = countyState.value.民心 / 100; // 0-1
+    const securityFactor = countyState.value.治安 / 100; // 0-1
+    const meritPerDocument = Math.floor(baseMerit * (0.5 + supportFactor * 0.3 + securityFactor * 0.2));
 
-      先天六司: (gameState.character?.先天六司 || {}) as SixSiData,
-      后天六司: (gameState.character?.后天六司 || {}) as SixSiData,
-
-      当前效果: gameState.effects || undefined,
-      方略品质: (gameState.cultivation as any)?.政绩方略?.品质,
-      施政进度: (gameState.cultivation as any)?.政绩方略?.政绩进度,
-
-      当前官品: currentRank.value,
-      当前阶段: currentRankStage.value,
-      当前进度: currentRankProgress.value,
-      下一级所需: (gameState.attributes?.官品 as any)?.下一级所需 || 100,
-
-      环境加成: 0.1, // 在县衙办公有加成
-    };
-
-    const result = calculateAdministrationSpeed(input);
-    const meritGain = Math.floor(result.最终速度 * actualCount);
+    const meritGain = meritPerDocument * actualCount;
 
     countyState.value.政绩 += meritGain;
     countyState.value.待办公文 -= actualCount;

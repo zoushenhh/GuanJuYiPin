@@ -18,32 +18,27 @@ import { isTavernEnv } from '@/utils/tavern';
 import { JSON_OUTPUT_RULES, RESPONSE_FORMAT_RULES, DATA_STRUCTURE_STRICTNESS, NARRATIVE_PURITY_RULES } from '@/utils/prompts/definitions/coreRules';
 // 业务规则
 import {
-  REALM_SYSTEM_RULES,
-  THREE_THOUSAND_DAOS_RULES,
-  LOCATION_UPDATE_RULES,
+  // 县令模拟器核心规则
+  COUNTY_DEVELOPMENT_RULES,
+  GOVERNMENT_JUDGMENT_RULES,
+  JUDGMENT_TRACEABILITY_RULES,
+  SEASONAL_SYSTEM_RULES,
+  FAILURE_CONSEQUENCE_RULES,
+  // 保留的通用规则
   COMMAND_PATH_CONSTRUCTION_RULES,
+  STRATEGY_SYSTEM_RULES,
   TECHNIQUE_SYSTEM_RULES,
   PLAYER_AUTONOMY_RULES,
   RATIONALITY_AUDIT_RULES,
   PROFESSION_MASTERY_RULES,
   ANTI_SYCOPHANCY_RULES,
-  JUDGMENT_TRACEABILITY_RULES,
-  DUAL_REALM_NARRATIVE_RULES,
-  DIFFICULTY_ENHANCEMENT_RULES,
-  SECT_SYSTEM_RULES,
-  COMBAT_ALCHEMY_RISK_RULES,
-  CULTIVATION_PRACTICE_RULES,
-  DAO_COMPREHENSION_RULES,
-  CULTIVATION_SPEED_RULES,
-  SIX_SI_ACQUISITION_RULES,
-  SECT_DYNAMIC_GENERATION_RULES,
-  COMBAT_TURN_BASED_RULES,
   NPC_RULES,
-  GRAND_CONCEPT_CONSTRAINTS,
-  SKILL_AND_SPELL_USAGE_RULES,
+  MAGISTRATE_STATUS_RULES,
+  COUNTY_RESOURCE_RULES,
   ECONOMY_AND_PRICING_RULES,
-  CULTIVATION_DETAIL_RULES,
-  STATUS_EFFECT_RULES
+  STATUS_EFFECT_RULES,
+  DAO_COMPREHENSION_RULES,
+  SKILL_AND_ACTION_USAGE_RULES
 } from '@/utils/prompts/definitions/businessRules';
 // 文本格式
 import { TEXT_FORMAT_MARKERS, DICE_ROLLING_RULES, COMBAT_DAMAGE_RULES, NAMING_CONVENTIONS } from '@/utils/prompts/definitions/textFormats';
@@ -92,38 +87,33 @@ export const PROMPT_CATEGORIES = {
 // 合并核心输出规则
 const CORE_OUTPUT_RULES = [JSON_OUTPUT_RULES, RESPONSE_FORMAT_RULES, DATA_STRUCTURE_STRICTNESS, NARRATIVE_PURITY_RULES].join('\n\n');
 
-// 合并业务规则（精简版，核心规则优先）
+// 合并业务规则（县令模拟器核心规则）
 const BUSINESS_RULES = [
+  // 核心系统规则
+  COUNTY_DEVELOPMENT_RULES,
+  GOVERNMENT_JUDGMENT_RULES,
+  JUDGMENT_TRACEABILITY_RULES,
+  SEASONAL_SYSTEM_RULES,
+  FAILURE_CONSEQUENCE_RULES,
+  // 通用规则
+  COMMAND_PATH_CONSTRUCTION_RULES,
+  PLAYER_AUTONOMY_RULES,
   RATIONALITY_AUDIT_RULES,
   ANTI_SYCOPHANCY_RULES,
-  JUDGMENT_TRACEABILITY_RULES,
   PROFESSION_MASTERY_RULES,
-  DUAL_REALM_NARRATIVE_RULES,
-  DIFFICULTY_ENHANCEMENT_RULES,
-  REALM_SYSTEM_RULES,
-  COMMAND_PATH_CONSTRUCTION_RULES,
-  TECHNIQUE_SYSTEM_RULES,
-  COMBAT_ALCHEMY_RISK_RULES,
-  COMBAT_TURN_BASED_RULES,
-  PLAYER_AUTONOMY_RULES
+  STRATEGY_SYSTEM_RULES,
+  TECHNIQUE_SYSTEM_RULES
 ].join('\n\n');
 
 // 扩展业务规则（可选，用户可自定义开启）
 const EXTENDED_BUSINESS_RULES = [
-  THREE_THOUSAND_DAOS_RULES,
-  LOCATION_UPDATE_RULES,
-  SECT_SYSTEM_RULES,
-  CULTIVATION_PRACTICE_RULES,
-  DAO_COMPREHENSION_RULES,
-  CULTIVATION_SPEED_RULES,
-  SIX_SI_ACQUISITION_RULES,
-  SECT_DYNAMIC_GENERATION_RULES,
   NPC_RULES,
-  GRAND_CONCEPT_CONSTRAINTS,
-  SKILL_AND_SPELL_USAGE_RULES,
+  MAGISTRATE_STATUS_RULES,
+  COUNTY_RESOURCE_RULES,
   ECONOMY_AND_PRICING_RULES,
-  CULTIVATION_DETAIL_RULES,
-  STATUS_EFFECT_RULES
+  DAO_COMPREHENSION_RULES,
+  STATUS_EFFECT_RULES,
+  SKILL_AND_ACTION_USAGE_RULES
 ].join('\n\n');
 
 // 合并文本格式规范
@@ -148,7 +138,7 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
       name: '2. 核心规则',
       content: BUSINESS_RULES,
       category: 'coreRequest',
-      description: '官品、NPC、战斗规则',
+      description: '县治发展、政务判定、NPC规则',
       order: 2,
       weight: 9
     },
@@ -164,7 +154,7 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
       name: '2.5 扩展规则',
       content: EXTENDED_BUSINESS_RULES,
       category: 'coreRequest',
-      description: '大道、衙门等扩展',
+      description: '县令状态、资源管理、经济定价',
       order: 2.5,
       weight: 5
     },
@@ -180,7 +170,7 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
       name: '4. 文本格式',
       content: TEXT_FORMAT_RULES,
       category: 'coreRequest',
-      description: '判定、伤害、命名',
+      description: '判定标记、伤害计算、命名规范',
       order: 4,
       weight: 10
     },
@@ -188,7 +178,7 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
       name: '5. 世界标准',
       content: WORLD_STANDARDS,
       category: 'coreRequest',
-      description: '官品属性、品质',
+      description: '品质系统、声望等级',
       order: 5,
       weight: 7
     },
@@ -244,10 +234,11 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
 5. **格式标记**：合理使用【】环境、\`心理\`、""对话、〔〕判定
 6. **画面感配方（最低标准）**：至少1个可见动作细节+1轮"对话"或NPC内心\`...\`；【环境】仅在场景变化/信息必要时写1-2句（动作细节必须融入叙事，禁止写成“动作细节一/二”等编号）
 
-## ⚔️ 战斗场景特别要求
-- 每次攻防都要进行判定
-- 判定结果决定伤害和后果
-- 大失败=重伤，大成功=重创敌人
+## 政务场景特别要求
+- 每次处理政务都要进行判定（使用政务判定系统）
+- 判定结果决定政绩和后果
+- 失败可能导致民心下降/资源浪费/威望受损
+- 成功可能提升政绩/民心/威望
 
 ## ⚠️ 严禁
 - ❌ mid_term_memory / tavern_commands / action_options 字段
@@ -274,38 +265,27 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
 □ 货币变化 → add \`角色.背包.货币.<币种ID>.数量\`
 □ 物品增删 → set/delete \`角色.背包.物品.[物品ID]\`
 
-### 处理政务与升迁
-□ 日常处理政务 → add \`角色.属性.官品.当前进度\`
-□ 治国方略熟练 → add \`角色.治国方略.治国方略进度.[治国方略ID].熟练度\`
-□ 悟道进展 → add \`角色.大道.大道列表.[学派名].当前经验\`
-□ 大道解锁 → set \`角色.大道.大道列表.[学派名]\`（完整DaoData对象）
-□ 治国方略解锁技能 → push \`角色.治国方略.治国方略进度.[治国方略ID].已解锁技能\`
-□ 小阶段晋升 → set \`角色.属性.官品.阶段\`（初期→中期→后期→圆满→极境）
-□ 大官品升迁 → set \`角色.属性.官品.名称\` + 更新属性上限
-
-### 考核系统
-□ 考核开始 → push \`角色.效果\` 添加"考核中"状态
-□ 每道难关 → add \`角色.属性.健康.当前\`（负）+ add \`角色.属性.精力.当前\`（负）
-□ 考核成功 → set 新官品 + 更新属性上限 + push \`社交.事件.事件记录\`
-□ 考核失败 → 重伤/罢官处理 + push \`社交.事件.事件记录\`
-
-### 战斗与消耗 - 必须更新所有参与者！
-□ 施法/出招 → add \`角色.属性.精力.当前\`（负，按技能消耗%）
-□ 玩家受伤 → add \`角色.属性.健康.当前\`（负）
-□ NPC受伤 → add \`社交.关系.[NPC名].属性.健康.当前\`（负）
-□ 心力消耗 → add \`角色.属性.心力.当前\`（负）
-□ 状态效果 → push \`角色.效果\`（中毒/重伤/虚弱等）
+### 政务处理与县治发展
+□ 日常处理政务 → add \`角色.政务.政绩.当前\`
+□ 方略熟练 → add \`角色.方略.方略进度.[方略ID].熟练度\`
+□ 方略解锁 → set \`角色.方略.方略列表.[方略名]\`（完整DaoData对象）
+□ 方略解锁技能 → push \`角色.方略.方略进度.[方略ID].已解锁技能\`
+□ 县治阶段晋升 → 自动检查条件晋升（残破村庄→聚落乡→县治集镇→繁华州府→天下名都）
+□ 县治资源更新 → 更新人口/库银/民心/治安/繁荣度/教化
 
 ### NPC交互 - 必须全面更新NPC状态！
 □ NPC出场 → set \`社交.关系.[NPC名]\`（完整对象）
 □ 好感变化 → add \`社交.关系.[NPC名].好感度\`
 □ NPC记忆 → push \`社交.关系.[NPC名].记忆\`
 □ NPC状态 → set \`社交.关系.[NPC名].当前外貌状态\`
-□ NPC属性变化：健康/精力/心力/官品/位置都要更新
+□ NPC属性变化：健康/精力/威望/官品/位置都要更新
 
-### 世界事件与衙门
-□ 重大事件 → push \`社交.事件.事件记录\`
-□ 衙门贡献 → add \`社交.衙门.成员信息.贡献\`
+### 精力与消耗 - 必须更新所有参与者！
+□ 处理政务消耗 → add \`角色.精力.当前\`（负，按政务消耗3-20%）
+□ 玩家受伤 → add \`角色.健康.当前\`（负）
+□ NPC受伤 → add \`社交.关系.[NPC名].健康.当前\`（负）
+□ 威望消耗 → add \`角色.威望.当前\`（负）
+□ 状态效果 → push \`角色.效果\`（中毒/疲劳/焦虑等）
 
 ## 🔴 输出格式（必须严格遵守）
 {"mid_term_memory":"50-100字摘要","tavern_commands":[{"action":"add","key":"元数据.时间.分钟","value":30}],"action_options":["选项1","选项2","选项3","选项4","选项5"]}
@@ -313,7 +293,7 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
 ## ✅ JSON与key规则（CRITICAL）
 - 只输出一个JSON对象，禁止任何前后缀文字、禁止 \`\`\` 代码块
 - 字符串如需换行，用 \`\\n\`
-- 规则文中的 \`[NPC名]\` / \`[学派名]\` / \`{功法ID}\` 只是占位符，输出key时必须替换成真实名称，且不要保留方括号/花括号
+- 规则文中的 \`[NPC名]\` / \`[方略名]\` / \`{方略ID}\` 只是占位符，输出key时必须替换成真实名称，且不要保留方括号/花括号
 - 方括号 \`[]\` 只有数组索引可以用：例如 \`角色.效果[0]\`
 - tavern_commands[*].key 必须以 \`元数据.\`/\`角色.\`/\`社交.\`/\`世界.\`/\`系统.\` 开头（V3短路径）
 - 必须输出严格JSON：只用英文半角标点 \`\" , : [ ] { }\`，禁止中文引号/逗号/顿号

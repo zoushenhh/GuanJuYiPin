@@ -22,7 +22,7 @@ export interface UndoAction {
     replacedItem?: Item | null; // 被替换的装备
     // 使用/丢弃操作的恢复数据  
     originalQuantity?: number;
-    // 功法修炼的恢复数据
+    // 方略学习的恢复数据
     originalCultivationState?: {
       previousTechnique: CultivationTechniqueReference | null;
       wasInInventory: boolean;
@@ -418,7 +418,7 @@ export class EnhancedActionQueueManager {
   }
   
   /**
-   * 修炼功法 - 直接修改修炼状态并支持撤回
+   * 学习方略 - 直接修改施政状态并支持撤回
    */
   async cultivateItem(item: Item): Promise<boolean> {
     const actionQueue = useActionQueueStore();
@@ -428,12 +428,12 @@ export class EnhancedActionQueueManager {
       const gameStateStore = useGameStateStore();
       const saveData = gameStateStore.toSaveData();
       if (!saveData) {
-        toast.error('存档数据不存在，无法修炼功法');
+        toast.error('存档数据不存在，无法学习方略');
         return false;
       }
 
-      if (item.类型 !== '功法') {
-        toast.error('只能修炼功法类物品');
+      if (item.类型 !== '方略') {
+        toast.error('只能学习方略类物品');
         return false;
       }
 
@@ -446,17 +446,17 @@ export class EnhancedActionQueueManager {
 
       let previousTechnique: CultivationTechniqueReference | null = null;
 
-      // 检查是否已经在修炼其他功法
+      // 检查是否已经在学习其他方略
       const cultivationState = this.ensureRoleCultivation(saveData);
       const currentTechnique = cultivationState.修炼功法;
       if (currentTechnique && currentTechnique.物品ID !== item.物品ID) {
-        // 保存完整的功法数据+进度
+        // 保存完整的方略数据+进度
         previousTechnique = { ...currentTechnique };
 
-        // 清除之前功法的已装备状态 - 使用响应式替换
+        // 清除之前方略的已装备状态 - 使用响应式替换
         const previousId = currentTechnique.物品ID;
         const previousInventoryItem = inventoryItems[previousId];
-        if (previousInventoryItem && previousInventoryItem.类型 === '功法') {
+        if (previousInventoryItem && previousInventoryItem.类型 === '方略') {
           inventoryItems[previousId] = {
             ...previousInventoryItem,
             已装备: false,
@@ -465,21 +465,21 @@ export class EnhancedActionQueueManager {
         }
       }
 
-      // 获取功法的完整数据作为基础
+      // 获取方略的完整数据作为基础
       const inventoryItem = inventoryItems[item.物品ID];
-      if (!inventoryItem || inventoryItem.类型 !== '功法') {
-        toast.error('物品不是功法类型');
+      if (!inventoryItem || inventoryItem.类型 !== '方略') {
+        toast.error('物品不是方略类型');
         return false;
       }
 
-      // 设置修炼功法 - 只存储引用（物品ID和名称）
-      // 修炼进度存储在背包物品中，不存储在这里
+      // 设置学习方略 - 只存储引用（物品ID和名称）
+      // 学习进度存储在背包物品中，不存储在这里
       cultivationState.修炼功法 = {
         物品ID: inventoryItem.物品ID,
         名称: inventoryItem.名称
       };
 
-      // 设置功法的已装备和修炼中标记 - 使用响应式替换
+      // 设置方略的已装备和施政中标记 - 使用响应式替换
       inventoryItems[item.物品ID] = {
         ...inventoryItem,
         已装备: true,
@@ -487,7 +487,7 @@ export class EnhancedActionQueueManager {
       };
       // 移除时间戳记录，简化逻辑
 
-      // 注意：修炼功法不从背包移除，功法和背包是独立的
+      // 注意：学习方略不从背包移除，方略和背包是独立的
 
       // 🔥 [新架构] 更新 gameStateStore 并保存到 IndexedDB
       gameStateStore.loadFromSaveData(saveData);
@@ -514,22 +514,22 @@ export class EnhancedActionQueueManager {
         itemName: item.名称,
         itemType: item.类型,
         description: previousTechnique 
-          ? `开始修炼《${item.名称}》功法，停止修炼《${previousTechnique.名称}》`
-          : `开始修炼《${item.名称}》功法`
+          ? `开始学习《${item.名称}》方略，停止学习《${previousTechnique.名称}》`
+          : `开始学习《${item.名称}》方略`
       });
       
       // toast.success(`开始修炼《${item.名称}》`); // 弹窗逻辑已移至Store
       return true;
       
     } catch (error) {
-      console.error('修炼功法失败:', error);
-      toast.error('修炼功法失败');
+      console.error('学习方略失败:', error);
+      toast.error('学习方略失败');
       return false;
     }
   }
   
   /**
-   * 停止修炼功法
+   * 停止学习方略
    */
   async stopCultivation(item: Item): Promise<boolean> {
     const actionQueue = useActionQueueStore();
@@ -545,7 +545,7 @@ export class EnhancedActionQueueManager {
 
       const cultivationState = this.ensureRoleCultivation(saveData);
       if (!cultivationState?.修炼功法) {
-        toast.error('当前没有正在修炼的功法');
+        toast.error('当前没有正在学习的方略');
         return false;
       }
 
@@ -554,7 +554,7 @@ export class EnhancedActionQueueManager {
       const techniqueName = techniqueToStop.名称;
 
       if (techniqueName !== item.名称) {
-        toast.error('操作的功法与当前修炼的功法不符');
+        toast.error('操作的方略与当前学习的方略不符');
         return false;
       }
 
@@ -570,8 +570,8 @@ export class EnhancedActionQueueManager {
       // 清空修炼槽位，设置修炼状态为false（设置为null）
       cultivationState.修炼功法 = null;
 
-      // 清除功法的已装备和修炼中标记 - 使用响应式替换
-      if (inventoryItem && inventoryItem.类型 === '功法') {
+      // 清除方略的已装备和施政中标记 - 使用响应式替换
+      if (inventoryItem && inventoryItem.类型 === '方略') {
         inventoryItems[techniqueId] = {
           ...inventoryItem,
           已装备: false,
@@ -579,13 +579,13 @@ export class EnhancedActionQueueManager {
         };
       }
 
-      // 注意：停止修炼功法不放回背包，功法和背包是独立的
+      // 注意：停止学习方略不放回背包，方略和背包是独立的
 
       // 🔥 [新架构] 更新 gameStateStore 并保存到 IndexedDB
       gameStateStore.loadFromSaveData(saveData);
       await gameStateStore.saveGame();
 
-      // 创建撤回数据 - 保存完整的功法数据+进度
+      // 创建撤回数据 - 保存完整的方略数据+进度
       const undoAction: UndoAction = {
         type: 'cultivate',
         itemId: item.物品ID,
@@ -605,7 +605,7 @@ export class EnhancedActionQueueManager {
         type: 'stop_cultivation',
         itemName: item.名称,
         itemType: item.类型,
-        description: `停止修炼《${item.名称}》功法`
+        description: `停止学习《${item.名称}》方略`
       });
       
       // toast.success(`已停止修炼《${item.名称}》`); // 弹窗逻辑已移至Store
@@ -847,19 +847,19 @@ export class EnhancedActionQueueManager {
 
     const cultivation = this.ensureRoleCultivation(saveData);
 
-    // 由于修炼功法不再涉及背包操作，撤回时只需要恢复修炼状态
+    // 由于学习方略不再涉及背包操作，撤回时只需要恢复施政状态
     if (cultivationState.previousTechnique) {
-      // 恢复之前的修炼功法 - previousTechnique 现在已包含完整的数据+进度
+      // 恢复之前的学习方略 - previousTechnique 现在已包含完整的数据+进度
       const previousId = cultivationState.previousTechnique.物品ID;
       cultivation.修炼功法 = { ...cultivationState.previousTechnique };
 
-      // 标记背包中的功法为已装备和修炼中
+      // 标记背包中的方略为已装备和施政中
       const previousItem = inventoryItems[previousId];
-      if (previousItem && previousItem.类型 === '功法') {
+      if (previousItem && previousItem.类型 === '方略') {
         inventoryItems[previousId] = {
           ...previousItem,
           已装备: true,
-          修炼中: true
+          施政中: true
         };
       }
     } else {

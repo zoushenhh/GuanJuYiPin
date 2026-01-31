@@ -117,34 +117,34 @@ export function calculateInitialAttributes(baseInfo: CharacterBaseInfo, age: num
   const 悟性 = Number(先天六司?.悟性 ?? 0);
 
   // 基础属性计算公式
-  const 初始健康 = 100 + 根骨 * 10;
-  const 初始活力 = 50 + 灵性 * 5;
-  const 初始智慧 = 30 + 悟性 * 3;
+  const 初始气血 = 100 + 根骨 * 10;
+  const 初始灵气 = 50 + 灵性 * 5;
+  const 初始神识 = 30 + 悟性 * 3;
 
   // -- 任期计算逻辑 --
   const 基础任期 = 80; // 平民基础寿命
   const 根骨任期系数 = 5; // 每点根骨增加5年任期
   const 最大任期 = 基础任期 + 根骨 * 根骨任期系数;
 
-  console.log(`[角色初始化] 属性计算: 健康=${初始健康}, 活力=${初始活力}, 智慧=${初始智慧}, 年龄=${age}/${最大任期}`);
+  console.log(`[角色初始化] 属性计算: 气血=${初始气血}, 灵气=${初始灵气}, 神识=${初始神识}, 年龄=${age}/${最大任期}`);
   console.log(`[角色初始化] 先天六司: 根骨=${根骨}, 灵性=${灵性}, 悟性=${悟性}`);
 
   return {
-    官品: {
-      名称: "平民",
-      阶段: "",
+    境界: {
+      名称: "从九品",
+      阶段: "初期",
       当前进度: 0,
       下一级所需: 100,
-      晋升描述: "入仕为官，处理政务，踏上为官第一步"
+      晋升描述: "初入仕途，从九品起，勤勉政务可望升迁"
     },
-    声望: 0, // 声望应该是数字类型
+    声望: 0,
     位置: {
-      描述: "位置生成失败" // 标记为错误状态而不是默认值
+      描述: "位置生成失败"
     },
-    健康: { 当前: 初始健康, 上限: 初始健康 },
-    活力: { 当前: 初始活力, 上限: 初始活力 },
-    智慧: { 当前: 初始智慧, 上限: 初始智慧 },
-    任期: { 当前: age, 上限: 最大任期 }
+    气血: { 当前: 初始气血, 上限: 初始气血 },
+    灵气: { 当前: 初始灵气, 上限: 初始灵气 },
+    神识: { 当前: 初始神识, 上限: 初始神识 },
+    寿命: { 当前: age, 上限: 最大任期 }
   };
 }
 
@@ -228,7 +228,7 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
     境界: playerStatus.境界,
     声望: playerStatus.声望,
     气血: playerStatus.气血,
-    活力: playerStatus.活力,
+    灵气: playerStatus.灵气,
     神识: playerStatus.神识,
     寿命: playerStatus.寿命,
   };
@@ -897,7 +897,7 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
         阶段: aiModifiedAttributes.境界.阶段 !== undefined ? aiModifiedAttributes.境界.阶段 : authoritativeStatus.境界.阶段,
         当前进度: aiModifiedAttributes.境界.当前进度 !== undefined ? aiModifiedAttributes.境界.当前进度 : authoritativeStatus.境界.当前进度,
         下一级所需: aiModifiedAttributes.境界.下一级所需 !== undefined ? aiModifiedAttributes.境界.下一级所需 : authoritativeStatus.境界.下一级所需,
-        突破描述: aiModifiedAttributes.境界.突破描述 || authoritativeStatus.境界.突破描述
+        晋升描述: aiModifiedAttributes.境界.晋升描述 || authoritativeStatus.境界.晋升描述
       }
     : authoritativeStatus.境界;
 
@@ -1144,7 +1144,7 @@ export async function initializeCharacter(
           出生: "某衙门",
           外貌描述: "身材极度丰满，拥有夸张的丰乳肥臀，腰肢纤细如蛇。面容妖媚，眼神含春，举手投足间散发着惊人的魅惑力。身着轻薄纱衣，曼妙身姿若隐若现。",
           性格特征: ["平易近人", "开放", "双性恋", "M体质", "S体质", "痴女(潜在)"],
-          境界: { 名称: "从七品", 阶段: "圆满", 当前进度: 0, 下一级所需: 100, 突破描述: "政绩卓著，升迁有望" },
+          境界: { 名称: "从七品", 阶段: "圆满", 当前进度: 0, 下一级所需: 100, 晋升描述: "政绩卓著，升迁有望" },
           灵根: { name: "天阴才能", tier: "天品" } as any,
           天赋: [{ name: "媚骨天成", description: "天生媚骨，极适合处理政务，效果翻倍" }] as any,
           先天六司: { 根骨: 8, 灵性: 9, 悟性: 8, 气运: 7, 魅力: 10, 心性: 5 },
@@ -1241,7 +1241,7 @@ export async function initializeCharacter(
           阶段: aiModifiedStatus.境界.阶段 !== undefined ? aiModifiedStatus.境界.阶段 : authoritativeStatus.境界.阶段,
           当前进度: aiModifiedStatus.境界.当前进度 !== undefined ? aiModifiedStatus.境界.当前进度 : authoritativeStatus.境界.当前进度,
           下一级所需: aiModifiedStatus.境界.下一级所需 !== undefined ? aiModifiedStatus.境界.下一级所需 : authoritativeStatus.境界.下一级所需,
-          突破描述: aiModifiedStatus.境界.突破描述 || authoritativeStatus.境界.突破描述
+          晋升描述: aiModifiedStatus.境界.晋升描述 || authoritativeStatus.境界.晋升描述
         }
       : authoritativeStatus.境界;
 

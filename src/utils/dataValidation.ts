@@ -202,14 +202,14 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
           阶段: '',
           当前进度: 0,
           下一级所需: 100,
-          突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
+          晋升描述: '初入仕途，感悟政理之道，踏上县令第一步'
         };
       } else {
         if (typeof repairedNpc.官品.名称 !== 'string') repairedNpc.官品.名称 = '平民';
         if (typeof repairedNpc.官品.阶段 !== 'string') repairedNpc.官品.阶段 = '';
         if (typeof repairedNpc.官品.当前进度 !== 'number' || isNaN(repairedNpc.官品.当前进度)) repairedNpc.官品.当前进度 = 0;
         if (typeof repairedNpc.官品.下一级所需 !== 'number' || isNaN(repairedNpc.官品.下一级所需)) repairedNpc.官品.下一级所需 = 100;
-        if (typeof repairedNpc.官品.突破描述 !== 'string') repairedNpc.官品.突破描述 = '初入仕途，感悟政理之道，踏上县令第一步';
+        if (typeof repairedNpc.官品.晋升描述 !== 'string') repairedNpc.官品.晋升描述 = '初入仕途，感悟政理之道，踏上县令第一步';
       }
     } catch (e) {
       console.warn('[NPC校验] 官品字段修复失败，使用默认值:', e);
@@ -218,7 +218,7 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
         阶段: '',
         当前进度: 0,
         下一级所需: 100,
-        突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
+        晋升描述: '初入仕途，感悟政理之道，踏上县令第一步'
       };
     }
 
@@ -228,14 +228,14 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
           气血: { 当前: 100, 上限: 100 },
           灵气: { 当前: 50, 上限: 50 },
           神识: { 当前: 30, 上限: 30 },
-          任期上限: 100
+          寿元上限: 100
         };
       } else {
         const attrs = repairedNpc.属性 as any;
         if (!attrs.气血 || typeof attrs.气血 !== 'object') attrs.气血 = { 当前: 100, 上限: 100 };
         if (!attrs.灵气 || typeof attrs.灵气 !== 'object') attrs.灵气 = { 当前: 50, 上限: 50 };
         if (!attrs.神识 || typeof attrs.神识 !== 'object') attrs.神识 = { 当前: 30, 上限: 30 };
-        if (typeof attrs.任期上限 !== 'number' || !Number.isFinite(attrs.任期上限)) attrs.任期上限 = 100;
+        if (typeof attrs.寿元上限 !== 'number' || !Number.isFinite(attrs.寿元上限)) attrs.寿元上限 = 100;
         repairedNpc.属性 = attrs;
       }
     } catch (e) {
@@ -243,7 +243,7 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
         气血: { 当前: 100, 上限: 100 },
         灵气: { 当前: 50, 上限: 50 },
         神识: { 当前: 30, 上限: 30 },
-        任期上限: 100
+        寿元上限: 100
       };
     }
 
