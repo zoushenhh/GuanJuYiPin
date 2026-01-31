@@ -2,9 +2,22 @@
 
 /**
  * @fileoverview
- * 坤舆图志 - 游戏核心数据结构天规
+ * 县令模拟器 - 游戏核心数据结构天规
  * 此文件定义了整个游戏存档、角色、NPC等核心数据的TypeScript类型。
- * 所有数据结构均基于道友提供的最新《大道坤舆图》。
+ * 所有数据结构均基于县令模拟器主题设定。
+ *
+ * 术语对照说明:
+ * - 修炼/修炼功法 -> 施政/治国方略
+ * - 境界 -> 官品/职位
+ * - 灵石 -> 银两/资金
+ * - 宗门 -> 衙门/官府
+ * - 掌门 -> 县令/长官
+ * - 弟子 -> 下属/官员
+ * - 灵气 -> 民心/威望
+ * - 气血 -> 健康/体力
+ * - 神识 -> 智慧/洞察
+ * - 寿元 -> 任期/寿命
+ * - 功德 -> 政绩/功绩
  */
 
 import type { QualityType, GradeType } from '@/data/itemQuality';
@@ -203,7 +216,7 @@ export interface TechniqueEffects {
 }
 
 /** 物品类型 */
-export type ItemType = '装备' | '功法' | '丹药' | '材料' | '其他';
+export type ItemType = '装备' | '功法' | '方略' | '丹药' | '材料' | '其他';
 
 /** 基础物品接口 */
 export interface BaseItem {
@@ -231,8 +244,10 @@ export interface TechniqueItem extends BaseItem {
   功法技能?: TechniqueSkill[]; // ✅ 改为数组格式
   修炼进度?: number; // 0-100 百分比
   修炼中?: boolean; // 是否正在修炼（兼容旧代码）
+  施政进度?: number; // 0-100 百分比（县令主题，与修炼进度同义）
+  施政中?: boolean; // 是否正在施政（县令主题，与修炼中同义）
   已解锁技能?: string[]; // ✅ 已解锁的技能名称列表
-  // 注意：新代码应使用 已装备 字段，修炼中 仅为向后兼容
+  // 注意：新代码应使用 已装备 字段，修炼中/施政中 仅为向后兼容
 }
 
 /** 治国方略类型物品 - 县令主题 */
@@ -286,6 +301,13 @@ export interface Inventory extends AIMetadata {
     上品: number;
     极品: number;
   };
+  // 银两系统（县令主题）
+  银两?: {
+    下品: number;
+    中品: number;
+    上品: number;
+    极品: number;
+  };
   /**
    * 新货币系统（可选，兼容旧存档）
    * - key = 币种ID（建议：无点号`.`，例如：铜钱 / 银两 / 金锭）
@@ -322,7 +344,8 @@ export interface SkillInfo {
 // --- 宗门系统相关类型 ---
 
 /** 宗门类型 */
-export type SectType = '正道宗门' | '魔道宗门' | '中立宗门' | '商会' | '世家' | '散修联盟';
+export type SectType = '正道宗门' | '魔道宗门' | '中立宗门' | '商会' | '世家' | '散修联盟'
+  | '正统衙门' | '清流衙门' | '贪腐衙门' | '中立衙门'; // 县令主题衙门类型
 
 /** 宗门职位 */
 export type SectPosition =
@@ -336,15 +359,26 @@ export type SectPosition =
   | '太上长老'
   | '副掌门'
   | '掌门'
-  // 兼容：部分存档/叙事会使用“宗主/副宗主”
+  // 兼容：部分存档/叙事会使用"宗主/副宗主"
   | '副宗主'
-  | '宗主';
+  | '宗主'
+  // 县令主题衙门职位
+  | '外门吏员'
+  | '内门吏员'
+  | '核心吏员'
+  | '县令'
+  | '副县令'
+  | '师爷'
+  | '书吏'
+  | '衙役';
 
 /** 宗门关系 */
 export type SectRelationship = '仇敌' | '敌对' | '冷淡' | '中立' | '友好' | '盟友' | '附庸';
 
 /** 修为境界等级 */
-export type RealmLevel = '练气' | '筑基' | '金丹' | '元婴' | '化神' | '炼虚' | '合体' | '渡劫';
+export type RealmLevel = '练气' | '筑基' | '金丹' | '元婴' | '化神' | '炼虚' | '合体' | '渡劫'
+  // 县令主题官品等级
+  | '九品' | '八品' | '七品' | '六品' | '五品' | '四品' | '三品' | '二品' | '一品';
 
 /** 宗门成员信息 */
 export interface SectMemberInfo {
@@ -669,17 +703,21 @@ export interface RealmDefinition {
 
 export interface PlayerStatus extends AIMetadata {
   境界: Realm; // 境界包含了修为进度（当前进度 = 修为当前，下一级所需 = 修为最大）
+  // 县令主题：官品与境界同义
+  官品?: Realm; // 官品（县令主题，与境界同义）
   声望: number;
+  政绩?: number; // 政绩/功绩（县令主题）
   位置: {
     描述: string;
     x?: number; // 经度坐标 (Longitude, 通常 100-115)
     y?: number; // 纬度坐标 (Latitude, 通常 25-35)
     灵气浓度?: number; // 当前位置的灵气浓度，1-100，影响修炼速度
+    民心支持度?: number; // 当前位置的民心支持度，1-100（县令主题）
   };
-  气血: ValuePair<number>;
-  灵气: ValuePair<number>;
-  神识: ValuePair<number>;
-  寿命: ValuePair<number>;
+  气血: ValuePair<number>; // 健康/体力
+  灵气: ValuePair<number>; // 民心/威望（县令主题）
+  神识: ValuePair<number>; // 智慧/洞察（县令主题）
+  寿命: ValuePair<number>; // 任期/寿命
   状态效果?: StatusEffect[];
   宗门信息?: SectMemberInfo;
   事件系统?: EventSystem;
@@ -1227,6 +1265,7 @@ export type Continent = WorldContinent;
 export type Location = WorldLocation;
 
 // --- 修炼速度系统 ---
+// --- 施政速度系统（县令主题）---
 
 /** 修炼速度影响因子 */
 export interface CultivationSpeedFactors {
@@ -1261,6 +1300,35 @@ export interface RealmBreakthroughTime {
   突破难度?: '简单' | '普通' | '困难' | '极难' | '逆天';
 }
 
+/** 施政速度影响因子（县令主题） */
+export interface AdministrationSpeedFactors {
+  民心支持度系数: number;  // 0.1 - 2.0，基于位置民心支持度(1-100)
+  先天六司系数: number;    // 0.5 - 2.0，基于先天六司综合值
+  后天六司系数: number;    // 0.0 - 0.6，基于后天六司综合值（额外加成）
+  状态效果系数: number;    // 0.5 - 2.0，基于buff/debuff
+  方略加成系数: number;    // 0.0 - 1.0，基于当前施政方略
+  环境加成系数: number;    // 0.0 - 0.5，县衙、官府等
+}
+
+/** 施政速度计算结果（县令主题） */
+export interface AdministrationSpeedResult {
+  基础速度: number;        // 每回合基础政绩增加
+  综合系数: number;        // 所有因子的综合乘数
+  最终速度: number;        // 基础速度 * 综合系数
+  预计升职时间: string;    // 预计到达下一官品的游戏时间
+  因子详情: AdministrationSpeedFactors;
+}
+
+/** 官品晋升时间标准（县令主题，游戏时间） */
+export interface RankPromotionTime {
+  官品名称: string;
+  阶段: string;
+  最短月数: number;        // 最短晋升时间（月）
+  标准月数: number;        // 标准晋升时间（月）
+  最长月数: number;        // 最长晋升时间（月）
+  晋升难度?: '简单' | '普通' | '困难' | '极难' | '逆天';
+}
+
 // --- 六司系统约束 ---
 
 /** 六司约束配置 */
@@ -1282,6 +1350,7 @@ export interface SixSiConstraints {
 /** 六司加成结果 */
 export interface SixSiBonus {
   修炼速度加成: number;    // 百分比 0-100
+  施政速度加成?: number;   // 百分比 0-100（县令主题）
   战斗力加成: number;      // 百分比 0-100
   感知范围加成: number;    // 百分比 0-100
   交际能力加成: number;    // 百分比 0-100

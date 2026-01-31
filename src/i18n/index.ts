@@ -58,9 +58,9 @@ const autoTranslateMap: Record<string, string> = {
   '前往登录': 'Go to Login',
 
   // === 角色状态 ===
-  '角色状态': 'Character', '修行状态': 'Administration', '核心数值': 'Vitals', '气血': 'Vitality', '灵气': 'Public Trust',
-  '神识': 'Wisdom', '寿元': 'Lifespan', '境界状态': 'Official Rank', '境界进度': 'Progress',
-  '声望': 'Reputation', '天赋神通': 'Talents', '状态效果': 'Effects', '籍籍无名': 'Unknown',
+  '角色状态': 'Character', '修行状态': 'Administration', '施政状态': 'Administration Status', '核心数值': 'Vitals', '气血': 'Vitality', '灵气': 'Public Trust',
+  '神识': 'Wisdom', '寿元': 'Lifespan', '境界状态': 'Official Rank', '官品状态': 'Official Rank Status', '境界进度': 'Progress', '官品进度': 'Rank Progress',
+  '声望': 'Reputation', '政绩': 'Achievement', '天赋神通': 'Talents', '状态效果': 'Effects', '籍籍无名': 'Unknown',
   '等待官缘，入仕为官': 'Awaiting fate, entering office', '暂无天赋神通': 'No talents yet',
   '清净无为': 'Clear and tranquil', '增': 'Buff', '减': 'Debuff',
   '请选择角色开启为官之旅': 'Select character to begin', '时': 'h', '分': 'm', '分钟': 'min',
@@ -71,16 +71,16 @@ const autoTranslateMap: Record<string, string> = {
   '名动一方': 'Locally Famous', '声名远播': 'Well-Known', '小有名气': 'Slightly Famous',
 
   // === 左侧栏 ===
-  '游戏功能': 'Functions', '修行管理': 'Governance', '背包物品': 'Inventory', '查看道具装备': 'Items',
-  '人物详情': 'Character', '查看修为官品': 'Official Rank', '治国方略': 'Governance Strategies', '方略施政技能': 'Methods',
-  '三千大道': 'Three Thousand Paths', '修炼万法道途': 'Approaches', '红尘俗事': 'Worldly Affairs',
-  '人物关系': 'Relations', '人情世故网络': 'Social', '衙门信息': 'Government Office', '门派势力详情': 'Faction',
+  '游戏功能': 'Functions', '修行管理': 'Governance', '施政管理': 'Administration Management', '背包物品': 'Inventory', '查看道具装备': 'Items',
+  '人物详情': 'Character', '查看修为官品': 'Official Rank', '查看官品政绩': 'Official Rank & Achievement', '治国方略': 'Governance Strategies', '施政方略': 'Administration Strategies',
+  '方略施政技能': 'Methods', '三千大道': 'Three Thousand Paths', '修炼万法道途': 'Approaches', '施政道途': 'Administration Approaches',
+  '红尘俗事': 'Worldly Affairs', '人物关系': 'Relations', '人情世故网络': 'Social', '衙门信息': 'Government Office', '门派势力详情': 'Faction',
   '任务日志': 'Quests', '当前任务进度': 'Progress', '世界探索': 'Explore', '世界地图': 'World Map',
   '事件探索': 'Events', '世界事件': 'World Events', '世界变革与危机': 'World upheavals',
   '坤舆图志': 'Explore', '记忆中心': 'Memory', '重要事件回顾': 'Events', '游戏变量': 'Variables',
   '查看游戏数据': 'Game data', '系统设置': 'Settings', '偏好设置': 'Preferences', '保存游戏': 'Save',
   '保存当前进度': 'Save progress', '退出游戏': 'Exit', '返回主菜单': 'Menu',
-  '论道交友': 'Online Play', '与同僚论道': 'Chat',
+  '论道交友': 'Online Play', '与同僚论道': 'Chat', '与同僚交流': 'Communicate',
   '退出当前游戏': 'Exit game', '联机功能开发中...': 'Online coming soon...',
   '您想如何退出当前游戏？': 'How would you like to exit the current game?', '保存并退出': 'Save and Exit',
   '不保存直接退出': 'Exit Without Saving', '游戏已保存': 'Game Saved',
@@ -88,11 +88,13 @@ const autoTranslateMap: Record<string, string> = {
   '游戏进度未保存': 'Game progress not saved.',
   'characterStatus': 'Character Status',
   'cultivationStatus': 'Governance Status',
+  'administrationStatus': 'Administration Status',
   'qi': 'Qi',
   'spiritual': 'Spiritual',
   'consciousness': 'Consciousness',
   'lifespan': 'Lifespan',
   'realmStatus': 'Official Rank Status',
+  'rankStatus': 'Rank Status',
 
   // === 设置页面 ===
   '游戏设置': 'Settings', '自定义您的游戏体验': 'Customize experience', '显示设置': 'Display',
@@ -364,6 +366,8 @@ const autoTranslateMap: Record<string, string> = {
   '原始数据 (JSON)': 'Raw Data (JSON)', '背包': 'Inventory',
   '下品灵石': 'Low Grade Silver', '中品灵石': 'Mid Grade Silver',
   '上品灵石': 'High Grade Silver', '极品灵石': 'Top Grade Silver',
+  '下品银两': 'Low Grade Silver', '中品银两': 'Mid Grade Silver',
+  '上品银两': 'High Grade Silver', '极品银两': 'Top Grade Silver',
   '交易': 'Trade', '索要': 'Request', '偷窃': 'Steal',
   '已移除图片': 'Image removed', '本次对话无变更记录': 'No changes in this conversation',
   '切换方略': 'Switch Strategy', '当前正在修炼': 'Currently governing',
@@ -569,10 +573,15 @@ const autoTranslateMap: Record<string, string> = {
 
   // DeepCultivationModal
   '深度修炼': 'Deep Practice',
+  '深度施政': 'Deep Administration',
   '当前修炼进度': 'Current Progress',
+  '当前施政进度': 'Current Administration Progress',
   '修炼速度: +{0}%': 'Practice Speed: +{0}%',
+  '施政速度: +{0}%': 'Administration Speed: +{0}%',
   '选择修炼天数': 'Select Practice Days',
+  '选择施政天数': 'Select Administration Days',
   'AI将根据修炼天数生成详细的修炼过程和结果': 'AI will generate detailed practice process and results based on days',
+  'AI将根据施政天数生成详细的施政过程和结果': 'AI will generate detailed administration process and results based on days',
   '输入天数': 'Enter days',
   '1天': '1 day',
   '7天': '7 days',
@@ -581,6 +590,7 @@ const autoTranslateMap: Record<string, string> = {
   '180天': '180 days',
   '365天': '365 days',
   '开始修炼': 'Begin Practice',
+  '开始施政': 'Begin Administration',
 
   // AuthVerificationModal
   '授权验证': 'Authorization',

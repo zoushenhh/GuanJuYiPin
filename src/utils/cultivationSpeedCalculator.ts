@@ -1,14 +1,21 @@
 /**
- * @fileoverview 修炼速度计算模块
+ * @fileoverview 修炼速度计算模块 / 施政速度计算模块（县令主题）
  *
  * 【职责】
  * - 计算修炼速度的各项因子
- * - 综合计算最终修炼速度
- * - 预估突破时间
+ * - 计算施政速度的各项因子（县令主题）
+ * - 综合计算最终修炼/施政速度
+ * - 预估突破/升职时间
  *
  * 【核心公式】
- * 最终速度 = 基础速度 × 灵气系数 × 六司系数 × 状态系数 × (1 + 功法加成 + 环境加成)
+ * 最终速度 = 基础速度 × 灵气/民心系数 × 六司系数 × 状态系数 × (1 + 功法/方略加成 + 环境加成)
  * 六司系数 = 先天六司系数 × 0.7 + 后天六司系数 × 0.3
+ *
+ * 【术语对照】
+ * - 修炼 -> 施政
+ * - 功法 -> 方略
+ * - 灵气浓度 -> 民心支持度
+ * - 境界突破 -> 官品晋升
  */
 
 import type {
@@ -22,11 +29,11 @@ import type {
 
 /** 六司属性权重配置 */
 const SIX_SI_WEIGHTS = {
-  根骨: 0.25,  // 25% - 影响体质和灵气吸收
-  灵性: 0.25,  // 25% - 影响灵气感应和运转
-  悟性: 0.20,  // 20% - 影响功法理解和突破
-  心性: 0.15,  // 15% - 影响修炼稳定性
-  气运: 0.10,  // 10% - 影响机缘和突破成功率
+  根骨: 0.25,  // 25% - 影响体质和灵气吸收 / 影响健康和民心吸收（县令主题）
+  灵性: 0.25,  // 25% - 影响灵气感应和运转 / 影响民心感应和施政运转（县令主题）
+  悟性: 0.20,  // 20% - 影响功法理解和突破 / 影响方略理解和晋升（县令主题）
+  心性: 0.15,  // 15% - 影响修炼稳定性 / 影响施政稳定性（县令主题）
+  气运: 0.10,  // 10% - 影响机缘和突破成功率 / 影响机遇和晋升成功率（县令主题）
   魅力: 0.05,  // 5%  - 影响社交和资源获取
 } as const;
 
@@ -55,9 +62,21 @@ const SPIRIT_DENSITY_RANGES = [
   { min: 81, max: 100, minFactor: 1.5, maxFactor: 2.0, desc: '灵气极盛' },
 ] as const;
 
+/** 民心支持度系数映射表（县令主题，与灵气浓度使用相同数值） */
+const PUBLIC_TRUST_RANGES = SPIRIT_DENSITY_RANGES;
+
 /** 境界突破时间标准（游戏时间，单位：月） - 内部使用 */
 interface InternalBreakthroughTime {
   境界名称: string;
+  阶段: string;
+  最短月数: number;
+  标准月数: number;
+  最长月数: number;
+}
+
+/** 官品晋升时间标准（县令主题，游戏时间，单位：月） - 内部使用 */
+interface InternalPromotionTime {
+  官品名称: string;
   阶段: string;
   最短月数: number;
   标准月数: number;
@@ -91,6 +110,25 @@ export const REALM_BREAKTHROUGH_STANDARDS: InternalBreakthroughTime[] = [
   { 境界名称: '化神', 阶段: '中期', 最短月数: 960, 标准月数: 2880, 最长月数: 9600 },
   { 境界名称: '化神', 阶段: '后期', 最短月数: 1440, 标准月数: 4320, 最长月数: 14400 },
   { 境界名称: '化神', 阶段: '圆满', 最短月数: 2400, 标准月数: 7200, 最长月数: 24000 },
+];
+
+/** 官品晋升时间标准（县令主题，游戏时间，单位：月） */
+export const RANK_PROMOTION_STANDARDS: InternalPromotionTime[] = [
+  // 九品
+  { 官品名称: '九品', 阶段: '初期', 最短月数: 3, 标准月数: 12, 最长月数: 36 },
+  { 官品名称: '九品', 阶段: '中期', 最短月数: 6, 标准月数: 24, 最长月数: 60 },
+  { 官品名称: '九品', 阶段: '后期', 最短月数: 12, 标准月数: 36, 最长月数: 120 },
+  { 官品名称: '九品', 阶段: '圆满', 最短月数: 24, 标准月数: 60, 最长月数: 240 },
+  // 八品
+  { 官品名称: '八品', 阶段: '初期', 最短月数: 12, 标准月数: 60, 最长月数: 180 },
+  { 官品名称: '八品', 阶段: '中期', 最短月数: 24, 标准月数: 96, 最长月数: 300 },
+  { 官品名称: '八品', 阶段: '后期', 最短月数: 36, 标准月数: 144, 最长月数: 480 },
+  { 官品名称: '八品', 阶段: '圆满', 最短月数: 60, 标准月数: 240, 最长月数: 720 },
+  // 七品
+  { 官品名称: '七品', 阶段: '初期', 最短月数: 60, 标准月数: 240, 最长月数: 600 },
+  { 官品名称: '七品', 阶段: '中期', 最短月数: 120, 标准月数: 360, 最长月数: 960 },
+  { 官品名称: '七品', 阶段: '后期', 最短月数: 180, 标准月数: 480, 最长月数: 1200 },
+  { 官品名称: '七品', 阶段: '圆满', 最短月数: 240, 标准月数: 720, 最长月数: 1800 },
 ];
 
 // ============================================================================
@@ -465,3 +503,132 @@ export function validateCultivationProgress(
 // ============================================================================
 
 export { SIX_SI_WEIGHTS, SPIRIT_DENSITY_RANGES };
+
+// ============================================================================
+// 施政速度计算别名函数（县令主题）
+// ============================================================================
+
+/**
+ * 计算民心支持度系数（县令主题，别名）
+ * @param trust 民心支持度（1-100）
+ * @returns 系数范围 0.1 - 2.0
+ */
+export function calculatePublicTrustFactor(trust: number): number {
+  return calculateSpiritDensityFactor(trust);
+}
+
+/**
+ * 获取民心支持度描述（县令主题，别名）
+ */
+export function getPublicTrustDescription(trust: number): string {
+  const clampedTrust = clamp(trust, 1, 100);
+
+  for (const range of PUBLIC_TRUST_RANGES) {
+    if (clampedTrust >= range.min && clampedTrust <= range.max) {
+      return range.desc.replace('灵气', '民心');
+    }
+  }
+
+  return '民心稀薄';
+}
+
+/**
+ * 计算方略加成系数（县令主题，别名）
+ * @param quality 方略品质
+ * @param proficiency 施政进度（0-100）
+ * @returns 系数范围 0.0 - 1.0
+ */
+export function calculateStrategyBonus(quality: string, proficiency: number): number {
+  return calculateTechniqueBonus(quality, proficiency);
+}
+
+/**
+ * 计算施政速度（县令主题，别名）
+ *
+ * @param input 施政速度计算输入参数
+ * @returns 施政速度计算结果
+ */
+export function calculateAdministrationSpeed(input: AdministrationSpeedInput): AdministrationSpeedResult {
+  // 将县令主题的输入转换为修炼主题的输入
+  const cultivationInput: CultivationSpeedInput = {
+    灵气浓度: input.民心支持度,
+    先天六司: input.先天六司,
+    后天六司: input.后天六司,
+    当前效果: input.当前效果,
+    功法品质: input.方略品质,
+    修炼进度: input.施政进度,
+    当前境界: input.当前官品,
+    当前阶段: input.当前阶段,
+    当前进度: input.当前进度,
+    下一级所需: input.下一级所需,
+    环境加成: input.环境加成,
+  };
+
+  const result = calculateCultivationSpeed(cultivationInput);
+
+  return {
+    基础速度: result.基础速度,
+    综合系数: result.综合系数,
+    最终速度: result.最终速度,
+    预计升职时间: result.预计突破时间,
+    因子详情: {
+      民心支持度系数: result.因子详情.灵气浓度系数,
+      先天六司系数: result.因子详情.先天六司系数,
+      后天六司系数: result.因子详情.后天六司系数,
+      状态效果系数: result.因子详情.状态效果系数,
+      方略加成系数: result.因子详情.功法加成系数,
+      环境加成系数: result.因子详情.环境加成系数,
+    },
+  };
+}
+
+/**
+ * 施政速度计算输入参数（县令主题）
+ */
+export interface AdministrationSpeedInput {
+  // 位置信息
+  民心支持度: number;  // 1-100
+
+  // 六司信息
+  先天六司: SixSiData;
+  后天六司: SixSiData;
+
+  // 状态效果
+  当前效果?: StatusEffect[];
+
+  // 方略信息
+  方略品质?: string;
+  施政进度?: number;
+
+  // 官品信息
+  当前官品: string;
+  当前阶段: string;
+  当前进度: number;
+  下一级所需: number;
+
+  // 环境加成（可选）
+  环境加成?: number;  // 0.0 - 0.5
+}
+
+/**
+ * 施政速度计算结果（县令主题）
+ */
+export interface AdministrationSpeedResult {
+  基础速度: number;        // 每回合基础政绩增加
+  综合系数: number;        // 所有因子的综合乘数
+  最终速度: number;        // 基础速度 * 综合系数
+  预计升职时间: string;    // 预计到达下一官品的游戏时间
+  因子详情: AdministrationSpeedFactors;
+}
+
+/**
+ * 施政速度影响因子（县令主题）
+ */
+export interface AdministrationSpeedFactors {
+  民心支持度系数: number;  // 0.1 - 2.0，基于位置民心支持度(1-100)
+  先天六司系数: number;    // 0.5 - 2.0，基于先天六司综合值
+  后天六司系数: number;    // 0.0 - 0.6，基于后天六司综合值（额外加成）
+  状态效果系数: number;    // 0.5 - 2.0，基于buff/debuff
+  方略加成系数: number;    // 0.0 - 1.0，基于当前施政方略
+  环境加成系数: number;    // 0.0 - 0.5，县衙、官府等
+}

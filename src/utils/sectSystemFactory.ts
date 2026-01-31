@@ -1,6 +1,22 @@
 import type { SectContentStatus, SectMemberInfo, SectSystemV2, SectType, WorldFaction } from '@/types/game';
 import { SECT_SYSTEM_VERSION } from '@/utils/sectMigration';
 
+/**
+ * @fileoverview 衙门系统工厂模块 / 宗门系统工厂模块
+ *
+ * 【职责】
+ * - 创建和管理衙门/宗门系统
+ * - 初始化衙门内容和状态
+ * - 处理衙门成员信息
+ *
+ * 【术语对照】
+ * - 宗门 -> 衙门
+ * - 掌门 -> 县令/长官
+ * - 弟子 -> 下属/官员
+ * - 藏经阁 -> 档案库/书房
+ * - 贡献商店 -> 供销库
+ */
+
 // ============================================================================
 // 类型定义
 // ============================================================================
@@ -40,6 +56,21 @@ export interface SectFrameworkResult {
   contentStatus: SectContentStatus;
 }
 
+/** 县别主题：衙门内容生成选项（别名） */
+export interface GovernmentOfficeContentGenerationOptions {
+  /** 是否使用AI生成（true=等待AI生成，false=使用本地随机生成） */
+  useAIGeneration?: boolean;
+  /** 当前时间ISO字符串 */
+  nowIso?: string;
+}
+
+/** 县别主题：衙门框架创建结果（别名） */
+export interface GovernmentOfficeFrameworkResult {
+  sectSystem: SectSystemV2;
+  memberInfo: SectMemberInfo;
+  contentStatus: SectContentStatus;
+}
+
 const normalizeSectType = (typeText: string): SectType => {
   if (/贪腐|奸/i.test(typeText)) return '贪腐衙门';
   if (/清流|清正/i.test(typeText)) return '清流衙门';
@@ -47,6 +78,15 @@ const normalizeSectType = (typeText: string): SectType => {
   if (/世家|门阀|家族/i.test(typeText)) return '世家';
   if (/商会|商盟|商号/i.test(typeText)) return '商会';
   return '正统衙门';
+};
+
+/**
+ * 规范化势力类型为衙门类型（县令主题）
+ * @param typeText 势力类型文本
+ * @returns 衙门类型
+ */
+export const normalizeGovernmentOfficeType = (typeText: string): SectType => {
+  return normalizeSectType(typeText);
 };
 
 const hashString = (input: string) => {
@@ -117,6 +157,17 @@ export const createJoinedSectState = (
   };
 };
 
+/**
+ * 创建加入衙门后的状态（县令主题别名，延迟初始化模式）
+ * 档案库和供销库由 AI 动态生成，此处只创建框架
+ */
+export const createJoinedGovernmentOfficeState = (
+  office: WorldFaction,
+  options?: { nowIso?: string }
+): { sectSystem: SectSystemV2; memberInfo: SectMemberInfo } => {
+  return createJoinedSectState(office, options);
+};
+
 // ============================================================================
 // 框架+延迟初始化模式
 // ============================================================================
@@ -130,6 +181,13 @@ export function createDefaultContentStatus(): SectContentStatus {
     贡献商店已初始化: false,
     演变次数: 0,
   };
+}
+
+/**
+ * 创建默认的衙门内容状态（县令主题别名）
+ */
+export function createDefaultGovernmentOfficeContentStatus(): SectContentStatus {
+  return createDefaultContentStatus();
 }
 
 /**
@@ -185,6 +243,24 @@ export function createSectFramework(
 }
 
 /**
+ * 创建衙门框架（县令主题别名，不生成具体内容）
+ *
+ * 使用延迟初始化模式：
+ * 1. 玩家加入衙门时只创建框架和成员信息
+ * 2. 档案库、供销库等内容由 AI 动态生成
+ *
+ * @param office 衙门信息
+ * @param options 选项
+ * @returns 衙门框架结果
+ */
+export function createGovernmentOfficeFramework(
+  office: WorldFaction,
+  options?: GovernmentOfficeContentGenerationOptions
+): GovernmentOfficeFrameworkResult {
+  return createSectFramework(office, options);
+}
+
+/**
  * 检查衙门内容是否需要初始化
  */
 export function checkSectContentNeedsInit(
@@ -201,6 +277,24 @@ export function checkSectContentNeedsInit(
     return {
       library: !hasLibrary,
       shop: !hasShop,
+    };
+  }
+
+  return {
+    library: !status.藏经阁已初始化,
+    shop: !status.贡献商店已初始化,
+  };
+}
+
+/**
+ * 检查衙门内容是否需要初始化（县令主题别名）
+ */
+export function checkGovernmentOfficeContentNeedsInit(
+  sectSystem: SectSystemV2,
+  sectName: string
+): { library: boolean; shop: boolean } {
+  return checkSectContentNeedsInit(sectSystem, sectName);
+}
     };
   }
 
