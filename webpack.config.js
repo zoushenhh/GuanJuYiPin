@@ -22,7 +22,7 @@ export default (env, argv) => {
     entry: './src/main.ts',
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: (isWatch || isSingleFile) ? 'inline.js' : 'XianTu.js',
+      filename: (isWatch || isSingleFile) ? 'inline.js' : 'XianLing.js',
       clean: true,
       publicPath: './', // 使用相对路径，便于部署
     },
@@ -153,23 +153,14 @@ export default (env, argv) => {
       port: 8080,
       hot: true,
       // 配置代理，解决CORS问题
-      proxy: {
-        '/api': {
+      proxy: [
+        {
+          context: ['/api'],
           target: 'http://localhost:8000',  // 本地后端服务器
           changeOrigin: true,
           secure: false,
-          logLevel: 'debug',
-          onProxyReq: (proxyReq, req, res) => {
-            console.log('[代理请求]', req.method, req.url);
-          },
-          onProxyRes: (proxyRes, req, res) => {
-            console.log('[代理响应]', proxyRes.statusCode, req.url);
-          },
-          onError: (err, req, res) => {
-            console.error('[代理错误]', err);
-          }
         }
-      },
+      ],
       // 允许通过任意host访问
       allowedHosts: 'all',
     },
