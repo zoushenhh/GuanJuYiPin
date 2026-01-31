@@ -329,7 +329,7 @@ onMounted(() => {
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
 }
 
-/* 灵气浓度等级样式 */
+/* 民心支持度等级样式 */
 .spirit-density.density-very-high {
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(192, 132, 252, 0.16) 100%);
   border-color: rgba(168, 85, 247, 0.35);

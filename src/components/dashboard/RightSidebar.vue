@@ -189,7 +189,7 @@
 
     <!-- 无角色数据 -->
     <div v-else class="no-character">
-      <div class="no-char-text">{{ t('请选择角色开启修仙之旅') }}</div>
+      <div class="no-char-text">{{ t('请选择角色开启官场之旅') }}</div>
     </div>
 
     <!-- 详情模态框 -->
@@ -285,9 +285,9 @@ const isRealmProgressAvailable = computed(() => {
 });
 
 const realmWaitingText = computed(() => {
-  const desc = playerStatus.value?.境界?.突破描述;
-  if (desc) return `${t('等待仙缘')} · ${desc}`;
-  return t('等待仙缘');
+  const desc = playerStatus.value?.官品?.晋升描述;
+  if (desc) return `${t('等待机缘')} · ${desc}`;
+  return t('等待机缘');
 });
 
 // 根据进度百分比返回CSS类名
