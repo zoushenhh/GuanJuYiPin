@@ -569,15 +569,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
 
     console.log('[角色商店-删除] IndexedDB 保存完成');
 
-    // 🔥 [可选] 同步到云端（仅联机模式需要）
-    try {
-      await syncRootStateToCloud();
-      debug.log('角色商店', '删除角色后已同步到云端');
-    } catch (error) {
-      debug.warn('角色商店', '删除角色后同步云端失败（后端未启动）:', error);
-      // 不显示错误提示，因为单机模式不需要云端同步
-    }
-
     toast.success(`角色【${characterName}】已从本地数据库删除。`);
     console.log('[角色商店-删除] 删除角色完成');
   };
@@ -952,9 +943,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
             保存时间: new Date().toISOString()
           }
         };
-      } else if (profile.模式 === '联机') {
-        toast.error('仅支持单机模式');
-        return;
       }
 
       await commitMetadataToStorage();
@@ -1014,9 +1002,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
           保存时间: new Date().toISOString()
         }
       };
-    } else if (profile.模式 === '联机') {
-      toast.error('仅支持单机模式');
-      return;
     }
 
     // 立即持久化到localStorage
@@ -1122,19 +1107,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
       // 5. 将元数据变更写回 rootState 并持久化（仅单机模式）
       if (profile.模式 === '单机' && profile.存档列表) {
         profile.存档列表[active.存档槽位] = slot;
-      } else if (profile.模式 === '联机') {
-        toast.error('仅支持单机模式');
-        return;
       }
       await commitMetadataToStorage();
-
-      // TODO: 云端同步功能待实现（需要后端服务支持）
-      // const saveDataForCloud = filterSaveDataForCloud(currentSaveData);
-      // const result = await updateCharacterSave(active.角色ID, {
-      //   save_data: saveDataForCloud,
-      //   world_map: worldMapToSync,
-      //   game_time: gameTimeToSync
-      // });
 
       debug.log('角色商店', `存档【${slot.存档名}】元数据已更新`);
 
@@ -1280,11 +1254,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
       return null;
     }
 
-    if (profile.模式 !== '单机') {
-      toast.error('联机模式不支持多存档');
-      return null;
-    }
-
     if (!profile.存档列表) {
       profile.存档列表 = {};
     }
@@ -1366,13 +1335,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
       const errorMsg = `没有激活的角色，无法保存到 ${slotName}`;
       debug.error('角色商店', `[saveToSlot] ${errorMsg}`);
       console.error(`[saveToSlot] ${errorMsg}`, { active, profile });
-      throw new Error(errorMsg);
-    }
-
-    if (profile.模式 !== '单机') {
-      const errorMsg = `联机模式不支持多存档，无法保存到 ${slotName}`;
-      debug.warn('角色商店', `[saveToSlot] ${errorMsg}`);
-      console.warn(`[saveToSlot] ${errorMsg}`, { 模式: profile.模式 });
       throw new Error(errorMsg);
     }
 
@@ -1547,9 +1509,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
           保存时间: new Date().toISOString()
         }
       };
-    } else if (profile.模式 === '联机') {
-      toast.error('仅支持单机模式');
-      return;
     }
 
     // 强制触发 rootState 的响应式更新
@@ -1589,12 +1548,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
       return false;
     }
 
-    if (profile.模式 === '单机') {
-      return await loadGame(charId, saveId);
-    } else {
-      // 联机模式只有一个存档
-      return await loadGame(charId, '云端修行');
-    }
+    return await loadGame(charId, saveId);
   };
 
   /**
@@ -1620,11 +1574,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
 
     if (!profile) {
       toast.error('找不到角色，无法导入存档');
-      return;
-    }
-
-    if (profile.模式 !== '单机') {
-      toast.error('联机模式不支持存档导入');
       return;
     }
 
@@ -1693,9 +1642,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
 
     if (profile.模式 === '单机' && profile.存档列表) {
       profile.存档列表 = {};
-    } else if (profile.模式 === '联机') {
-      toast.error('仅支持单机模式');
-      return;
     }
 
     // 清空当前激活存档
@@ -1720,7 +1666,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
     try {
       uiStore.startLoading('正在退出游戏...');
       await clearAllCharacterData();
-      gameStateStore.resetState(); // 清除游戏状态（包括联机状态）
+      gameStateStore.resetState();
       rootState.value.当前激活存档 = null;
       await commitMetadataToStorage();
       toast.success(isTavernEnv() ? '已成功退出游戏，酒馆环境已重置。' : '已成功退出游戏。');
@@ -2301,12 +2247,6 @@ const loadSaveData = async (characterId: string, saveSlot: string): Promise<Save
 
     try {
       let loadedCount = 0;
-
-      // 联机模式已禁用
-      if (profile.模式 === '联机') {
-        debug.error('角色商店', '仅支持单机模式');
-        return;
-      }
 
       // 单机模式：加载所有存档槽位
       if (!profile.存档列表) {

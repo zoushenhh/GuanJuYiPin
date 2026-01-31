@@ -125,7 +125,6 @@ const filteredOrigins = computed(() => {
   console.log("【出身选择】当前模式:", store.isLocalCreation ? '本地' : '联机');
 
   if (store.isLocalCreation) {
-    // 单机模式显示本地数据和云端同步的数据
     const availableOrigins = allOrigins.filter(origin =>
       origin.source === 'local' || origin.source === 'cloud'
     );
@@ -137,15 +136,6 @@ const filteredOrigins = computed(() => {
     );
     console.log("【出身选择】联机模式出身列表:", cloudOrigins);
     console.log("【出身选择】云端出身数量:", cloudOrigins.length);
-
-    if (cloudOrigins.length === 0) {
-      console.warn("【出身选择】警告：联机模式下没有找到云端出身数据！");
-      console.log("【出身选择】所有出身的source分布:", allOrigins.reduce((acc: Record<string, number>, o) => {
-        acc[o.source] = (acc[o.source] || 0) + 1;
-        return acc;
-      }, {}));
-    }
-
     return cloudOrigins;
   }
 });

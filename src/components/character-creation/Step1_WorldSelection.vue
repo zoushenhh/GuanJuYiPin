@@ -287,28 +287,17 @@ const worldsList = computed(() => {
   console.log("【世界选择】当前模式:", store.isLocalCreation ? '本地' : '联机');
 
   if (store.isLocalCreation) {
-    // 单机模式显示本地数据和云端同步的数据
     const availableWorlds = allWorlds.filter(world =>
       world.source === 'local' || world.source === 'cloud'
     );
     console.log("【世界选择】单机模式可用世界列表:", availableWorlds);
     return availableWorlds;
   } else {
-    // 联机模式：优先显示云端数据，如果没有则回退到本地数据
     const cloudWorlds = allWorlds.filter(world =>
       world.source === 'cloud'
     );
     console.log("【世界选择】联机模式云端世界列表:", cloudWorlds);
     console.log("【世界选择】云端世界数量:", cloudWorlds.length);
-
-    if (cloudWorlds.length === 0) {
-      console.warn("【世界选择】警告：联机模式下没有云端世界数据，回退到本地数据！");
-      // 回退显示本地数据
-      const localWorlds = allWorlds.filter(world => world.source === 'local');
-      console.log("【世界选择】回退使用本地世界:", localWorlds);
-      return localWorlds;
-    }
-
     return cloudWorlds;
   }
 });

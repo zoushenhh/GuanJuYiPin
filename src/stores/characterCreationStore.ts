@@ -82,7 +82,6 @@ function isDADCustomData(data: unknown): data is DADCustomData {
 
 export const useCharacterCreationStore = defineStore('characterCreation', () => {
   // --- STATE ---
-  // const mode = ref<'single' | 'cloud'>('single'); // 已移除联机模式，固定为单机模式
   const isLoading = ref(false);
   const error = ref<string | null>(null);
   
@@ -403,7 +402,6 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   async function initializeStore(currentMode: 'single') {
     isLoading.value = true;
     error.value = null;
-    // mode.value = 'single'; // 已移除联机模式，固定为单机模式
     isLocalCreation.value = true;
 
     // 初始化时获取用户名字
@@ -706,7 +704,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   function nextStep() { if (currentStep.value < TOTAL_STEPS) currentStep.value++; }
   function prevStep() { if (currentStep.value > 1) currentStep.value--; }
   function goToStep(step: number) { if (step >= 1 && step <= TOTAL_STEPS) currentStep.value = step; }
-  function setMode(newMode: 'single') { /* mode.value = 'single'; */ isLocalCreation.value = true; } // 已移除联机模式，固定为单机模式
+  function setMode(newMode: 'single') { isLocalCreation.value = true; }
   function toggleLocalCreation() { isLocalCreation.value = !isLocalCreation.value; }
   function setInitialGameMessage(message: string) { initialGameMessage.value = message; }
 
@@ -714,8 +712,8 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   function setWorldGenerationConfig(config: Partial<typeof worldGenerationConfig.value>) {
     worldGenerationConfig.value = { ...worldGenerationConfig.value, ...config };
   }
-  async function resetOnExit() { await resetCharacter(); /* mode.value = 'single'; */ isLocalCreation.value = true; }
-  async function startLocalCreation() { await resetCharacter(); isLocalCreation.value = true; /* mode.value = 'single'; */ }
+  async function resetOnExit() { await resetCharacter(); isLocalCreation.value = true; }
+  async function startLocalCreation() { await resetCharacter(); isLocalCreation.value = true; }
 
   // ========== 创建流程状态管理函数 ==========
   function startCreation() {
@@ -752,7 +750,6 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   }
 
   return {
-    // mode, // 已移除联机模式，固定为单机模式
     isLoading, error, creationData, characterPayload, currentStep, isLocalCreation, initialGameMessage, worldGenerationConfig, useStreamingStart, generateMode, splitResponseGeneration,
     // 创建流程状态
     isCreating, creationPhase, creationError,

@@ -29,7 +29,7 @@ export interface PromptItem {
   description?: string;
   order?: number;
   weight?: number;
-  condition?: 'onlineMode' | 'splitGeneration' | 'eventSystem' | 'always';
+  condition?: 'splitGeneration' | 'eventSystem' | 'always';
 }
 
 export interface PromptsByCategory {
@@ -95,7 +95,6 @@ class PromptStorage {
    * @param filterOptions 过滤选项
    */
   async loadByCategory(filterOptions?: {
-    isOnlineMode?: boolean;
     isSplitGeneration?: boolean;
     isEventSystemEnabled?: boolean;
   }): Promise<PromptsByCategory> {
@@ -117,9 +116,6 @@ class PromptStorage {
 
       // 根据条件过滤提示词
       if (filterOptions && prompt.condition) {
-        if (prompt.condition === 'onlineMode' && !filterOptions.isOnlineMode) {
-          continue; // 跳过联机模式专用提示词
-        }
         if (prompt.condition === 'splitGeneration' && !filterOptions.isSplitGeneration) {
           continue; // 跳过分步生成专用提示词
         }

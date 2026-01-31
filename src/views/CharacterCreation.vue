@@ -111,7 +111,7 @@
       </div>
     </div>
 
-    <!-- 吏籍凭证按钮 - 只在联机模式下点击AI生成时显示 -->
+    <!-- 吏籍凭证按钮（已废弃） -->
 
     <RedemptionCodeModal
       :visible="isCodeModalVisible"
@@ -168,7 +168,7 @@ function normalizeGender(value: unknown): CharacterPreset['data']['gender'] {
 
 onMounted(async () => {
   // 1. 初始化县衙档案（确保数据已加载）
-  console.log('【角色创建】单机模式初始化');
+  console.log('【角色创建】初始化县衙档案');
 
   // 2. 初始化县衙档案
   await store.initializeStore('single');
@@ -304,7 +304,7 @@ const step3Ref = ref<InstanceType<typeof Step3_OriginSelection> | null>(null)
 const step4Ref = ref<InstanceType<typeof Step4_TalentSelection> | null>(null)
 const step5Ref = ref<InstanceType<typeof Step5_TalentSelection> | null>(null)
 
-// 处理吏籍凭证提交 (仅联机模式)
+// 处理吏籍凭证提交（已废弃）
 async function handleCodeSubmit(data: { code: string; prompt?: string }) {
   const token = localStorage.getItem('access_token')
   if (!token) {
@@ -421,7 +421,7 @@ async function createCharacter() {
         charm: store.attributes.charm,
         temperament: store.attributes.temperament,
       },
-      mode: (store.isLocalCreation ? '单机' : '联机') as '单机' | '联机',
+      mode: '单机' as const,
       age: store.characterPayload.current_age,
       gender: store.characterPayload.gender,
       race: store.characterPayload.race, // 🔥 添加种族字段

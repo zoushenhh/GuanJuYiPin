@@ -21,7 +21,6 @@
       :isLoading="isLoading"
       :selectedDataType="selectedDataType"
       :searchQuery="searchQuery"
-      :readOnly="isOnlineMode"
       :coreDataViews="coreDataViews"
       :customOptions="customOptions"
       :characterData="characterData"
@@ -83,7 +82,6 @@ const { t } = useI18n()
 // 🔥 [新架构] 使用 Pinia 作为单一数据源
 const gameStateStore = useGameStateStore()
 const characterStore = useCharacterStore()
-const isOnlineMode = computed(() => characterStore.activeCharacterProfile?.模式 === '联机')
 
 // 类型定义
 type GameVariableValue = string | number | boolean | object | null | undefined
@@ -292,10 +290,6 @@ const addNewVariable = () => {
 }
 
 const editVariable = (item: EditingItem) => {
-  if (isOnlineMode.value) {
-    toast.warning(t('联机模式下不允许直接修改变量（服务器权威控制）'))
-    return
-  }
   if (item.type !== 'saveData') {
     toast.warning(t('该视图为只读展示，请切换到「存档数据(短路径)」后再编辑具体路径'))
     return
@@ -316,10 +310,6 @@ const copyVariable = async (event: { key: string; value: GameVariableValue }) =>
 }
 
 const deleteVariable = async () => {
-  if (isOnlineMode.value) {
-    toast.warning(t('联机模式下不允许直接删除变量（服务器权威控制）'))
-    return
-  }
   toast.warning(t('新架构下不支持直接删除变量，请通过游戏操作修改数据'))
 }
 
@@ -330,10 +320,6 @@ const saveVariable = async (item: EditingItem) => {
   }
   if (!gameStateStore.isGameLoaded) {
     toast.warning(t('请先加载游戏存档'))
-    return
-  }
-  if (isOnlineMode.value) {
-    toast.warning(t('联机模式下不允许直接修改变量（服务器权威控制）'))
     return
   }
   if (item.type !== 'saveData') {

@@ -222,7 +222,7 @@ const panelRoutes = new Set([
   'Inventory', 'CharacterDetails', 'Memory', 'Relationships',
   'Cultivation', 'Techniques', 'ThousandDao', 'Settings', 'Save', 'WorldMap',
   'Events', 'Crafting', 'Sect', 'SectOverview', 'SectMembers', 'SectManagement', 'SectLibrary', 'SectTasks', 'SectContribution', 'SectWar', 'GameVariables',
-  'Prompts', 'APIManagement', 'Travel', 'BackendAdminPanel'
+  'Prompts', 'APIManagement', 'BackendAdminPanel'
 ]);
 
 // 不需要角色数据就能访问的面板（设置类）
@@ -262,7 +262,6 @@ const panelTitles: Record<string, { title: string; icon: IconComponent }> = {
   GameVariables: { title: '游戏变量', icon: Database },
   Prompts: { title: '提示词管理', icon: FileText },
   APIManagement: { title: 'API管理', icon: Plug },
-  Travel: { title: '联机穿越', icon: Globe },
   BackendAdminPanel: { title: '仙官后台', icon: Shield }
 };
 

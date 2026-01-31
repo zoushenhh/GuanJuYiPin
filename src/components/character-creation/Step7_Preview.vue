@@ -159,13 +159,6 @@
         </ul>
       </div>
 
-      <!-- Cloud Mode Placeholder -->
-      <div v-else class="preview-item cloud-info-item">
-        <h3>{{ $t('命格天定') }}</h3>
-        <p class="cloud-info-text">
-          {{ $t('联机模式下，角色的初始命格将由所选世界的天道法则在云端生成，以确保公平与平衡。') }}
-        </p>
-      </div>
     </div>
   </div>
 </template>

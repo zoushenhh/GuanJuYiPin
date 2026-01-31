@@ -55,7 +55,6 @@
           <h4 class="section-title">存档列表</h4>
           <div class="header-actions">
             <button
-              v-if="!isOnlineMode"
               class="new-save-btn"
               @click="createNewSave"
               :disabled="loading"
@@ -63,8 +62,7 @@
             >
               <Plus :size="16" />
             </button>
-            <div class="saves-count" v-if="!isOnlineMode">{{ savesList.length }}/10</div>
-            <div class="saves-count online-badge" v-else>☁️ 云端存档</div>
+            <div class="saves-count">{{ savesList.length }}/10</div>
           </div>
         </div>
 
@@ -125,7 +123,7 @@
                   class="card-btn warning"
                   @click.stop="rollbackFromLastConversation(save)"
                   :disabled="loading || !currentSave"
-                  v-if="save.存档名 === '上次对话' && !isOnlineMode"
+                  v-if="save.存档名 === '上次对话'"
                   title="用上次对话的数据覆盖当前存档（回滚）"
                 >
                   <RefreshCw :size="14" />
@@ -180,8 +178,8 @@
         </div>
       </div>
 
-      <!-- 自动存档设置 (仅单机模式) -->
-      <div class="auto-save-settings-section" v-if="!isOnlineMode">
+      <!-- 自动存档设置 -->
+      <div class="auto-save-settings-section">
         <div class="section-header">
           <h4 class="section-title">{{ t('自动存档设置') }}</h4>
         </div>
@@ -258,7 +256,7 @@
             </div>
           </button>
 
-          <button class="operation-btn" v-if="!isOnlineMode" @click="importSaves" :disabled="loading">
+          <button class="operation-btn" @click="importSaves" :disabled="loading">
             <Upload :size="16" />
             <div class="btn-content">
               <span class="btn-title">导入存档</span>
@@ -281,7 +279,6 @@
 
           <button
             class="operation-btn danger"
-            v-if="!isOnlineMode"
             @click="clearAllSaves"
             :disabled="loading || savesList.length === 0"
           >
@@ -328,7 +325,7 @@ const gameStateStore = useGameStateStore();
 const loading = ref(false);
 const fileInput = ref<HTMLInputElement>();
 
-// 🔥 获取本地日期字符串（用于文件名，避免 toISOString 的 UTC 时区问题）
+// 获取本地日期字符串（用于文件名，避免 toISOString 的 UTC 时区问题）
 const getLocalDateString = () => {
   const now = new Date();
   const year = now.getFullYear();
@@ -336,11 +333,6 @@ const getLocalDateString = () => {
   const day = String(now.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
-
-// 🔥 联机模式检测
-const isOnlineMode = computed(() => {
-  return characterStore.activeCharacterProfile?.模式 === '联机';
-});
 
 // 自动存档设置
 const conversationAutoSaveEnabled = computed({
@@ -1256,11 +1248,6 @@ onMounted(() => {
   border: 1px solid #bae6fd;
 }
 
-.saves-count.online-badge {
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-  color: #065f46;
-  border-color: #a7f3d0;
-}
 
 /* 当前存档卡片 */
 .current-save-card {
@@ -1762,11 +1749,6 @@ onMounted(() => {
   color: #38bdf8;
 }
 
-[data-theme='dark'] .saves-count.online-badge {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
-  color: #6ee7b7;
-  border-color: rgba(16, 185, 129, 0.4);
-}
 
 [data-theme='dark'] .action-btn,
 [data-theme='dark'] .card-btn {

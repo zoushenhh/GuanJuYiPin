@@ -170,20 +170,19 @@
                 :class="{
                   active: selectedCharId === String(charId),
                   'single-mode': profile.模式 === '单机',
-                  'online-mode': profile.模式 === '联机',
                 }"
                 @click="selectCharacter(String(charId))"
               >
                 <!-- 卡片头部 -->
                 <div class="card-header">
-                  <div class="char-avatar" :class="profile.模式">
+                  <div class="char-avatar">
                     <span class="avatar-text">{{ profile.角色.名字[0] }}</span>
                   </div>
                   <div class="char-info">
                     <div class="name-row">
                       <h3 class="char-name">{{ profile.角色.名字 }}</h3>
-                      <span class="mode-badge" :class="profile.模式 === '联机' ? 'online' : 'single'">
-                        {{ profile.模式 === $t('单机') ? $t('单机') : $t('联机') }}
+                      <span class="mode-badge single">
+                        {{ $t('单机') }}
                       </span>
                     </div>
                     <div class="char-meta">
@@ -357,113 +356,6 @@
               </div>
             </div>
 
-            <!-- 联机模式存档 -->
-            <div v-else-if="selectedCharacter.模式 === '联机'" class="online-saves-container">
-              <div v-if="!isLoggedIn" class="login-prompt">
-                <div class="login-icon">🔐</div>
-                <h3>{{ $t('需要登录') }}</h3>
-                <p>{{ $t('请先登录以管理联机角色存档') }}</p>
-                <button @click="handleLogin" class="btn-login">{{ $t('登入道籍') }}</button>
-              </div>
-
-              <!-- 加载中状态 -->
-              <div v-else-if="isLoadingSaves" class="loading-saves">
-                <div class="loading-spinner">⏳</div>
-                <span>{{ $t('正在加载云端存档...') }}</span>
-              </div>
-
-              <div v-else-if="selectedCharacter.存档列表?.['云端修行']?.存档数据" class="online-save-card">
-                <div class="save-data">
-                  <div class="save-header">
-                    <h4 class="save-name">{{ $t('云端存档') }}</h4>
-                    <div class="save-badges">
-                      <span class="realm-badge">{{
-                        getRealmName(normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.属性?.境界)
-                      }}</span>
-                      <span class="age-badge"
-                        >{{
-                          normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.属性?.寿命?.当前 ?? 18
-                        }}岁</span
-                      >
-                    </div>
-                  </div>
-
-                  <div class="save-stats">
-                    <div class="stat-grid">
-                      <div class="stat">
-                        <span class="label">气血</span>
-                        <span class="value"
-                          >{{ normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.属性?.气血?.当前 ?? 0 }}/{{
-                            normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.属性?.气血?.上限 ?? 0
-                          }}</span
-                        >
-                      </div>
-                      <div class="stat">
-                        <span class="label">灵气</span>
-                        <span class="value"
-                          >{{ normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.属性?.灵气?.当前 ?? 0 }}/{{
-                            normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.属性?.灵气?.上限 ?? 0
-                          }}</span
-                        >
-                      </div>
-                      <div class="stat">
-                        <span class="label">神识</span>
-                        <span class="value"
-                          >{{ normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.属性?.神识?.当前 ?? 0 }}/{{
-                            normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.属性?.神识?.上限 ?? 0
-                          }}</span
-                        >
-                      </div>
-                      <div class="stat">
-                        <span class="label">声望</span>
-                        <span class="value">{{
-                          normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.属性?.声望 ?? 0
-                        }}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="save-footer">
-                    <span class="location">{{
-                      normalizeSaveDataV3(selectedCharacter.存档列表['云端修行'].存档数据)?.角色?.位置?.描述 || '初始地'
-                    }}</span>
-                    <div class="sync-info">
-                      <span
-                        class="sync-status"
-                        :class="{ synced: !selectedCharacter.存档列表['云端修行'].云端同步信息?.需要同步 }"
-                      >
-                        {{
-                          selectedCharacter.存档列表['云端修行'].云端同步信息?.需要同步
-                            ? $t('待同步')
-                            : $t('已同步')
-                        }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="online-actions">
-                    <button @click="handleSelect(selectedCharId!, '云端修行', true)" class="btn-play">
-                      {{ $t('进入游戏') }}
-                    </button>
-                    <button v-if="selectedCharacter.存档列表['云端修行']?.云端同步信息?.需要同步" class="btn-sync">
-                      {{ $t('同步云端') }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 没有存档数据：显示开始游戏 -->
-              <div v-else class="online-save-card">
-                <div class="save-empty">
-                  <div class="empty-slot-icon">☁️</div>
-                  <span class="empty-text">{{ $t('尚未开始修行') }}</span>
-                  <p class="empty-hint">{{ $t('开始您的联机修仙之旅，存档将自动同步到云端') }}</p>
-                  <button @click="handleSelect(selectedCharId!, '云端修行', false)" class="btn-start">
-                    {{ $t('开始游戏') }}
-                  </button>
-                </div>
-              </div>
-            </div>
           </section>
 
           <!-- 第3行：底部信息栏（可选） -->
@@ -590,8 +482,6 @@ const isFullscreen = computed(() => props.fullscreen);
 
 const router = useRouter();
 const characterStore = useCharacterStore();
-// 临时：管理面板不再校验登录状态，默认视为已登录
-const isLoggedIn = ref(true);
 const selectedCharId = ref<string | null>(null);
 const showDetailsModal = ref(false);
 const detailsCharacter = ref<CharacterProfile | null>(null);
@@ -753,14 +643,10 @@ const selectCharacter = async (charId: string) => {
 };
 
 const getSaveCount = (profile: CharacterProfile) => {
-  if (profile.模式 === '单机') {
-    // 排除"上次对话"，只统计手动存档
-    const saves = Object.entries(profile.存档列表 || {})
-      .filter(([key, slot]: [string, SaveSlot]) => key !== '上次对话' && slot.存档数据);
-    return saves.length;
-  } else {
-    return profile.存档列表?.['云端修行']?.存档数据 ? 1 : 0;
-  }
+  // 排除"上次对话"，只统计手动存档
+  const saves = Object.entries(profile.存档列表 || {})
+    .filter(([key, slot]: [string, SaveSlot]) => key !== '上次对话' && slot.存档数据);
+  return saves.length;
 };
 
 const showCharacterDetails = (charId: string) => {
@@ -776,12 +662,6 @@ const closeDetailsModal = () => {
 const handleSelect = async (charId: string, slotKey: string, hasData: boolean) => {
   console.log('选择存档:', charId, slotKey, hasData);
   const character = characterStore.rootState.角色列表[charId];
-
-  // 联机模式检查已移除 - 仅支持单机模式
-  if (character?.模式 === '联机') {
-    toast.error('仅支持单机模式');
-    return;
-  }
 
   if (hasData) {
     // 对于有数据的存档，直接进入

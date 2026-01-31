@@ -316,11 +316,7 @@ onUnmounted(() => {
 
 // 使用 store 的 getters 获取数据
 const activeCharacter = computed(() => characterStore.activeCharacterProfile);
-const isOnlineMode = computed(() => activeCharacter.value?.模式 === '联机');
 const isAdmin = computed(() => localStorage.getItem('is_admin') === 'true');
-
-// 移除联机模式相关代码
-// const isOnlineMode = computed(() => activeCharacter.value?.模式 === '联机');
 
 const handleSaveGame = async () => {
   router.push('/game/save');
@@ -365,11 +361,6 @@ const handleMemoryCenter = () => {
 const handleWorldMap = () => {
   router.push('/game/world-map');
 };
-
-// 移除联机穿越相关代码
-// const handleOnlinePlay = () => {
-//   router.push('/game/travel');
-// };
 
 const handlePrompts = () => {
   router.push('/game/prompts');

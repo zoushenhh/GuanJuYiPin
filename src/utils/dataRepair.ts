@@ -10,15 +10,98 @@
  * - src/stores/characterStore.ts
  */
 
-import type { SaveData, Item, NpcProfile, GameTime, Realm, PlayerAttributes, PlayerLocation, ItemType } from '@/types/game';
+import type { SaveData, Item, NpcProfile, GameTime, Realm, PlayerAttributes, PlayerLocation, ItemType, LegacyItemType, RankLevel } from '@/types/game';
 import type { GradeType } from '@/data/itemQuality';
 import { cloneDeep } from 'lodash';
 import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
 import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { normalizeBackpackCurrencies } from '@/utils/currencySystem';
 
-// 有效的物品类型（县令主题：治国方略替代修仙功法）
-const validTypes: ItemType[] = ['装备', '方略', '丹药', '材料', '其他'];
+// ============================================================================
+// 类型规范化常量（县令主题）
+// ============================================================================
+
+/**
+ * 有效的物品类型（县令主题：主要类型）
+ * 注意：'丹药' 保留用于向后兼容旧存档，新代码应使用 '药品'
+ */
+const validTypes: ItemType[] = ['装备', '方略', '丹药', '药品', '材料', '其他'];
+
+/**
+ * 扩展物品类型（包含旧值，用于向后兼容旧存档数据）
+ */
+const validLegacyTypes: LegacyItemType[] = ['装备', '功法', '方略', '丹药', '药品', '材料', '其他'];
+
+// ============================================================================
+// 类型映射函数（修仙主题 → 县令主题）
+// ============================================================================
+
+/**
+ * 将旧物品类型规范化为新物品类型
+ * 功法 → 方略，丹药 → 药品
+ */
+function normalizeItemType(rawType: string): ItemType {
+  const typeMap: Record<string, ItemType> = {
+    '功法': '方略',
+    '丹药': '药品',
+  };
+
+  // 如果是已知旧类型，映射到新类型
+  if (rawType in typeMap) {
+    console.log(`[数据修复] 物品类型迁移: ${rawType} → ${typeMap[rawType]}`);
+    return typeMap[rawType];
+  }
+
+  // 验证是否为新类型
+  const newValidTypes: ItemType[] = ['装备', '方略', '药品', '材料', '其他'];
+  if (newValidTypes.includes(rawType as ItemType)) {
+    return rawType as ItemType;
+  }
+
+  // 兼容：如果是旧的丹药类型
+  if (rawType === '丹药') {
+    console.log(`[数据修复] 物品类型迁移: 丹药 → 药品`);
+    return '药品';
+  }
+
+  // 默认返回'其他'
+  console.warn(`[数据修复] 未知物品类型: ${rawType}，默认为'其他'`);
+  return '其他';
+}
+
+/**
+ * 将修真境界映射到官品等级
+ * 练气→九品、筑基→八品、金丹→七品...
+ */
+function mapRealmToRank(realmName: string): RankLevel {
+  const rankMap: Record<string, RankLevel> = {
+    '练气': '九品',
+    '筑基': '八品',
+    '金丹': '七品',
+    '元婴': '六品',
+    '化神': '五品',
+    '炼虚': '四品',
+    '合体': '三品',
+    '渡劫': '二品',
+    '大乘': '一品',
+    // 如果已经是官品，直接返回
+    '九品': '九品', '八品': '八品', '七品': '七品',
+    '六品': '六品', '五品': '五品', '四品': '四品',
+    '三品': '三品', '二品': '二品', '一品': '一品',
+    '平民': '九品', '凡人': '九品',
+  };
+
+  const mapped = rankMap[realmName];
+  if (mapped) {
+    if (mapped !== realmName && !['平民', '凡人'].includes(realmName)) {
+      console.log(`[数据修复] 境界迁移: ${realmName} → ${mapped}`);
+    }
+    return mapped;
+  }
+
+  console.warn(`[数据修复] 未知境界: ${realmName}，默认为'九品'`);
+  return '九品';
+}
 
 /**
  * 修复并清洗存档数据，确保所有必需字段存在且格式正确
@@ -113,10 +196,39 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
 
     // --- 背包 ---
     if (!repaired.角色.背包 || typeof repaired.角色.背包 !== 'object') {
-      repaired.角色.背包 = { 灵石: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} };
+      // 县令主题：默认使用银两，保留灵石向后兼容
+      repaired.角色.背包 = {
+        银两: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 },
+        灵石: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 },  // 向后兼容
+        物品: {}
+      };
     } else {
+      // 县令主题：确保银两字段存在（主要货币）
+      if (!repaired.角色.背包.银两 || typeof repaired.角色.背包.银两 !== 'object') {
+        // 如果没有银两但有灵石，从灵石复制数据
+        if (repaired.角色.背包.灵石 && typeof repaired.角色.背包.灵石 === 'object') {
+          console.log('[数据修复] 从灵石复制数据到银两字段');
+          repaired.角色.背包.银两 = { ...repaired.角色.背包.灵石 };
+        } else {
+          console.log('[数据修复] 创建默认银两数据');
+          repaired.角色.背包.银两 = { 下品: 0, 中品: 0, 上品: 0, 极品: 0 };
+        }
+      } else {
+        // 规范化银两数值
+        repaired.角色.背包.银两.下品 = validateNumber(repaired.角色.背包.银两.下品, 0, 999999999, 0);
+        repaired.角色.背包.银两.中品 = validateNumber(repaired.角色.背包.银两.中品, 0, 999999999, 0);
+        repaired.角色.背包.银两.上品 = validateNumber(repaired.角色.背包.银两.上品, 0, 999999999, 0);
+        repaired.角色.背包.银两.极品 = validateNumber(repaired.角色.背包.银两.极品, 0, 999999999, 0);
+      }
+
+      // 修仙主题：保留灵石字段向后兼容
       if (!repaired.角色.背包.灵石 || typeof repaired.角色.背包.灵石 !== 'object') {
-        repaired.角色.背包.灵石 = { 下品: 0, 中品: 0, 上品: 0, 极品: 0 };
+        // 如果没有灵石但有银两，从银两复制数据
+        if (repaired.角色.背包.银两 && typeof repaired.角色.背包.银两 === 'object') {
+          repaired.角色.背包.灵石 = { ...repaired.角色.背包.银两 };
+        } else {
+          repaired.角色.背包.灵石 = { 下品: 0, 中品: 0, 上品: 0, 极品: 0 };
+        }
       } else {
         repaired.角色.背包.灵石.下品 = validateNumber(repaired.角色.背包.灵石.下品, 0, 999999999, 0);
         repaired.角色.背包.灵石.中品 = validateNumber(repaired.角色.背包.灵石.中品, 0, 999999999, 0);
@@ -406,21 +518,40 @@ function getDefaultBreakthroughDescription(realmName?: string, stage?: string): 
 
 /**
  * 修复官品数据（县令主题：境界->官品）
+ * - 将旧境界映射到新官品
+ * - 修复缺失字段
  */
 function repairRealm(realm: any): Realm {
+  // 处理字符串格式
+  if (typeof realm === 'string') {
+    const mappedName = mapRealmToRank(realm);
+    return {
+      名称: mappedName,
+      阶段: '初期',
+      当前进度: 0,
+      下一级所需: 100,
+      突破描述: getDefaultBreakthroughDescription(mappedName, '初期')
+    };
+  }
+
+  // 处理对象格式
   if (!realm || typeof realm !== 'object') {
     return {
-      名称: "平民",
-      阶段: "",
+      名称: "九品",
+      阶段: "初期",
       当前进度: 0,
       下一级所需: 100,
       突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
     };
   }
 
-  // 🔥 修复：保留原有官品数据，只补充缺失字段
-  const name = realm.名称 || "平民";
-  const stage = realm.阶段 !== undefined ? realm.阶段 : "";
+  // 修复境界名称（映射旧境界到新官品）
+  let name = realm.名称 || "九品";
+  if (typeof name === 'string') {
+    name = mapRealmToRank(name);
+  }
+
+  const stage = realm.阶段 !== undefined ? realm.阶段 : "初期";
   const progress = validateNumber(realm.当前进度, 0, 999999999, 0);
   const required = validateNumber(realm.下一级所需, 1, 999999999, 100);
 
@@ -469,6 +600,8 @@ function repairGameTime(time: any): GameTime {
 
 /**
  * 修复物品数据
+ * - 规范化物品类型（功法→方略，丹药→药品）
+ * - 验证并修复品质、数量等字段
  */
 function repairItem(item: Item): Item {
   const repaired = { ...item };
@@ -489,9 +622,10 @@ function repairItem(item: Item): Item {
     repaired.品质.grade = validateNumber(repaired.品质.grade, 0, 10, 1) as GradeType;
   }
 
-  // 确保类型有效
-  // 修复功法/方略数据类型
-  if (!validTypes.includes(repaired.类型)) {
+  // 规范化物品类型（功法→方略，丹药→药品）
+  if (typeof repaired.类型 === 'string') {
+    repaired.类型 = normalizeItemType(repaired.类型);
+  } else {
     repaired.类型 = '其他';
   }
 
@@ -589,13 +723,13 @@ function validateNumber(value: any, min: number, max: number, defaultValue: numb
 }
 
 /**
- * 创建默认玩家状态
+ * 创建默认玩家状态（县令主题）
  */
 function createDefaultAttributes(): PlayerAttributes {
   return {
     境界: {
-      名称: '平民',
-      阶段: '',
+      名称: '九品',  // 县令主题：默认官品为九品
+      阶段: '初期',
       当前进度: 0,
       下一级所需: 100,
       突破描述: '初入仕途，感悟政理之道，踏上县令第一步'
@@ -651,7 +785,11 @@ function createMinimalSaveDataV3(): SaveData {
       位置: createDefaultLocation(),
       效果: [],
       身体: { 总体状况: '', 部位: {} },
-      背包: { 灵石: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} },
+      背包: {
+        银两: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 },  // 县令主题：主要货币
+        灵石: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 },  // 修仙主题：向后兼容
+        物品: {}
+      },
       装备: { 装备1: null, 装备2: null, 装备3: null, 装备4: null, 装备5: null, 装备6: null },
       方略: { 当前方略ID: null, 方略进度: {}, 方略套装: { 主修: null, 辅修: [] } },
       施政: { 施政方略: null, 施政状态: { 模式: '未施政' } },

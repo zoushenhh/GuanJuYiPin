@@ -140,7 +140,7 @@ const MEMORY_STRUCTURE = `
 `
 
 const WORLD_INFO_STRUCTURE = `
-[世界数据](可改,联机模式只读)
+[世界数据](可改)
 地图:{continents[],factions[],features[]};大陆信息:[{名称,描述,地理特征,...}](只读)
 
 [世界.信息.势力信息](可改)

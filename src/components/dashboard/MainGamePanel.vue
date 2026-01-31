@@ -93,12 +93,6 @@
                 <Bell :size="20" />
               </button>
 
-              <span
-                v-if="isOnlineTraveling"
-                class="traveling-badge"
-                :title="travelingTooltip"
-              >穿越中</span>
-
               <!-- 命令日志按钮 -->
               <button
                 @click="showStateChanges(currentNarrative.stateChanges)"
@@ -596,10 +590,6 @@ const gameStateStore = useGameStateStore();
 const isTavernEnvFlag = isTavernEnv();
 const enhancedActionQueue = EnhancedActionQueueManager.getInstance();
 const bidirectionalSystem = AIBidirectionalSystem;
-
-// 单机模式：联机穿越功能已移除
-const isOnlineTraveling = computed(() => false);
-const travelingTooltip = computed(() => '');
 
 const openEventsPanel = () => {
   router.push('/game/events');
@@ -2910,29 +2900,10 @@ const syncGameState = async () => {
   border-color: rgba(99, 102, 241, 0.35);
 }
 
-.traveling-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: rgba(234, 88, 12, 0.95);
-  background: rgba(234, 88, 12, 0.12);
-  border: 1px solid rgba(234, 88, 12, 0.25);
-  white-space: nowrap;
-}
-
 [data-theme="dark"] .header-action-btn.event-btn {
   background: rgba(99, 102, 241, 0.16);
   border-color: rgba(99, 102, 241, 0.25);
   color: rgba(165, 180, 252, 0.95);
-}
-
-[data-theme="dark"] .traveling-badge {
-  color: rgba(251, 146, 60, 0.95);
-  background: rgba(251, 146, 60, 0.16);
-  border-color: rgba(251, 146, 60, 0.28);
 }
 
 .narrative-time {

@@ -63,12 +63,7 @@ const displaySaveData = computed(() => {
 })
 
 const handleEditItem = (path: string, value: unknown) => {
-  if (props.readOnly) {
-    toast.warning('联机模式下不允许直接修改存档数据（服务器权威控制）');
-    return;
-  }
-
-  // 这些字段是 UI 为展示添加的“只读信息”，并不会真正落盘到存档结构
+  // 这些字段是 UI 为展示添加的"只读信息"，并不会真正落盘到存档结构
   const readOnlyPaths = [
     '元数据.存档ID',
     '元数据.角色ID',
@@ -91,10 +86,6 @@ const handleEditItem = (path: string, value: unknown) => {
 }
 
 const handleDeleteItem = async (path: string) => {
-  if (props.readOnly) {
-    toast.warning('联机模式下不允许直接删除存档数据（服务器权威控制）');
-    return;
-  }
   debug.log('[TavernSaveData]', `请求删除: ${path}`)
   if (!confirm(`确定要删除此项目吗？\n路径: ${path}\n\n此操作不可撤销！`)) {
     return

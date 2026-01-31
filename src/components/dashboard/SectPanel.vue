@@ -79,7 +79,7 @@
                   </div>
 
                   <div class="detail-actions">
-                    <button class="danger-btn" :disabled="isOnlineMode" @click.stop="deleteFaction(selectedSect)">
+                    <button class="danger-btn" @click.stop="deleteFaction(selectedSect)">
                       <Trash2 :size="14" />
                       <span>删除势力</span>
                     </button>
@@ -358,7 +358,6 @@ const characterStore = useCharacterStore();
 const gameStateStore = useGameStateStore();
 const router = useRouter();
 const { t } = useI18n();
-const isOnlineMode = computed(() => characterStore.activeCharacterProfile?.模式 === '联机');
 const isLoading = ref(false);
 const selectedSect = ref<WorldFaction | null>(null);
 const searchQuery = ref('');
@@ -374,10 +373,6 @@ const goInitWorld = () => {
 };
 
 const deleteFaction = async (sect: WorldFaction) => {
-  if (isOnlineMode.value) {
-    toast.warning('联机模式下不允许直接修改势力信息');
-    return;
-  }
   if (!sect?.名称) return;
 
   const confirmed = window.confirm(`确认从势力信息中移除「${sect.名称}」？\n\n该操作会同时尝试从：\n- 世界.信息.势力信息\n- 社交.宗门.宗门档案\n中删除该势力。`);
