@@ -1,5 +1,5 @@
 /**
- * 仙途 (XianTu) - AI驱动的沉浸式修仙文字冒险游戏
+ * 县令 (Xian Ling) - AI驱动的古代县令模拟器
  *
  * @author 千夜 (qianye60)
  * @license CC BY-NC-SA 4.0

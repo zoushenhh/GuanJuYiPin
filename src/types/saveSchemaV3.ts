@@ -2,6 +2,7 @@ import type {
   ActionQueue,
   CharacterBaseInfo,
   CultivationTechniqueReference,
+  AdministrationStrategyReference,
   Equipment,
   GameMessage,
   GameTime,
@@ -67,36 +68,36 @@ export interface RelationshipMatrixV3 {
   edges?: RelationshipEdgeV3[];
 }
 
-export interface TechniqueProgressEntryV3 {
+export interface StrategyProgressEntryV3 {
   熟练度: number;
   已解锁技能: string[];
 }
 
-export interface TechniqueSystemV3 {
-  当前功法ID: string | null;
-  功法进度: Record<string, TechniqueProgressEntryV3>;
-  功法套装: {
+export interface StrategySystemV3 {
+  当前方略ID: string | null;
+  方略进度: Record<string, StrategyProgressEntryV3>;
+  方略套装: {
     主修: string | null;
     辅修: string[];
   };
 }
 
-export interface CultivationStateV3 {
-  修炼功法: CultivationTechniqueReference | null;
-  修炼状态?: {
+export interface AdministrationStateV3 {
+  施政方略: CultivationTechniqueReference | null;
+  施政状态?: {
     模式: string;
     开始时间?: string;
     消耗?: Record<string, unknown>;
     [key: string]: unknown;
   };
-  经脉?: unknown;
-  丹田?: unknown;
+  政绩?: unknown;
+  民心?: unknown;
   突破?: unknown;
   [key: string]: unknown;
 }
 
-export interface DaoSystemV3 {
-  大道列表: Record<string, unknown>;
+export interface PhilosophySystemV3 {
+  理念列表: Record<string, unknown>;
   [key: string]: unknown;
 }
 
@@ -105,6 +106,12 @@ export interface SkillStateV3 {
   装备栏: string[];
   冷却: Record<string, unknown>;
 }
+
+// 向后兼容的类型别名
+export type TechniqueProgressEntryV3 = StrategyProgressEntryV3;
+export type TechniqueSystemV3 = StrategySystemV3;
+export type CultivationStateV3 = AdministrationStateV3;
+export type DaoSystemV3 = PhilosophySystemV3;
 
 export interface SaveDataV3 {
   元数据: SaveMetaV3;
@@ -116,10 +123,14 @@ export interface SaveDataV3 {
     身体?: BodyStats;
     背包: Inventory;
     装备: Equipment;
-    功法: TechniqueSystemV3;
-    修炼: CultivationStateV3;
-    大道: DaoSystemV3;
+    方略: StrategySystemV3;
+    施政: AdministrationStateV3;
+    理念: PhilosophySystemV3;
     技能: SkillStateV3;
+    // 向后兼容字段
+    功法?: StrategySystemV3;
+    修炼?: AdministrationStateV3;
+    大道?: PhilosophySystemV3;
   };
   社交: {
     关系: Record<string, NpcProfile>;

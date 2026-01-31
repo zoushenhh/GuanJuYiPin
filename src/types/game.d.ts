@@ -235,6 +235,16 @@ export interface TechniqueItem extends BaseItem {
   // 注意：新代码应使用 已装备 字段，修炼中 仅为向后兼容
 }
 
+/** 治国方略类型物品 - 县令主题 */
+export interface StrategyItem extends BaseItem {
+  类型: '方略';
+  方略效果?: TechniqueEffects;
+  方略技能?: TechniqueSkill[];
+  施政进度?: number; // 0-100 百分比
+  施政中?: boolean;
+  已解锁技能?: string[];
+}
+
 /** 消耗品/材料类型物品（丹药、材料、其他） */
 export interface ConsumableItem extends BaseItem {
   类型: '丹药' | '材料' | '其他';
@@ -249,6 +259,12 @@ export type Item = EquipmentItem | TechniqueItem | ConsumableItem;
 export interface CultivationTechniqueReference {
   物品ID: string;    // 引用背包中的功法ID
   名称: string;      // 功法名称（用于快速显示）
+}
+
+/** 施政方略引用（只存储引用，不存储完整数据） - 县令主题 */
+export interface AdministrationStrategyReference {
+  物品ID: string;    // 引用背包中的方略ID
+  名称: string;      // 方略名称（用于快速显示）
 }
 
 /** 掌握的技能（技能数据+进度合并） */
@@ -272,7 +288,7 @@ export interface Inventory extends AIMetadata {
   };
   /**
    * 新货币系统（可选，兼容旧存档）
-   * - key = 币种ID（建议：无点号`.`，例如：灵石_下品 / 铜币 / 银两 / 金锭）
+   * - key = 币种ID（建议：无点号`.`，例如：铜钱 / 银两 / 金锭）
    * - value = 币种结构体（包含价值度/数量/描述等）
    */
   货币?: Record<string, CurrencyAsset>;
@@ -291,7 +307,7 @@ export interface CurrencyAsset extends AIMetadata {
 
 export interface CurrencySettings extends AIMetadata {
   禁用币种: string[]; // 用户删除过的币种ID（避免数据修复再次自动补回）
-  基准币种?: string; // 默认：灵石_下品
+  基准币种?: string; // 默认：铜钱
 }
 
 /** 功法中的技能信息 */

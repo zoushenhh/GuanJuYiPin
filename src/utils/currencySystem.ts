@@ -1,24 +1,16 @@
 import type { CurrencyAsset, CurrencySettings, Inventory } from '@/types/game';
 
-export const DEFAULT_BASE_CURRENCY_ID = '灵石_下品';
+export const DEFAULT_BASE_CURRENCY_ID = '铜钱';
 
 export type DefaultCurrencyId =
-  | '灵石_下品'
-  | '灵石_中品'
-  | '灵石_上品'
-  | '灵石_极品'
-  | '铜币'
+  | '铜钱'
   | '银两'
   | '金锭';
 
 export const DEFAULT_CURRENCIES: Record<DefaultCurrencyId, Omit<CurrencyAsset, '数量'>> = {
-  灵石_下品: { 币种: '灵石_下品', 名称: '下品灵石', 价值度: 1, 描述: '修士通用货币（基准单位）', 图标: 'Gem' },
-  灵石_中品: { 币种: '灵石_中品', 名称: '中品灵石', 价值度: 100, 描述: '约等于 100 下品灵石', 图标: 'Gem' },
-  灵石_上品: { 币种: '灵石_上品', 名称: '上品灵石', 价值度: 10000, 描述: '约等于 100 中品灵石', 图标: 'Gem' },
-  灵石_极品: { 币种: '灵石_极品', 名称: '极品灵石', 价值度: 1000000, 描述: '约等于 100 上品灵石', 图标: 'Gem' },
-  铜币: { 币种: '铜币', 名称: '铜币', 价值度: 0.00001, 描述: '凡俗常用小额货币', 图标: 'Coins' },
-  银两: { 币种: '银两', 名称: '银两', 价值度: 0.001, 描述: '凡俗常用中额货币（约等于 100 铜币）', 图标: 'HandCoins' },
-  金锭: { 币种: '金锭', 名称: '金锭', 价值度: 0.1, 描述: '凡俗常用大额货币（约等于 100 银两）', 图标: 'BadgeDollarSign' },
+  铜钱: { 币种: '铜钱', 名称: '铜钱', 价值度: 1, 描述: '民间常用小额货币', 图标: 'Coins' },
+  银两: { 币种: '银两', 名称: '银两', 价值度: 100, 描述: '主要流通货币（约等于 100 铜钱）', 图标: 'HandCoins' },
+  金锭: { 币种: '金锭', 名称: '金锭', 价值度: 10000, 描述: '大额财富储存（约等于 100 银两）', 图标: 'BadgeDollarSign' },
 };
 
 function clampNumber(value: unknown, min: number, max: number, fallback: number): number {
@@ -102,28 +94,50 @@ export function migrateLegacySpiritStonesToWallet(backpack: any) {
   const legacyMid = hasLegacy ? clampNumber(legacy.中品, 0, 9e15, 0) : 0;
   const legacyHigh = hasLegacy ? clampNumber(legacy.上品, 0, 9e15, 0) : 0;
   const legacySupreme = hasLegacy ? clampNumber(legacy.极品, 0, 9e15, 0) : 0;
-  const legacySum = legacyLow + legacyMid + legacyHigh + legacySupreme;
 
-  const walletLow = clampNumber(wallet['灵石_下品']?.数量, 0, 9e15, 0);
-  const walletMid = clampNumber(wallet['灵石_中品']?.数量, 0, 9e15, 0);
-  const walletHigh = clampNumber(wallet['灵石_上品']?.数量, 0, 9e15, 0);
-  const walletSupreme = clampNumber(wallet['灵石_极品']?.数量, 0, 9e15, 0);
-  const walletSum = walletLow + walletMid + walletHigh + walletSupreme;
+  // 计算旧灵石总价值（以"下品灵石"为基准单位）
+  const legacyTotalValue = legacyLow + (legacyMid * 100) + (legacyHigh * 10000) + (legacySupreme * 1000000);
 
-  // 迁移策略：
-  // - wallet 里没有任何灵石字段：直接迁移
-  // - wallet 里有默认币种但全为 0，而 legacy 有数值：认为是“未迁移但已初始化默认币种”，仍然迁移
+  // 迁移策略：将灵石按价值转换为新的货币系统
+  // 1000000 下品灵石 = 1 金锭
+  // 10000 下品灵石 = 1 银两
+  // 100 下品灵石 = 1 铜钱（基准）
+  // 这里我们采用简化的兑换策略：1旧灵石 = 1新铜钱（保持玩家财富值相对稳定）
+
   const walletHasStoneKey =
     '灵石_下品' in wallet ||
     '灵石_中品' in wallet ||
     '灵石_上品' in wallet ||
     '灵石_极品' in wallet;
 
-  if (hasLegacy && legacySum > 0 && (!walletHasStoneKey || walletSum === 0)) {
-    wallet['灵石_下品'] = { ...(DEFAULT_CURRENCIES.灵石_下品 as any), ...wallet['灵石_下品'], 数量: legacyLow };
-    wallet['灵石_中品'] = { ...(DEFAULT_CURRENCIES.灵石_中品 as any), ...wallet['灵石_中品'], 数量: legacyMid };
-    wallet['灵石_上品'] = { ...(DEFAULT_CURRENCIES.灵石_上品 as any), ...wallet['灵石_上品'], 数量: legacyHigh };
-    wallet['灵石_极品'] = { ...(DEFAULT_CURRENCIES.灵石_极品 as any), ...wallet['灵石_极品'], 数量: legacySupreme };
+  const walletHasNewCurrency =
+    '铜钱' in wallet ||
+    '银两' in wallet ||
+    '金锭' in wallet;
+
+  // 如果有旧灵石数据且新货币未初始化，进行迁移
+  if (hasLegacy && legacyTotalValue > 0 && !walletHasNewCurrency) {
+    // 将旧灵石价值转换为铜钱（1:1比例保持玩家财富）
+    wallet['铜钱'] = { ...(DEFAULT_CURRENCIES.铜钱 as any), ...wallet['铜钱'], 数量: legacyTotalValue };
+
+    // 自动兑换大额货币
+    let totalCopper = legacyTotalValue;
+    const gold = Math.floor(totalCopper / 10000);
+    totalCopper %= 10000;
+    const silver = Math.floor(totalCopper / 100);
+    totalCopper %= 100;
+
+    wallet['金锭'] = { ...(DEFAULT_CURRENCIES.金锭 as any), ...wallet['金锭'], 数量: gold };
+    wallet['银两'] = { ...(DEFAULT_CURRENCIES.银两 as any), ...wallet['银两'], 数量: silver };
+    wallet['铜钱'] = { ...(DEFAULT_CURRENCIES.铜钱 as any), ...wallet['铜钱'], 数量: totalCopper };
+  }
+
+  // 如果还有旧的灵石字段，删除它们
+  if (walletHasStoneKey) {
+    delete wallet['灵石_下品'];
+    delete wallet['灵石_中品'];
+    delete wallet['灵石_上品'];
+    delete wallet['灵石_极品'];
   }
 }
 
@@ -132,18 +146,24 @@ export function syncWalletToLegacySpiritStones(backpack: any) {
   const wallet = backpack.货币;
   if (!wallet || typeof wallet !== 'object' || Array.isArray(wallet)) return;
 
-  const low = clampNumber(wallet['灵石_下品']?.数量, 0, 9e15, 0);
-  const mid = clampNumber(wallet['灵石_中品']?.数量, 0, 9e15, 0);
-  const high = clampNumber(wallet['灵石_上品']?.数量, 0, 9e15, 0);
-  const supreme = clampNumber(wallet['灵石_极品']?.数量, 0, 9e15, 0);
+  // 将新货币系统同步回旧格式（兼容旧UI）
+  // 计算总价值并转换为旧灵石格式
+  const copper = clampNumber(wallet['铜钱']?.数量, 0, 9e15, 0);
+  const silver = clampNumber(wallet['银两']?.数量, 0, 9e15, 0);
+  const gold = clampNumber(wallet['金锭']?.数量, 0, 9e15, 0);
+
+  // 总价值（以铜钱为基准）
+  const totalValue = copper + (silver * 100) + (gold * 10000);
 
   if (!backpack.灵石 || typeof backpack.灵石 !== 'object' || Array.isArray(backpack.灵石)) {
     backpack.灵石 = { 下品: 0, 中品: 0, 上品: 0, 极品: 0 };
   }
-  backpack.灵石.下品 = low;
-  backpack.灵石.中品 = mid;
-  backpack.灵石.上品 = high;
-  backpack.灵石.极品 = supreme;
+
+  // 将总价值转换回旧灵石格式
+  backpack.灵石.下品 = totalValue % 100;
+  backpack.灵石.中品 = Math.floor((totalValue / 100) % 100);
+  backpack.灵石.上品 = Math.floor((totalValue / 10000) % 100);
+  backpack.灵石.极品 = Math.floor(totalValue / 1000000);
 }
 
 export function normalizeBackpackCurrencies(backpack: any) {
