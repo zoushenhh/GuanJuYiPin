@@ -1020,8 +1020,8 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
 
   // 4. 迁移到 V3 并最终数据校验（落盘只允许 V3）
   const { migrated, report } = migrateSaveDataToLatest(saveData);
-  if (report.legacyKeysFound.length > 0) {
-    console.log('[数据最终化] 迁移报告 legacyKeysFound:', report.legacyKeysFound);
+  if (report.warnings.length > 0) {
+    console.log('[数据最终化] 迁移报告 warnings:', report.warnings);
   }
 
   // 兜底修复：AI/迁移可能遗漏字段，使用统一修复器补齐结构，避免创角因缺字段失败
