@@ -1119,7 +1119,7 @@ const closeModals = () => {
 </script>
 
 <style scoped>
-/* ========== 官途主题变量 ========== */
+/* ========== 官居一品主题变量 ========== */
 .character-details-wrapper {
   /* 主题变量映射 */
   --xiantu-bg-deep: var(--color-background);

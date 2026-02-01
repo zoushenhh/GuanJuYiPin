@@ -1,10 +1,10 @@
 <template>
   <div class="top-bar">
     <div class="left-section">
-      <h1 class="game-title" v-if="t('官途') === '官途'">
+      <h1 class="game-title" v-if="t('官居一品') === '官居一品'">
         <span class="title-xian">官</span><span class="title-tu">途</span>
       </h1>
-      <h1 class="game-title" v-else>{{ t('官途') }}</h1>
+      <h1 class="game-title" v-else>{{ t('官居一品') }}</h1>
       <div class="character-quick-info" v-if="characterName">
         <span class="character-name">{{ characterName }}</span>
         <span class="character-realm">{{ characterRealm }}</span>

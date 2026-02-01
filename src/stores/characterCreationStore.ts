@@ -23,7 +23,7 @@ import {
 //                           本地类型定义
 // =======================================================================
 
-// 六司属性键（对应精力、灵性、悟性、气运、魅力、心性）
+// 六司键（对应精力、灵性、悟性、气运、魅力、心性）
 export type AttributeKey = 'root_bone' | 'spirituality' | 'comprehension' | 'fortune' | 'charm' | 'temperament';
 
 export interface CharacterCreationPayload {
@@ -32,15 +32,15 @@ export interface CharacterCreationPayload {
   world_id: number | '';
   talent_tier_id: number | '';
   current_age: number;
-  // 六司属性（县令主题）：
+  // 六司（县令主题）：
   root_bone: number;        // 精力（原根骨）- 影响健康、处理政务耐力
   spirituality: number;     // 灵性 - 影响威望、施政效果
   comprehension: number;    // 悟性 - 影响政务理解、晋升概率
   fortune: number;          // 气运 - 影响机缘、政绩、晋升
   charm: number;            // 魅力 - 影响社交、NPC好感
   temperament: number;      // 心性 - 影响处理政务稳定、抗压能力
-  origin_id: number | null;           // 出身ID（天资选择）
-  spirit_root_id: number | null;      // 后天ID
+  origin_id: number | null;           // 出身ID（出身选择）
+  spirit_root_id: number | null;      // 才能ID
   selected_talent_ids: number[];      // 能力ID列表
 }
 
@@ -304,10 +304,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
 
   const bonusTalentPoints = computed(() => {
     let points = 0;
-    if (selectedAbilities.value.some(t => t.name === '霸王血脉')) {
-      points += 1;
-      console.log('[功勋点计算] 检测到 "霸王血脉" 天赋, 增加 1 功勋点');
-    }
+    // 未来可扩展：特殊天赋增加额外功勋点
     return points;
   });
 
@@ -321,7 +318,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     points += bonusTalentPoints.value;
 
     if (selectedAptitude.value) {
-      console.log('[功勋点计算] 出生消耗:', selectedAptitude.value.talent_cost);
+      console.log('[功勋点计算] 出身消耗:', selectedAptitude.value.talent_cost);
       points -= selectedAptitude.value.talent_cost;
     }
 
@@ -405,9 +402,9 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     try {
       const userName = await getCurrentCharacterName();
       characterPayload.value.character_name = userName || '无名者';
-      console.log("【创世神殿】已获取用户官衔:", characterPayload.value.character_name);
+      console.log("【创世神殿】已获取用户名字:", characterPayload.value.character_name);
     } catch (error) {
-      console.warn('【创世神殿】获取用户官衔失败，使用默认名', error);
+      console.warn('【创世神殿】获取用户名字失败，使用默认名', error);
       characterPayload.value.character_name = '无名者';
     }
 
@@ -661,11 +658,11 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
       const newRootWithId = { ...spiritRoot, id: newId };
       addSpiritRoot(newRootWithId);
       existingRoot = creationData.value.postHeavens.find(r => r.name === spiritRoot.name); // Re-find it to be safe
-      console.log(`[创世神殿] AI生成了新的后天 "${spiritRoot.name}" 并已添加到列表中 (ID: ${newId})`);
+      console.log(`[创世神殿] AI生成了新的才能 "${spiritRoot.name}" 并已添加到列表中 (ID: ${newId})`);
     }
     if (existingRoot) {
         characterPayload.value.spirit_root_id = existingRoot.id;
-        console.log(`[创世神殿] 已将玩家选择的后天更新为AI生成的结果: "${existingRoot.name}"`);
+        console.log(`[创世神殿] 已将玩家选择的才能更新为AI生成的结果: "${existingRoot.name}"`);
     }
   }
 

@@ -1048,7 +1048,7 @@ const exportCharacter = async (charId: string) => {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(dataBlob);
     const characterName = character.角色?.名字 || '未命名角色';
-    link.download = `官途-角色-${characterName}-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `官居一品-角色-${characterName}-${new Date().toISOString().split('T')[0]}.json`;
 
     document.body.appendChild(link);
     link.click();
@@ -1115,7 +1115,7 @@ const exportSingleSave = async (charId: string, slotKey: string, slot: SaveSlot)
     const link = document.createElement('a');
     link.href = URL.createObjectURL(dataBlob);
     const saveName = slot.存档名 || slotKey;
-    link.download = `官途-${saveName}-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `官居一品-${saveName}-${new Date().toISOString().split('T')[0]}.json`;
 
     document.body.appendChild(link);
     link.click();
@@ -1206,7 +1206,7 @@ const _exportSaves = async () => {
 
     const link = document.createElement('a');
     link.href = URL.createObjectURL(dataBlob);
-    link.download = `官途-${character.角色.名字}-存档备份-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `官居一品-${character.角色.名字}-存档备份-${new Date().toISOString().split('T')[0]}.json`;
 
     document.body.appendChild(link);
     link.click();
