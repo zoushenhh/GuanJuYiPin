@@ -53,7 +53,7 @@ const PROTECTED_ROOT_PATHS: string[] = [
   '角色.功法',
   '角色.功法.功法进度',
   '角色.大道',
-  '角色.大道.大道列表',
+  '角色.大道.方略列表',
   '角色.效果',
   '角色.位置',
   '角色.技能',
@@ -305,8 +305,8 @@ function validateValueType(key: string, value: unknown, action: string): string[
       }
     }
 
-    // 大道对象（角色.大道.大道列表.<道名>）
-    if (key.startsWith('角色.大道.大道列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
+    // 大道对象（角色.大道.方略列表.<道名>）
+    if (key.startsWith('角色.大道.方略列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
       if (typeof value !== 'object' || value === null) errors.push('大道对象必须是对象类型');
     }
 
@@ -499,7 +499,7 @@ export function validateAndRepairCommandValue(command: TavernCommand): Validatio
     }
 
     // 8. 大道对象
-    if (key.startsWith('角色.大道.大道列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
+    if (key.startsWith('角色.大道.方略列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
       const daoName = key.split('.')[3];
       const result = validateDaoObject(value, daoName);
       errors.push(...result.errors);

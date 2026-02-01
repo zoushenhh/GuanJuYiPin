@@ -2502,10 +2502,10 @@ ${saveDataJson}`;
         }
 
         // ?? 大道经验：add 当前经验 时同步累计总经验（仅正增量）
-        const daoCurrentExpMatch = path.match(/^角色\.大道\.大道列表\.([^\.]+)\.当前经验$/);
+        const daoCurrentExpMatch = path.match(/^角色\.大道\.方略列表\.([^\.]+)\.当前经验$/);
         if (daoCurrentExpMatch && value > 0) {
           const daoName = daoCurrentExpMatch[1];
-          const totalPath = `角色.大道.大道列表.${daoName}.总经验`;
+          const totalPath = `角色.大道.方略列表.${daoName}.总经验`;
           const totalValue = get(saveData, totalPath, 0);
           if (typeof totalValue === 'number') {
             set(saveData, totalPath, Math.max(0, totalValue + value));

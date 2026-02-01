@@ -80,11 +80,11 @@
               </div>
             </section>
 
-            <!-- 三千大道 -->
+            <!-- 治国方略 -->
             <section id="dao" class="format-section">
-              <h4 class="section-title">2. 大道</h4>
+              <h4 class="section-title">2. 治国方略</h4>
               <div class="section-content">
-                <pre class="code-block">大道列表: {道名: DaoData对象}
+                <pre class="code-block">方略列表: {方略名: DaoData对象}
   - 道名: string
   - 描述: string
   - 阶段列表: [{名称, 描述, 突破经验}]
@@ -95,13 +95,13 @@
 
                 <div class="example-box">
                   <strong>示例：</strong>
-                  <pre class="code-block">// 解锁并初始化大道
+                  <pre class="code-block">// 解锁并初始化方略
 {
   "action": "set",
-  "key": "大道.大道列表.剑道",
+  "key": "大道.方略列表.仁政方略",
   "value": {
-    "道名": "剑道",
-    "描述": "以剑入道，剑气纵横",
+    "道名": "仁政方略",
+    "描述": "以民为本，轻徭薄赋",
     "是否解锁": true,
     "当前阶段": 0,
     "当前经验": 0,
@@ -116,7 +116,7 @@
 // 增加经验
 {
   "action": "add",
-  "key": "大道.大道列表.剑道.当前经验",
+  "key": "大道.方略列表.仁政方略.当前经验",
   "value": 50
 }</pre>
                 </div>
@@ -340,7 +340,7 @@ const saveDataStructure = getSaveDataStructureForEnv(isTavernEnv())
 
 const sections = [
   { id: 'character', title: '角色/状态' },
-  { id: 'dao', title: '大道' },
+  { id: 'dao', title: '方略' },
   { id: 'inventory', title: '背包物品' },
   { id: 'relationships', title: '关系' },
   { id: 'world', title: '世界' },

@@ -678,31 +678,31 @@ export interface SectTaskStatus {
   演变次数: number;
 }
 
-// --- 三千大道系统 ---
+// --- 治国方略系统 ---
 
-/** 大道阶段定义 */
+/** 方略阶段定义 */
 export interface DaoStage {
   名称: string;
   描述: string;
   突破经验: number;
 }
 
-/** 大道数据（大道定义+进度合并） */
+/** 方略数据（方略定义+进度合并） */
 export interface DaoData {
   道名: string;
   描述: string;
-  阶段列表: DaoStage[]; // 大道的所有阶段定义
+  阶段列表: DaoStage[]; // 方略的所有阶段定义
 
-  // 进度数据（与大道数据合并）
+  // 进度数据（与方略数据合并）
   是否解锁: boolean;
   当前阶段: number; // 从1开始计数，1=入门，2=初窥...（数组索引=当前阶段-1）
   当前经验: number;
   总经验: number;
 }
 
-/** 三千大道系统数据 */
+/** 治国方略系统数据 */
 export interface ThousandDaoSystem extends AIMetadata {
-  大道列表: Record<string, DaoData>; // 以大道名称为key，数据+进度合并
+  方略列表: Record<string, DaoData>; // 以方略名称为key，数据+进度合并
 }
 
 // --- 装备 ---

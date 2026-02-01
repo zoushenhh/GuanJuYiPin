@@ -8,7 +8,7 @@ import type { DaoData, ThousandDaoSystem } from '../types/game';
 /** 创建空的治国方略系统 */
 export function createEmptyThousandDaoSystem(): ThousandDaoSystem {
   return {
-    大道列表: {}, // 开局无任何方略，完全由AI根据机缘解锁
+    方略列表: {}, // 开局无任何方略，完全由AI根据机缘解锁
   };
 }
 

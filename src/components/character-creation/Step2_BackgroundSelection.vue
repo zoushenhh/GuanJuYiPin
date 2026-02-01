@@ -1,7 +1,7 @@
 <template>
   <div class="talent-tier-selection">
-    <div v-if="store.isLoading" class="loading-state">{{ $t('感应天道，测算天资...') }}</div>
-    <div v-else-if="store.error" class="error-state">{{ $t('天机混沌') }}：{{ store.error }}</div>
+    <div v-if="store.isLoading" class="loading-state">{{ $t('测算县令天资...') }}</div>
+    <div v-else-if="store.error" class="error-state">{{ $t('推演失败') }}：{{ store.error }}</div>
 
     <div v-else class="tier-layout">
       <!-- 左侧面板：列表和操作按钮 -->
@@ -16,7 +16,7 @@
             <span class="action-name">{{ $t('自定义天资') }}</span>
           </button>
           <button @click="handleAIGenerate" class="action-item shimmer-on-hover">
-            <span class="action-name">{{ $t('AI推演') }}</span>
+            <span class="action-name">{{ $t('智能推演') }}</span>
           </button>
         </div>
 
@@ -55,7 +55,7 @@
           <div class="description-scroll">
             <p>{{ activeTier.description }}</p>
           </div>
-          <div class="points-display">{{ $t('天道点') }}: {{ activeTier.total_points }}</div>
+          <div class="points-display">{{ $t('官品点') }}: {{ activeTier.total_points }}</div>
         </div>
         <div v-else class="placeholder">{{ $t('请选择你的天资等级，这将决定你的起点。') }}</div>
       </div>
@@ -81,7 +81,7 @@
       @submit="handleEditSubmit"
     />
 
-    <!-- AI推演输入弹窗 -->
+    <!-- 智能推演输入弹窗 -->
     <AIPromptModal
       :visible="isAIPromptModalVisible"
       @close="isAIPromptModalVisible = false"
@@ -135,7 +135,7 @@ const filteredTalentTiers = computed(() => {
 const customTierFields = [
   { key: 'name', label: '天资名称', type: 'text', placeholder: '例如：凡人' },
   { key: 'description', label: '天资描述', type: 'textarea', placeholder: '描述此天资的特点...' },
-  { key: 'total_points', label: '天道点', type: 'number', placeholder: '例如：20' },
+  { key: 'total_points', label: '官品点', type: 'number', placeholder: '例如：20' },
   { key: 'rarity', label: '稀有度', type: 'number', placeholder: '1-10，数值越高越稀有' },
   { key: 'color', label: '辉光颜色', type: 'color', placeholder: '例如：#808080' },
 ] as const
@@ -144,7 +144,7 @@ function validateCustomTier(data: Partial<CustomTierData>) {
     const errors: Record<string, string> = {};
     if (!data.name?.trim()) errors.name = '天资名称不可为空';
     const points = Number(data.total_points);
-    if (isNaN(points) || points < 0) errors.total_points = '天道点必须是非负数';
+    if (isNaN(points) || points < 0) errors.total_points = '官品点必须是非负数';
     const rarity = Number(data.rarity);
     if (isNaN(rarity) || rarity < 1 || rarity > 10) errors.rarity = '稀有度必须在1-10之间';
     return {
@@ -185,31 +185,31 @@ function handleAIGenerate() {
 
 async function handleAIPromptSubmit(userPrompt: string) {
   const toastId = 'ai-generate-talent-tier';
-  toast.loading('天机推演中，请稍候...', { id: toastId });
+  toast.loading('推演中，请稍候...', { id: toastId });
 
   try {
     const aiResponse = await generateWithRawPrompt(userPrompt, TALENT_TIER_ITEM_GENERATION_PROMPT, false);
 
     if (!aiResponse) {
-      toast.error('AI推演失败', { id: toastId });
+      toast.error('智能推演失败', { id: toastId });
       return;
     }
 
-    console.log('【AI推演-天资】完整响应:', aiResponse);
+    console.log('【智能推演-天资】完整响应:', aiResponse);
 
     // 解析AI返回的JSON
     let parsedTier: any;
     try {
       parsedTier = parseJsonFromText(aiResponse);
     } catch (parseError) {
-      console.error('【AI推演-天资】JSON解析失败:', parseError);
-      toast.error('AI推演结果格式错误，无法解析', { id: toastId });
+      console.error('【智能推演-天资】JSON解析失败:', parseError);
+      toast.error('智能推演结果格式错误，无法解析', { id: toastId });
       return;
     }
 
     // 验证必需字段
     if (!parsedTier.name && !parsedTier.名称) {
-      toast.error('AI推演结果缺少天资名称', { id: toastId });
+      toast.error('智能推演结果缺少天资名称', { id: toastId });
       return;
     }
 
@@ -229,11 +229,11 @@ async function handleAIPromptSubmit(userPrompt: string) {
     handleSelectTalentTier(newTier);
     isAIPromptModalVisible.value = false;
 
-    toast.success(`AI推演完成！天资 "${newTier.name}" 已生成`, { id: toastId });
+    toast.success(`智能推演完成！天资 "${newTier.name}" 已生成`, { id: toastId });
 
   } catch (e: any) {
-    console.error('【AI推演-天资】失败:', e);
-    toast.error(`AI推演失败: ${e.message}`, { id: toastId });
+    console.error('【智能推演-天资】失败:', e);
+    toast.error(`智能推演失败: ${e.message}`, { id: toastId });
   }
 }
 

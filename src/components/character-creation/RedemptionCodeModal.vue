@@ -4,7 +4,7 @@
       <!-- 第一步：输入兑换码 -->
       <div v-if="currentStep === 'code'" class="step-content">
         <h2 class="modal-title">{{ title }}</h2>
-        <p class="modal-subtitle">{{ $t('请输入兑换码以接引天机进行AI推演。') }}</p>
+        <p class="modal-subtitle">{{ $t('请输入兑换码以使用智能推演功能。') }}</p>
         <form @submit.prevent="submitCode">
           <div class="form-group">
             <input

@@ -251,15 +251,15 @@ const spiritRootTypes = [
   { key: 'time', name: '时间', icon: '⏰', color: '#ec4899', desc: '时光流转，逆转乾坤' }
 ]
 
-// 后天品级配置 - 完整的修仙品级体系
+// 后天品级配置 - 完整的县令品级体系
 const spiritRootTiers = [
   { key: 'common', name: '凡品', multiplier: 1.0, cost: 0, desc: '平平无奇的普通后天' },
   { key: 'low', name: '下品', multiplier: 1.1, cost: 3, desc: '略有天赋，勉强可用' },
   { key: 'middle', name: '中品', multiplier: 1.3, cost: 6, desc: '资质尚可，小有成就' },
   { key: 'high', name: '上品', multiplier: 1.6, cost: 10, desc: '天赋卓越，前途无量' },
   { key: 'supreme', name: '极品', multiplier: 2.0, cost: 15, desc: '万中无一，天之骄子' },
-  { key: 'heaven', name: '仙品', multiplier: 2.4, cost: 20, desc: '天降异象，举世罕见' },
-  { key: 'divine', name: '神品', multiplier: 2.8, cost: 25, desc: '神鬼莫测，逆天改命' },
+  { key: 'heaven', name: '卓越', multiplier: 2.4, cost: 20, desc: '出类拔萃，举世罕见' },
+  { key: 'divine', name: '超凡', multiplier: 2.8, cost: 25, desc: '超凡脱俗，惊才绝艳' },
   { key: 'special', name: '特殊', multiplier: 0, cost: 0, desc: '特殊体质，另有奥妙' }
 ]
 
@@ -427,7 +427,7 @@ function handleAIGenerate() {
 
 async function handleAIPromptSubmit(userPrompt: string) {
   const toastId = 'ai-generate-spirit-root';
-  toast.loading('天机推演中，请稍候...', { id: toastId });
+  toast.loading('智能推演中，请稍候...', { id: toastId });
 
   try {
     const aiResponse = await generateWithRawPrompt(userPrompt, SPIRIT_ROOT_ITEM_GENERATION_PROMPT, false);

@@ -82,7 +82,7 @@
         </div>
       </div>
 
-      <!-- 大道列表 -->
+      <!-- 方略列表 -->
       <div v-else class="dao-list">
         <div
           v-for="daoName in sortedDaosList"
@@ -338,25 +338,25 @@ const formatNumber = (num: number): string => {
 
 // 三千大道数据
 const daoSystem = computed((): ThousandDaoSystem => {
-  return gameStateStore.thousandDao || { 大道列表: {} };
+  return gameStateStore.thousandDao || { 方略列表: {} };
 });
 
 // 已解锁大道
 const unlockedDaosList = computed(() => {
-  return Object.entries(daoSystem.value.大道列表)
+  return Object.entries(daoSystem.value.方略列表)
     .filter(([_, daoData]) => daoData.是否解锁)
     .map(([daoName]) => daoName);
 });
 
 const unlockedDaosCount = computed(() => unlockedDaosList.value.length);
 
-// 筛选后的大道列表
+// 筛选后的方略列表
 const filteredDaosList = computed(() => {
   if (activeCategory.value === 'all') return unlockedDaosList.value;
   return unlockedDaosList.value.filter(daoName => getDaoCategory(daoName) === activeCategory.value);
 });
 
-// 排序后的大道列表
+// 排序后的方略列表
 const sortedDaosList = computed(() => {
   const list = [...filteredDaosList.value];
   switch (activeSortKey.value) {
@@ -383,18 +383,18 @@ const sortedDaosList = computed(() => {
 
 const selectedDaoProgress = computed((): DaoData | null => {
   if (!selectedDao.value) return null;
-  return daoSystem.value.大道列表[selectedDao.value] || null;
+  return daoSystem.value.方略列表[selectedDao.value] || null;
 });
 
 const totalDaoExperience = computed(() => {
-  return Object.values(daoSystem.value.大道列表).reduce((total, daoData) => {
+  return Object.values(daoSystem.value.方略列表).reduce((total, daoData) => {
     return total + (daoData.总经验 ?? 0);
   }, 0);
 });
 
 // 获取大道数据
 const getDaoData = (daoName: string): DaoData | null => {
-  return daoSystem.value.大道列表[daoName] || null;
+  return daoSystem.value.方略列表[daoName] || null;
 };
 
 // 获取阶段样式类
@@ -1297,7 +1297,7 @@ const comprehendFromNature = () => {
   gap: 12px;
 }
 
-/* 大道列表 */
+/* 方略列表 */
 .dao-list {
   flex: 1;
   overflow-y: auto;

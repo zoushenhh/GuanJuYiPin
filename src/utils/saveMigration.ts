@@ -325,7 +325,7 @@ export function migrateSaveDataToV3(raw: SaveData): { migrated: SaveDataV3; repo
   const flatCultivation =
     source.施政 ?? (source.施政方略 !== undefined ? { 施政方略: source.施政方略 } : { 施政方略: null });
 
-  const flatDao = source.大道 ?? source.三千大道 ?? { 大道列表: {} };
+  const flatDao = source.大道 ?? source.三千大道 ?? { 方略列表: {} };
   const flatSkills =
     source.技能 ??
     (source.掌握技能

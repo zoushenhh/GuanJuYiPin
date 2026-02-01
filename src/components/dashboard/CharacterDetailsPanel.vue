@@ -392,7 +392,7 @@
             <div v-else-if="activeTab === 'inventory'" class="tab-pane">
               <div class="pane-grid">
                 <section class="info-card glass-panel">
-                  <div class="card-header"><Backpack :size="20" class="header-icon"/> <h3>{{ t('储物袋') }}</h3></div>
+                  <div class="card-header"><Backpack :size="20" class="header-icon"/> <h3>{{ t('行囊') }}</h3></div>
                   <div class="inventory-stats-grid">
                      <div class="inv-stat">
                         <span class="num">{{ inventoryItemCount }}</span>
@@ -423,7 +423,7 @@
                     </div>
                     <div v-if="inventoryPreviewItems.length === 0" class="empty-placeholder text-sm">
                       <Backpack :size="36" opacity="0.5" />
-                      <p>{{ t('储物袋空空如也') }}</p>
+                      <p>{{ t('行囊空空如也') }}</p>
                     </div>
                   </div>
                 </section>
@@ -704,7 +704,7 @@ const totalSkillsCount = computed(() => allLearnedSkills.value.length);
 const daoList = computed<Record<string, DaoData>>(() => {
   const raw = daoData.value as unknown;
   if (!raw || typeof raw !== 'object') return {};
-  const list = (raw as { 大道列表?: unknown }).大道列表;
+  const list = (raw as { 方略列表?: unknown }).方略列表;
   if (!list || typeof list !== 'object') return {};
   return list as Record<string, DaoData>;
 });
@@ -883,7 +883,7 @@ const hasSpiritRoot = computed(() => {
 const getSpiritRootClass = (spiritRoot: SpiritRoot | string | undefined): string => {
   if (!spiritRoot) return 'spirit-common';
   const grade = getSpiritRootGrade(spiritRoot);
-  if (grade === '天品' || grade === '仙品') return 'spirit-divine';
+  if (grade === '卓越' || grade === '超凡') return 'spirit-divine';
   if (grade === '地品') return 'spirit-earth';
   return 'spirit-common';
 };
@@ -895,12 +895,12 @@ const formatSpiritRoot = (spiritRoot: SpiritRoot | string | undefined): string =
 };
 
 const getSpiritRootDisplay = (spiritRoot: SpiritRoot | string | undefined): string => {
-  if (!spiritRoot) return t('无灵根');
+  if (!spiritRoot) return t('无后天');
   if (typeof spiritRoot === 'string') return spiritRoot;
   const obj = spiritRoot as unknown as Record<string, unknown>;
   if (typeof obj.name === 'string' && obj.name.trim()) return obj.name;
   if (typeof obj.名称 === 'string' && obj.名称.trim()) return obj.名称;
-  return t('未知灵根');
+  return t('未知后天');
 };
 
 const getSpiritRootGrade = (spiritRoot: SpiritRoot | string | undefined): string => {

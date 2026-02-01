@@ -1,9 +1,9 @@
 <template>
   <div class="attribute-allocation-container">
     <div class="header">
-      <h2>{{ $t('先天六命分配') }}</h2>
+      <h2>{{ $t('六司属性分配') }}</h2>
       <div class="points-display">
-        {{ $t('剩余天道点:') }}
+        {{ $t('剩余官品点:') }}
         <span :class="{ negative: store.remainingTalentPoints < 0 }">{{
           store.remainingTalentPoints
         }}</span>
@@ -48,8 +48,8 @@ const minValue = 0 // 属性基础值
 const maxValue = 10 // 属性最大值
 
 const attributeNames = {
-  root_bone: '根骨',
-  spirituality: '灵性',
+  root_bone: '精力',
+  spirituality: '威望',
   comprehension: '悟性',
   fortune: '气运',
   charm: '魅力',
@@ -57,12 +57,12 @@ const attributeNames = {
 }
 
 const attributeDescriptions = {
-  root_bone: '决定气血上限、恢复速度、寿命上限。影响体魄锻炼、抗打击能力。',
-  spirituality: '决定民心上限、获取效率。影响政务学习、政策威力。',
-  comprehension: '决定神识上限、学习效率。影响方略领悟、技能掌握速度。',
-  fortune: '决定各种概率、物品掉落品质。影响资源获取、贵人相助。',
+  root_bone: '决定体力上限、恢复速度。影响处理政务的耐力和抗打击能力。',
+  spirituality: '决定民心上限、获取效率。影响施政效果、政策威力。',
+  comprehension: '决定学习效率。影响政务理解、方略领悟、技能掌握速度。',
+  fortune: '决定各种概率、政绩评定。影响资源获取、贵人相助、晋升机会。',
   charm: '决定初始好感度、社交加成。影响NPC互动、衙门声望获取。',
-  temperament: '决定心魔抗性、意志力。影响贪污抵抗、关键抉择。',
+  temperament: '决定抗压能力、意志力。影响贪污抵抗、关键抉择稳定性。',
 }
 
 type AttributeKey = keyof typeof attributeNames

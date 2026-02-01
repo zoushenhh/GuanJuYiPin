@@ -106,7 +106,7 @@
 
       <!-- World -->
       <div class="preview-item">
-        <h3>{{ $t('所选世界') }}</h3>
+        <h3>{{ $t('所选地界') }}</h3>
         <h4>{{ store.selectedWorld?.name || $t('未选择') }}</h4>
         <p class="item-description">{{ store.selectedWorld?.description || $t('暂无描述') }}</p>
       </div>
@@ -129,14 +129,14 @@
 
       <!-- Spirit Root -->
       <div class="preview-item">
-        <h3>{{ $t('灵根') }}</h3>
-        <h4>{{ store.selectedSpiritRoot?.name || $t('随机灵根') }}</h4>
+        <h3>{{ $t('后天') }}</h3>
+        <h4>{{ store.selectedSpiritRoot?.name || $t('随机后天') }}</h4>
         <p class="item-description">{{ store.selectedSpiritRoot?.description || $t('暂无描述') }}</p>
       </div>
 
       <!-- Talents -->
       <div class="preview-item talents-item">
-        <h3>{{ $t('天赋') }}</h3>
+        <h3>{{ $t('能力') }}</h3>
         <ul v-if="store.selectedTalents.length">
           <li v-for="talent in store.selectedTalents" :key="talent.id">
             <strong>{{ talent.name }}</strong>
@@ -148,10 +148,10 @@
 
       <!-- Attributes -->
       <div v-if="props.isLocalCreation" class="preview-item attributes-item">
-        <h3>{{ $t('先天六司') }}</h3>
+        <h3>{{ $t('六司属性') }}</h3>
         <ul>
-          <li>{{ $t('根骨') }}: {{ store.attributes.root_bone }}</li>
-          <li>{{ $t('灵性') }}: {{ store.attributes.spirituality }}</li>
+          <li>{{ $t('精力') }}: {{ store.attributes.root_bone }}</li>
+          <li>{{ $t('威望') }}: {{ store.attributes.spirituality }}</li>
           <li>{{ $t('悟性') }}: {{ store.attributes.comprehension }}</li>
           <li>{{ $t('气运') }}: {{ store.attributes.fortune }}</li>
           <li>{{ $t('魅力') }}: {{ store.attributes.charm }}</li>

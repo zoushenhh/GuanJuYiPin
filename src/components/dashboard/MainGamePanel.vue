@@ -124,7 +124,7 @@
         </div>
 
         <div v-else class="empty-narrative">
-          {{ t('静待天机变化...') }}
+          {{ t('静待政令下达...') }}
         </div>
       </div>
     </div>
@@ -1593,7 +1593,7 @@ const sendMessage = async () => {
     // 🔥 [关键修复] 无论成功失败，都在这里清除AI处理状态
     // 成功的提示
     if (!hasError && aiResponse) {
-      toast.success('天机重现');
+      toast.success('推演完成');
       // 清空已发送的图片
       clearImages();
     }

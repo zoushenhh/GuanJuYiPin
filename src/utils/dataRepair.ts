@@ -380,7 +380,7 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
     if (!Array.isArray(repaired.系统.历史.叙事)) repaired.系统.历史.叙事 = [];
 
     // --- 角色子模块最小化补全 ---
-    if (!repaired.角色.大道 || typeof repaired.角色.大道 !== 'object') repaired.角色.大道 = { 大道列表: {} };
+    if (!repaired.角色.大道 || typeof repaired.角色.大道 !== 'object') repaired.角色.大道 = { 方略列表: {} };
     if (!repaired.角色.方略 || typeof repaired.角色.方略 !== 'object') repaired.角色.方略 = { 当前方略ID: null, 方略进度: {}, 方略套装: { 主修: null, 辅修: [] } };
     if (!repaired.角色.施政 || typeof repaired.角色.施政 !== 'object') repaired.角色.施政 = { 施政方略: null, 施政状态: { 模式: '未施政' } };
     if (!repaired.角色.技能 || typeof repaired.角色.技能 !== 'object') repaired.角色.技能 = { 掌握技能: [], 装备栏: [], 冷却: {} };
@@ -795,7 +795,7 @@ function createMinimalSaveDataV3(): SaveData {
       装备: { 装备1: null, 装备2: null, 装备3: null, 装备4: null, 装备5: null, 装备6: null },
       方略: { 当前方略ID: null, 方略进度: {}, 方略套装: { 主修: null, 辅修: [] } },
       施政: { 施政方略: null, 施政状态: { 模式: '未施政' } },
-      大道: { 大道列表: {} },
+      大道: { 方略列表: {} },
       技能: { 掌握技能: [], 装备栏: [], 冷却: {} },
     },
     社交: {

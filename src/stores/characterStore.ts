@@ -816,9 +816,9 @@ export const useCharacterStore = defineStore('characterV3', () => {
         const daoSystem = saveData.大道;
 
         // 修复大道数据（新结构：数据+进度合并）
-        if (daoSystem.大道列表) {
-          Object.keys(daoSystem.大道列表).forEach(daoName => {
-            const daoData = daoSystem.大道列表[daoName];
+        if (daoSystem.方略列表) {
+          Object.keys(daoSystem.方略列表).forEach(daoName => {
+            const daoData = daoSystem.方略列表[daoName];
             if (daoData) {
               // 确保所有数值字段都是数字
               if (daoData.当前经验 === undefined || daoData.当前经验 === null) {
@@ -846,7 +846,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
           });
         } else {
           // 兼容旧数据结构
-          daoSystem.大道列表 = {};
+          daoSystem.方略列表 = {};
         }
       }
 

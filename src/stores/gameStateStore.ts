@@ -506,9 +506,9 @@ export const useGameStateStore = defineStore('gameState', {
       };
 
       const daoNormalized =
-        this.thousandDao && typeof this.thousandDao === 'object' && (this.thousandDao as any).大道列表
+        this.thousandDao && typeof this.thousandDao === 'object' && (this.thousandDao as any).方略列表
           ? this.thousandDao
-          : { 大道列表: {} };
+          : { 方略列表: {} };
 
       const sectNormalized =
         this.sectSystem || this.sectMemberInfo

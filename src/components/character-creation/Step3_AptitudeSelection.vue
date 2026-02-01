@@ -16,7 +16,7 @@
             <span class="action-name">{{ $t('自定义出身') }}</span>
           </button>
           <button @click="handleAIGenerate" class="action-item shimmer-on-hover">
-            <span class="action-name">{{ $t('AI推演') }}</span>
+            <span class="action-name">{{ $t('智能推演') }}</span>
           </button>
         </div>
 
@@ -281,31 +281,31 @@ function handleAIGenerate() {
 
 async function handleAIPromptSubmit(userPrompt: string) {
   const toastId = 'ai-generate-origin';
-  toast.loading('天机推演中，请稍候...', { id: toastId });
+  toast.loading('推演中，请稍候...', { id: toastId });
 
   try {
     const aiResponse = await generateWithRawPrompt(userPrompt, ORIGIN_ITEM_GENERATION_PROMPT, false);
 
     if (!aiResponse) {
-      toast.error('AI推演失败', { id: toastId });
+      toast.error('智能推演失败', { id: toastId });
       return;
     }
 
-    console.log('【AI推演-出身】完整响应:', aiResponse);
+    console.log('【智能推演-出身】完整响应:', aiResponse);
 
     // 解析AI返回的JSON
     let parsedOrigin: any;
     try {
       parsedOrigin = parseJsonFromText(aiResponse);
     } catch (parseError) {
-      console.error('【AI推演-出身】JSON解析失败:', parseError);
-      toast.error('AI推演结果格式错误，无法解析', { id: toastId });
+      console.error('【智能推演-出身】JSON解析失败:', parseError);
+      toast.error('智能推演结果格式错误，无法解析', { id: toastId });
       return;
     }
 
     // 验证必需字段
     if (!parsedOrigin.name && !parsedOrigin.名称) {
-      toast.error('AI推演结果缺少出身名称', { id: toastId });
+      toast.error('智能推演结果缺少出身名称', { id: toastId });
       return;
     }
 
@@ -314,14 +314,14 @@ async function handleAIPromptSubmit(userPrompt: string) {
 
     // 如果AI没有提供官品点，给予警告并设置默认值
     if (talentCost === undefined || talentCost === null) {
-      console.warn('【AI推演-出身】AI未返回官品点消耗字段，使用默认值3');
+      console.warn('【智能推演-出身】AI未返回官品点消耗字段，使用默认值3');
       toast.warning('AI未设置官品点消耗，已自动设为3点', { id: toastId, duration: 2000 });
       talentCost = 3; // 默认消耗3点，较为合理
     } else {
       // 确保是数字类型
       talentCost = Number(talentCost);
       if (isNaN(talentCost)) {
-        console.warn('【AI推演-出身】官品点消耗不是有效数字，使用默认值3');
+        console.warn('【智能推演-出身】官品点消耗不是有效数字，使用默认值3');
         talentCost = 3;
       }
     }
@@ -343,11 +343,11 @@ async function handleAIPromptSubmit(userPrompt: string) {
     handleSelectOrigin(newOrigin);
     isAIPromptModalVisible.value = false;
 
-    toast.success(`AI推演完成！出身 "${newOrigin.name}" 已生成`, { id: toastId });
+    toast.success(`智能推演完成！出身 "${newOrigin.name}" 已生成`, { id: toastId });
 
   } catch (e: any) {
-    console.error('【AI推演-出身】失败:', e);
-    toast.error(`AI推演失败: ${e.message}`, { id: toastId });
+    console.error('【智能推演-出身】失败:', e);
+    toast.error(`智能推演失败: ${e.message}`, { id: toastId });
   }
 }
 

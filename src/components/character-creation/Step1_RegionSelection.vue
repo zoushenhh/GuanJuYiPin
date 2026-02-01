@@ -1,7 +1,7 @@
 <template>
   <div class="world-selection-container">
-    <div v-if="store.isLoading" class="loading-state">{{ $t('正在推演诸天万界...') }}</div>
-    <div v-else-if="store.error" class="error-state">{{ $t('天机紊乱') }}：{{ store.error }}</div>
+    <div v-if="store.isLoading" class="loading-state">{{ $t('正在生成大千地界...') }}</div>
+    <div v-else-if="store.error" class="error-state">{{ $t('生成失败') }}：{{ store.error }}</div>
 
     <div v-else class="world-layout">
       <!-- 左侧面板：世界列表 -->
@@ -12,7 +12,7 @@
             @click="isCustomModalVisible = true"
             class="action-item shimmer-on-hover"
           >
-            <span class="action-name">{{ $t('自定义世界') }}</span>
+            <span class="action-name">{{ $t('自定义地界') }}</span>
           </button>
           <button @click="handleAIGenerate" class="action-item shimmer-on-hover">
             <span class="action-name">{{ $t('AI推演') }}</span>
@@ -23,7 +23,7 @@
           <div v-if="worldsList.length === 0" class="no-worlds-message">
             <div class="no-worlds-icon">🌌</div>
             <div class="no-worlds-text">
-              {{ $t('暂无世界数据') }}
+              {{ $t('暂无地界数据') }}
             </div>
           </div>
           <div v-else
@@ -177,14 +177,14 @@
           </div>
         </div>
         <div v-else class="placeholder">
-          {{ $t('请择一方大千世界，以定道基。') }}
+          {{ $t('请选择一处地界，开始官途生涯。') }}
         </div>
       </div>
     </div>
 
     <CustomCreationModal
       :visible="isCustomModalVisible"
-      :title="$t('自定义世界')"
+      :title="$t('自定义地界')"
       :fields="customWorldFields"
       :validationFn="validateCustomWorld"
       @close="isCustomModalVisible = false"
@@ -194,7 +194,7 @@
     <!-- 编辑模态框 -->
     <CustomCreationModal
       :visible="isEditModalVisible"
-      :title="$t('编辑世界')"
+      :title="$t('编辑地界')"
       :fields="customWorldFields"
       :validationFn="validateCustomWorld"
       :initialData="editInitialData"
@@ -290,15 +290,15 @@ const worldsList = computed(() => {
 
 // 根据 types/index.ts 中的 World 接口定义字段
 const customWorldFields = [
-  { key: 'name', label: '世界名称', type: 'text', placeholder: '例如：九霄界' },
-  { key: 'era', label: '时代背景', type: 'text', placeholder: '例如：仙道昌隆' },
-  { key: 'description', label: '世界描述', type: 'textarea', placeholder: '描述这个世界的背景故事、修炼体系特点等...' }
+  { key: 'name', label: '地界名称', type: 'text', placeholder: '例如：中原大地' },
+  { key: 'era', label: '时代背景', type: 'text', placeholder: '例如：盛世太平' },
+  { key: 'description', label: '地界描述', type: 'textarea', placeholder: '描述这个地界的背景故事、治理特点等...' }
 ] as const;
 
 function validateCustomWorld(data: any) {
   const errors: Record<string, string> = {};
   if (!data.name?.trim()) {
-    errors.name = '世界名称不可为空';
+    errors.name = '地界名称不可为空';
   }
   return {
     valid: Object.keys(errors).length === 0,
@@ -320,10 +320,10 @@ async function handleCustomSubmit(data: any) {
     // await saveGameData(store.creationData); // NOTE: 持久化由Pinia插件自动处理
     handleSelectWorld(newWorld); // Auto-select the newly created world
     isCustomModalVisible.value = false;
-    toast.success(`自定义世界 "${newWorld.name}" 已成功保存！`);
+    toast.success(`自定义地界 "${newWorld.name}" 已成功保存！`);
   } catch (e) {
-    console.error('保存自定义世界失败:', e);
-    toast.error('保存自定义世界失败！');
+    console.error('保存自定义地界失败:', e);
+    toast.error('保存自定义地界失败！');
   }
 }
 
@@ -333,53 +333,53 @@ function handleAIGenerate() {
 
 async function handleAIPromptSubmit(userPrompt: string) {
   const toastId = 'ai-generate-world';
-  toast.loading('天机推演中，请稍候...', { id: toastId });
+  toast.loading('生成中，请稍候...', { id: toastId });
 
   try {
     const aiResponse = await generateWithRawPrompt(userPrompt, WORLD_ITEM_GENERATION_PROMPT, false, 'world_generation');
 
     if (!aiResponse) {
-      toast.error('AI推演失败', { id: toastId });
+      toast.error('AI生成失败', { id: toastId });
       return;
     }
 
-    console.log('【AI推演-世界】完整响应:', aiResponse);
+    console.log('【AI生成-地界】完整响应:', aiResponse);
 
     // 解析AI返回的JSON
     let parsedWorld: any;
     try {
       parsedWorld = parseJsonFromText(aiResponse);
     } catch (parseError) {
-      console.error('【AI推演-世界】JSON解析失败:', parseError);
-      toast.error('AI推演结果格式错误，无法解析', { id: toastId });
+      console.error('【AI生成-地界】JSON解析失败:', parseError);
+      toast.error('AI生成结果格式错误，无法解析', { id: toastId });
       return;
     }
 
     // 验证必需字段
     if (!parsedWorld.name) {
-      toast.error('AI推演结果缺少世界名称', { id: toastId });
+      toast.error('AI生成结果缺少地界名称', { id: toastId });
       return;
     }
 
-    // 创建世界对象
+    // 创建地界对象
     const newWorld: World = {
       id: Date.now(),
-      name: parsedWorld.name || parsedWorld.名称 || '未命名世界',
+      name: parsedWorld.name || parsedWorld.名称 || '未命名地界',
       era: parsedWorld.era || parsedWorld.时代背景 || '',
       description: parsedWorld.description || parsedWorld.描述 || parsedWorld.世界描述 || '',
       source: 'local'
     };
 
-    // 保存并选择世界
+    // 保存并选择地界
     store.addWorld(newWorld);
     handleSelectWorld(newWorld);
     isAIPromptModalVisible.value = false;
 
-    toast.success(`AI推演完成！世界 "${newWorld.name}" 已生成`, { id: toastId });
+    toast.success(`AI生成完成！地界 "${newWorld.name}" 已生成`, { id: toastId });
 
   } catch (e: any) {
-    console.error('【AI推演-世界】失败:', e);
-    toast.error(`AI推演失败: ${e.message}`, { id: toastId });
+    console.error('【AI生成-地界】失败:', e);
+    toast.error(`AI生成失败: ${e.message}`, { id: toastId });
   }
 }
 
@@ -432,9 +432,9 @@ function openEditModal(world: World) {
 async function handleDeleteWorld(id: number) {
   try {
     await store.removeWorld(id);
-    console.log(`【世界选择】成功删除世界 ID: ${id}`);
+    console.log(`【地界选择】成功删除地界 ID: ${id}`);
   } catch (error) {
-    console.error(`【世界选择】删除世界失败 ID: ${id}`, error);
+    console.error(`【地界选择】删除地界失败 ID: ${id}`, error);
   }
 }
 
@@ -453,13 +453,13 @@ async function handleEditSubmit(data: any) {
     if (success) {
       isEditModalVisible.value = false;
       editingWorld.value = null;
-      toast.success(`世界 "${updateData.name}" 已更新！`);
+      toast.success(`地界 "${updateData.name}" 已更新！`);
     } else {
-      toast.error('更新世界失败！');
+      toast.error('更新地界失败！');
     }
   } catch (e) {
-    console.error('更新世界失败:', e);
-    toast.error('更新世界失败！');
+    console.error('更新地界失败:', e);
+    toast.error('更新地界失败！');
   }
 }
 

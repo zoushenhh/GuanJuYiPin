@@ -315,7 +315,7 @@
                               >
                             </div>
                             <div class="stat">
-                              <span class="label">灵气</span>
+                              <span class="label">威望</span>
                               <span class="value"
                                 >{{ normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.灵气?.当前 ?? 0 }}/{{
                                   normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.灵气?.上限 ?? 0

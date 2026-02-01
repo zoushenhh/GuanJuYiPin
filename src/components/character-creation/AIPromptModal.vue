@@ -2,7 +2,7 @@
   <div v-if="visible" class="modal-overlay" @click.self="handleClose">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>{{ $t('AI推演') }}</h3>
+        <h3>{{ $t('智能推演') }}</h3>
         <button class="close-btn" @click="handleClose">×</button>
       </div>
       <div class="modal-body">
@@ -10,7 +10,7 @@
         <textarea
           v-model="userPrompt"
           class="prompt-input"
-          :placeholder="$t('例如：生成一个火属性的天赋，适合剑修...')"
+          :placeholder="$t('例如：生成一个善于理财的能力，适合经济管理...')"
           rows="6"
           @keydown.ctrl.enter="handleSubmit"
         ></textarea>
@@ -18,7 +18,7 @@
       <div class="modal-footer">
         <button class="cancel-btn" @click="handleClose">{{ $t('取消') }}</button>
         <button class="submit-btn" @click="handleSubmit" :disabled="!userPrompt.trim()">
-          {{ $t('开始推演') }}
+          {{ $t('开始生成') }}
         </button>
       </div>
     </div>

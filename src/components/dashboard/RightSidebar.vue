@@ -33,7 +33,7 @@
             <div class="vital-info">
               <span class="vital-name">
                 <Sparkles :size="12" class="vital-icon mana" />
-                <span>{{ t('灵气') }}</span>
+                <span>{{ t('威望') }}</span>
               </span>
               <span class="vital-text">{{ playerStatus?.灵气?.当前 }} / {{ playerStatus?.灵气?.上限 }}</span>
             </div>
@@ -326,7 +326,7 @@ const getTalentData = (talent: string): any => {
 
   // 向后兼容：从三千大道系统中查找
   const daoDataValue = gameStateStore.thousandDao;
-  const daoProgress = daoDataValue?.大道列表?.[talent];
+  const daoProgress = daoDataValue?.方略列表?.[talent];
   return daoProgress;
 };
 
