@@ -107,6 +107,8 @@ export const createJoinedGovernmentState = (
   const officeName = office.名称;
 
   const memberInfo: SectMemberInfo = {
+    // 注：字段名"宗门名称/宗门类型"是历史遗留命名，实际含义为"衙门名称/衙门类型"
+    // 这是将原宗门系统(SectSystem)复用为政府系统(GovernmentSystem)的兼容性设计
     宗门名称: officeName,
     宗门类型: normalizeSectType(String(office.类型 || '正统衙门')),
     职位: '外门吏员',
@@ -120,14 +122,14 @@ export const createJoinedGovernmentState = (
   return {
     sectSystem: {
       版本: GOVERNMENT_SYSTEM_VERSION,
-      当前宗门: officeName,
-      宗门档案: {
+      当前宗门: officeName,  // 注：字段名"宗门"是历史遗留，实际指"衙门"
+      宗门档案: {          // 注：字段名"宗门档案"是历史遗留，实际为"衙门档案"
         [officeName]: office,
       },
-      宗门成员: {},
-      宗门藏经阁: {},  // 由 AI 动态生成
-      宗门贡献商店: {},  // 由 AI 动态生成
-      宗门任务: {},
+      宗门成员: {},        // 注：字段名是历史遗留，实际为"衙门成员"
+      宗门藏经阁: {},    // 注：字段名是历史遗留，实际为"档案库"
+      宗门贡献商店: {},  // 注：字段名是历史遗留，实际为"库房"
+      宗门任务: {},      // 注：字段名是历史遗留，实际为"政务任务"
       宗门任务状态: {},
     },
     memberInfo,
@@ -168,6 +170,8 @@ export function createGovernmentFramework(
   const officeName = office.名称;
 
   const memberInfo: SectMemberInfo = {
+    // 注：字段名"宗门名称/宗门类型"是历史遗留命名，实际含义为"衙门名称/衙门类型"
+    // 这是将原宗门系统(SectSystem)复用为政府系统(GovernmentSystem)的兼容性设计
     宗门名称: officeName,
     宗门类型: normalizeSectType(String(office.类型 || '正统衙门')),
     职位: '外门吏员',

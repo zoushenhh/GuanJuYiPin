@@ -515,7 +515,9 @@ export const useGameStateStore = defineStore('gameState', {
           ? { ...(this.sectSystem || {}), ...(this.sectMemberInfo ? { 成员信息: this.sectMemberInfo } : {}) }
           : null;
 
-      // 将 sectSystem 中的 宗门 字段映射到 衙门（兼容性处理：旧存档可能包含宗门字段）
+      // 兼容性处理：将旧存档中的"宗门"字段映射到"衙门"
+      // 修仙游戏使用"宗门"组织机构，县令游戏使用"衙门"官府机构
+      // 此映射确保旧存档可以正确加载并显示衙门数据
       if (sectNormalized && (sectNormalized as any).宗门) {
         (sectNormalized as any).衙门 = (sectNormalized as any).宗门;
         delete (sectNormalized as any).宗门;

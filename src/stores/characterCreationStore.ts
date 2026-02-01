@@ -130,7 +130,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   const worldGenerationConfig = ref({
     majorFactionsCount: 5, // 默认5个主要势力
     totalLocations: 12, // 默认12个地点
-    secretRealmsCount: 5, // 默认5个特殊区域（原秘境）
+    secretRealmsCount: 5, // 默认5个特殊区域
     continentCount: 4, // 默认4片大陆
     generateOnlyContinents: true // 默认只生成大陆（开局优化）
   });

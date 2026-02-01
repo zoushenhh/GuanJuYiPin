@@ -207,7 +207,7 @@ const maybePromptSectMigration = () => {
 
   lastMigrationPromptKey.value = saveKey;
   uiStore.showDetailModal({
-    title: '宗门存档迁移',
+    title: '存档数据迁移',
     component: SectMigrationModal,
     props: {
       reasons: check.reasons,

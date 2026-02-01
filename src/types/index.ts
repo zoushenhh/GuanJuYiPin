@@ -156,16 +156,24 @@ export interface Origin {
 }
 
 /**
- * @deprecated 使用 MagistrateBackground 替代
- * 旧术语：灵根
- * 新术语：县令出身背景
- * 术语映射：SpiritRoot (灵根) -> Background (出身背景)
+ * 后天才能（原灵根）
+ *
+ * @deprecated 接口名保留为SpiritRoot是为了向后兼容旧存档
+ * 旧术语：灵根（修仙游戏中的先天才能）
+ * 新术语：后天才能（县令游戏中的后天能力）
+ *
+ * 术语映射：
+ * - SpiritRoot (灵根) -> PostHeavenAbility (后天才能)
+ * - cultivation_speed (修炼速度) -> governing_speed (施政速度)
+ *
+ * 注意：字段名cultivation_speed保留是为了兼容性，新代码应理解为"施政速度"
  */
 export interface SpiritRoot {
   id: number;
   name: string;
   tier?: string | null;
   description?: string | null;
+  /** @deprecated 字段名保留是为了兼容性，实际含义为"施政速度"（原修炼速度） */
   cultivation_speed?: string;
   special_effects?: string[];
   base_multiplier: number;

@@ -346,15 +346,15 @@ export function calculateSixSiScore(
   // 评级
   let grade: string;
   if (totalScore >= 9) {
-    grade = '天纵奇才';
+    grade = '天赋异禀';
   } else if (totalScore >= 7) {
-    grade = '资质上佳';
+    grade = '能力出众';
   } else if (totalScore >= 5) {
-    grade = '中等之资';
+    grade = '中平之才';
   } else if (totalScore >= 3) {
-    grade = '资质平庸';
+    grade = '才能平庸';
   } else {
-    grade = '资质愚钝';
+    grade = '才智愚钝';
   }
 
   return {

@@ -12,11 +12,11 @@ function ensureAttributes(saveData: SaveData): any {
 
   anySave.角色 = anySave.角色 && typeof anySave.角色 === 'object' ? anySave.角色 : {};
   anySave.角色.属性 = {
-    境界: { 名称: '凡人', 阶段: '', 当前进度: 0, 下一级所需: 100, 突破描述: '' },
+    境界: { 名称: '平民', 阶段: '', 当前进度: 0, 下一级所需: 100, 晋升描述: '' },
     声望: 0,
     气血: { 当前: 100, 上限: 100 },
-    灵气: { 当前: 50, 上限: 50 },
-    神识: { 当前: 10, 上限: 10 },
+    灵气: { 当前: 50, 上限: 50 },  // 实际对应威望，保持字段名兼容旧存档
+    神识: { 当前: 10, 上限: 10 },  // 实际对应智慧，保持字段名兼容旧存档
     寿命: { 当前: 18, 上限: 80 },
   };
   return anySave.角色.属性;
@@ -57,28 +57,28 @@ export function applyEquipmentBonus(saveData: SaveData, equipmentItemId: string)
 
     console.log(`[装备增幅] 开始应用装备 ${item.名称} 的属性加成:`, bonus);
 
-    // 应用气血上限加成
+    // 应用健康上限加成（气血）
     if (bonus.气血上限 && typeof bonus.气血上限 === 'number') {
       const current气血 = get(attributes, '气血', { 当前: 100, 上限: 100 });
       const new上限 = current气血.上限 + bonus.气血上限;
       set(attributes, '气血.上限', new上限);
-      console.log(`[装备增幅] 气血上限: ${current气血.上限} -> ${new上限} (+${bonus.气血上限})`);
+      console.log(`[装备增幅] 健康上限: ${current气血.上限} -> ${new上限} (+${bonus.气血上限})`);
     }
 
-    // 应用灵气上限加成
+    // 应用威望上限加成（灵气）
     if (bonus.灵气上限 && typeof bonus.灵气上限 === 'number') {
       const current灵气 = get(attributes, '灵气', { 当前: 100, 上限: 100 });
       const new上限 = current灵气.上限 + bonus.灵气上限;
       set(attributes, '灵气.上限', new上限);
-      console.log(`[装备增幅] 灵气上限: ${current灵气.上限} -> ${new上限} (+${bonus.灵气上限})`);
+      console.log(`[装备增幅] 威望上限: ${current灵气.上限} -> ${new上限} (+${bonus.灵气上限})`);
     }
 
-    // 应用神识上限加成
+    // 应用智慧上限加成（神识）
     if (bonus.神识上限 && typeof bonus.神识上限 === 'number') {
       const current神识 = get(attributes, '神识', { 当前: 100, 上限: 100 });
       const new上限 = current神识.上限 + bonus.神识上限;
       set(attributes, '神识.上限', new上限);
-      console.log(`[装备增幅] 神识上限: ${current神识.上限} -> ${new上限} (+${bonus.神识上限})`);
+      console.log(`[装备增幅] 智慧上限: ${current神识.上限} -> ${new上限} (+${bonus.神识上限})`);
     }
 
     // 应用后天六司加成
