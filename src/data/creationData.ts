@@ -120,140 +120,199 @@ export const LOCAL_APTITUDES: Omit<Aptitude, 'source'>[] = [
   { id: 3, name: '商贾之家', description: '生于富贵之家，精通人情世故，处事圆滑，魅力非凡。', talent_cost: 2, attribute_modifiers: { 民生: 2 }, rarity: 3 },
   { id: 4, name: '将门之后', description: '名将的后代，血脉中流淌着勇武与煞气，心性坚定。', talent_cost: 3, attribute_modifiers: { 军事: 2, 威望: 1 }, rarity: 3 },
   { id: 5, name: '幕僚出身', description: '你的恩师是一位游历四方的大幕僚，你继承了他的部分衣钵和见识。', talent_cost: 4, attribute_modifiers: { 经济: 1, 文化: 1 }, rarity: 4 },
-  { id: 6, name: '卧底探子', description: '你出身名门正派，却被派往敌对势力执行卧底任务，心性远超常人。', talent_cost: 1, attribute_modifiers: { 威望: 3 }, rarity: 4 },
-  { id: 7, name: '前朝遗臣', description: '你保留着前朝的记忆，虽然官位尽失，但对官场和未来的大事了如指掌。', talent_cost: 5, attribute_modifiers: { 经济: 2, 文化: 1 }, rarity: 5 },
-  { id: 8, name: '世家子弟', description: '你的家族中流淌着稀薄的高官血脉，天生威严十足，升迁速度略快于常人。', talent_cost: 6, attribute_modifiers: { 威望: 2, 政务: 1 }, rarity: 5 },
-  { id: 9, name: '革职复起', description: '你是一名被革职后重新起用的老臣，虽然占据了新的职位，但灵魂中蕴含着庞大的经验。', talent_cost: 7, attribute_modifiers: { 经济: 3, 威望: -1 }, rarity: 5 },
-  { id: 10, name: '庙祝之子', description: '你从小在庙里长大，日夜与香火为伴，神魂受到滋养，对鬼神之事有特殊感应。', talent_cost: 2, attribute_modifiers: { 文化: 2 }, rarity: 3 },
-  { id: 11, name: '渔民之后', description: '祖上世代捕鱼为生，水性极佳，体魄强健。', talent_cost: 1, attribute_modifiers: { 政务: 2 }, rarity: 2 },
-  { id: 12, name: '皇室宗亲', description: '生于皇家的权力之巅，自幼享受锦衣玉食和最好的教育，但与基层官场的接触较少。', talent_cost: 3, attribute_modifiers: { 民生: 2, 威望: 1 }, rarity: 4 },
-  { id: 13, name: '药铺伙计', description: '自幼在药铺长大，日夜与药材为伴，对医理有超常的敏感。', talent_cost: 2, attribute_modifiers: { 民生: 1, 经济: 1 }, rarity: 3 },
-  { id: 14, name: '账房学徒', description: '师从账房先生，自小研习账目，对数字极其敏锐。', talent_cost: 3, attribute_modifiers: { 经济: 2, 民生: 1 }, rarity: 4 },
-  { id: 15, name: '捕快世家', description: '祖上世代捕快，血脉中蕴含微弱的武学之力，对罪犯极其敏感。', talent_cost: 4, attribute_modifiers: { 军事: 2, 威望: 1 }, rarity: 4 },
-  { id: 16, name: '乞丐出身', description: '自幼流落街头，饱经风霜，磨练出超凡的意志和适应能力。', talent_cost: -1, attribute_modifiers: { 威望: 2, 民生: -1 }, rarity: 2 },
-  { id: 17, name: '矿工余生', description: '曾是矿工，在暗无天日的矿洞中挣扎求生，体魄强健但缺乏灵性。', talent_cost: 0, attribute_modifiers: { 政务: 3, 文化: -1 }, rarity: 2 },
-  { id: 18, name: '画师弟子', description: '师承名家，精通书画之道，对文书有天生的理解力。', talent_cost: 3, attribute_modifiers: { 文化: 1, 民生: 2 }, rarity: 3 },
-  { id: 19, name: '守墓人', description: '世代守护祖坟，长期与死者打交道，对鬼道有独特感悟。', talent_cost: 2, attribute_modifiers: { 威望: 2, 文化: 1 }, rarity: 4 },
-  { id: 20, name: '戏班出身', description: '自幼学戏，擅长察言观色，魅力非凡，但为官之心不够坚定。', talent_cost: 1, attribute_modifiers: { 民生: 3, 威望: -1 }, rarity: 2 },
-  { id: 21, name: '风水世家', description: '家族世代看风水，你自小研习相地之术，对地利有独特理解。', talent_cost: 5, attribute_modifiers: { 经济: 2, 文化: 2 }, rarity: 5 },
-  { id: 22, name: '部落首领', description: '出身蛮荒部落，继承了首领的血脉，对统治有天生的亲和。', talent_cost: 4, attribute_modifiers: { 威望: 2, 政务: 1 }, rarity: 4 },
-  { id: 23, name: '海岛遗民', description: '生于与世隔绝的海岛，保留着上古时代的原始统治法门。', talent_cost: 3, attribute_modifiers: { 威望: 2, 经济: 1 }, rarity: 4 },
+  { id: 6, name: '前朝遗臣', description: '你保留着前朝的记忆，虽然官位尽失，但对官场和未来的大事了如指掌。', talent_cost: 5, attribute_modifiers: { 经济: 2, 文化: 1 }, rarity: 5 },
+  { id: 7, name: '世家子弟', description: '你的家族中流淌着稀薄的高官血脉，天生威严十足，升迁速度略快于常人。', talent_cost: 6, attribute_modifiers: { 威望: 2, 政务: 1 }, rarity: 5 },
+  { id: 8, name: '革职复起', description: '你是一名被革职后重新起用的老臣，虽然占据了新的职位，但灵魂中蕴含着庞大的经验。', talent_cost: 7, attribute_modifiers: { 经济: 3, 威望: -1 }, rarity: 5 },
+  { id: 9, name: '渔民之后', description: '祖上世代捕鱼为生，水性极佳，体魄强健。', talent_cost: 1, attribute_modifiers: { 政务: 2 }, rarity: 2 },
+  { id: 10, name: '皇室宗亲', description: '生于皇家的权力之巅，自幼享受锦衣玉食和最好的教育，但与基层官场的接触较少。', talent_cost: 3, attribute_modifiers: { 民生: 2, 威望: 1 }, rarity: 4 },
+  { id: 11, name: '药铺伙计', description: '自幼在药铺长大，日夜与药材为伴，对医理有超常的敏感。', talent_cost: 2, attribute_modifiers: { 民生: 1, 经济: 1 }, rarity: 3 },
+  { id: 12, name: '账房学徒', description: '师从账房先生，自小研习账目，对数字极其敏锐。', talent_cost: 3, attribute_modifiers: { 经济: 2, 民生: 1 }, rarity: 4 },
+  { id: 13, name: '捕快世家', description: '祖上世代捕快，血脉中蕴含微弱的武学之力，对罪犯极其敏感。', talent_cost: 4, attribute_modifiers: { 军事: 2, 威望: 1 }, rarity: 4 },
+  { id: 14, name: '乞丐出身', description: '自幼流落街头，饱经风霜，磨练出超凡的意志和适应能力。', talent_cost: -1, attribute_modifiers: { 威望: 2, 民生: -1 }, rarity: 2 },
+  { id: 15, name: '矿工余生', description: '曾是矿工，在暗无天日的矿洞中挣扎求生，体魄强健但缺乏灵性。', talent_cost: 0, attribute_modifiers: { 政务: 3, 文化: -1 }, rarity: 2 },
+  { id: 16, name: '画师弟子', description: '师承名家，精通书画之道，对文书有天生的理解力。', talent_cost: 3, attribute_modifiers: { 文化: 1, 民生: 2 }, rarity: 3 },
+  { id: 17, name: '戏班出身', description: '自幼学戏，擅长察言观色，魅力非凡，但为官之心不够坚定。', talent_cost: 1, attribute_modifiers: { 民生: 3, 威望: -1 }, rarity: 2 },
+  { id: 18, name: '儒生世家', description: '世代科举入仕，饱读诗书，对经典和政事有超常理解力。', talent_cost: 4, attribute_modifiers: { 文化: 2, 政务: 1 }, rarity: 4 },
+  { id: 19, name: '医者世家', description: '世代行医济世，对民生疾苦和疾病有特殊敏感。', talent_cost: 3, attribute_modifiers: { 民生: 2, 文化: 1 }, rarity: 3 },
+  { id: 20, name: '算学世家', description: '世代精通算术，对财政统计和账目管理有天赋。', talent_cost: 3, attribute_modifiers: { 经济: 2, 文化: 1 }, rarity: 3 },
+  { id: 21, name: '法学世家', description: '世代研习律法，对刑名断案有深刻理解。', talent_cost: 3, attribute_modifiers: { 政务: 2, 文化: 1 }, rarity: 3 },
+  { id: 22, name: '农学家传', description: '世代耕读传家，对农事桑麻有丰富经验。', talent_cost: 2, attribute_modifiers: { 民生: 2, 经济: 1 }, rarity: 2 },
+  { id: 23, name: '史官世家', description: '世代修史，对历史兴衰和政治变革有独到见解。', talent_cost: 4, attribute_modifiers: { 文化: 2, 威望: 1 }, rarity: 4 },
   { id: 24, name: '亡国之臣', description: '国破家亡，历经苦难，心性坚韧如铁，但背负着沉重的仇恨。', talent_cost: 2, attribute_modifiers: { 威望: 3, 民生: -1 }, rarity: 3 }
 ];
 
 // =======================================================================
-//                           本地后天数据 (原才能/天赋数据)
+//                           本地后天数据 (学科才能体系)
 // =======================================================================
 export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
-  // 上品后天 - 基础六项
+  // ============== 上品学科 (1.6x, 10点) ==============
   {
     id: 1,
-    name: '断案之才',
+    name: '算学',
     tier: '上品',
-    description: '天生明察秋毫，断案如神，是审案判案的天赋。处理刑名案件事半功倍，是天生的神探胚子。',
+    description: '精通算术之理，对财政统计、账目管理有超凡天赋。擅长处理钱粮赋税，是理财的好手。',
     cultivation_speed: '1.6x',
-    special_effects: ['断案能力+50%', '案件侦破+30%', '识破谎言'],
+    special_effects: ['财政管理+50%', '账目处理+40%', '统计精通'],
     base_multiplier: 1.6,
     talent_cost: 10,
     rarity: 3
   },
   {
     id: 2,
-    name: '治理之才',
+    name: '法学',
     tier: '上品',
-    description: '天生善于治理，亲和民生，处理政务如鱼得水。擅长治理一方，处理行政事务极快。',
+    description: '深谙律法之道，对刑名断案有超凡理解。处理案件得心应手，是断案的良才。',
     cultivation_speed: '1.6x',
-    special_effects: ['治理能力+50%', '民心提升+40%', '民生感知'],
+    special_effects: ['断案能力+50%', '律法精通', '审判公正'],
     base_multiplier: 1.6,
     talent_cost: 10,
     rarity: 3
   },
   {
     id: 3,
-    name: '理财之才',
+    name: '医学',
     tier: '上品',
-    description: '天生善于理财，精通赋税，财政管理绵延不绝。处理财政事务，收入源源不断。',
+    description: '精通医理，对民生疾苦有特殊敏感。处理医疗卫生事务事半功倍，深得民心。',
     cultivation_speed: '1.6x',
-    special_effects: ['理财能力+50%', '税收增加+40%', '商业感知'],
+    special_effects: ['民生处理+50%', '医疗精通', '民心提升'],
     base_multiplier: 1.6,
     talent_cost: 10,
     rarity: 3
   },
   {
     id: 4,
-    name: '用人之才',
+    name: '农学',
     tier: '上品',
-    description: '天生善于识人用人，管理下属，驾驭群臣。处理人事事务，威力绝伦，爆发力强。',
+    description: '深谙农事桑麻，对农业耕种有超凡理解。处理农业事务得心应手，保障粮食生产。',
     cultivation_speed: '1.6x',
-    special_effects: ['用人能力+50%', '下属忠诚+60%', '识人辨才'],
+    special_effects: ['农业管理+50%', '粮食增产', '农时精通'],
     base_multiplier: 1.6,
     talent_cost: 10,
     rarity: 3
   },
+
+  // ============== 中品学科 (1.3x, 6点) ==============
   {
     id: 5,
-    name: '行政之才',
-    tier: '上品',
-    description: '天生善于行政，精通公文，处理文书稳如泰山。是天生的行政官员，处理繁杂政务得心应手。',
-    cultivation_speed: '1.6x',
-    special_effects: ['行政能力+50%', '文书处理+40%', '组织协调'],
-    base_multiplier: 1.6,
-    talent_cost: 10,
-    rarity: 3
+    name: '史学',
+    tier: '中品',
+    description: '熟读史书，对历史兴衰有深刻理解。从历史中汲取经验，政务处理稳健。',
+    cultivation_speed: '1.3x',
+    special_effects: ['政务稳健+25%', '历史经验', '借鉴前人'],
+    base_multiplier: 1.3,
+    talent_cost: 6,
+    rarity: 2
+  },
+  {
+    id: 6,
+    name: '文学',
+    tier: '中品',
+    description: '文笔出众，擅长撰写公文。处理文书事务效率高，文化修养深厚。',
+    cultivation_speed: '1.3x',
+    special_effects: ['文书处理+25%', '文采斐然', '公文精通'],
+    base_multiplier: 1.3,
+    talent_cost: 6,
+    rarity: 2
+  },
+  {
+    id: 7,
+    name: '工学',
+    tier: '中品',
+    description: '精通技艺之理，对工程建设有不错理解。处理建设事务效率较高。',
+    cultivation_speed: '1.3x',
+    special_effects: ['工程建设+25%', '技艺理解', '施工管理'],
+    base_multiplier: 1.3,
+    talent_cost: 6,
+    rarity: 2
+  },
+  {
+    id: 8,
+    name: '商学',
+    tier: '中品',
+    description: '熟悉商贸流通，对市场运作有不错理解。处理商业事务效率较高。',
+    cultivation_speed: '1.3x',
+    special_effects: ['商业管理+25%', '市场理解', '税收增加'],
+    base_multiplier: 1.3,
+    talent_cost: 6,
+    rarity: 2
   },
 
-  // 中品后天 - 常见选择
+  // ============== 特殊学科 ==============
   {
     id: 9,
-    name: '断案之才',
-    tier: '中品',
-    description: '断案资质尚可，处理刑名案件有一定天赋，虽不及上品，但也远超常人。',
-    cultivation_speed: '1.3x',
-    special_effects: ['断案能力+25%', '案件侦破+15%'],
-    base_multiplier: 1.3,
-    talent_cost: 6,
-    rarity: 2
-  },
-  {
-    id: 10,
-    name: '理财之才',
-    tier: '中品',
-    description: '理财资质良好，对财政事务有不错的亲和力，能够顺利地处理政务。',
-    cultivation_speed: '1.3x',
-    special_effects: ['理财能力+25%', '税收增加+30%'],
-    base_multiplier: 1.3,
-    talent_cost: 6,
-    rarity: 2
+    name: '经学',
+    tier: '特殊',
+    description: '饱读经书，对科举考试有特殊加成。精通经典，仕途晋升更为顺利。',
+    cultivation_speed: '科举加成',
+    special_effects: ['科举通过率+30%', '经义精通', '考运亨通'],
+    base_multiplier: 1.0,
+    talent_cost: 8,
+    rarity: 4
   },
 
-  // 极品后天 - 稀有特质
+  // ============== 凡品 ==============
+  {
+    id: 10,
+    name: '平庸',
+    tier: '凡品',
+    description: '平平无奇的普通才能，没有特别擅长的领域，但也无明显短板。',
+    cultivation_speed: '1.0x',
+    special_effects: ['平庸之道'],
+    base_multiplier: 1.0,
+    talent_cost: 0,
+    rarity: 1
+  },
+
+  // ============== 极品学科 (2.0x, 15点) ==============
   {
     id: 11,
-    name: '神探天赋',
+    name: '神算',
     tier: '极品',
-    description: '万中无一的断案奇才，天生神探，明察秋毫。处理刑名案件速度极快，破案率极高，是百姓的青天大老爷。',
+    description: '万中无一的算学奇才，对数字有超凡敏感。处理财政事务速度极快，是理财的天生奇才。',
     cultivation_speed: '2.0x',
-    special_effects: ['断案能力+80%', '识破谎言', '威望+50%', '破案加速'],
+    special_effects: ['算学能力+80%', '神机妙算', '财政精通'],
     base_multiplier: 2.0,
     talent_cost: 15,
     rarity: 4
   },
   {
     id: 12,
-    name: '刑名专家',
+    name: '法圣',
     tier: '极品',
-    description: '极为罕见的刑法专家，精通律法，明察秋毫。处理刑名案件，控制力超凡，能令罪犯无所遁形。',
+    description: '极为罕见的法学天才，精通律法，明察秋毫。处理刑名案件速度极快，断案如神。',
     cultivation_speed: '2.0x',
-    special_effects: ['刑名能力+80%', '审判效果+100%', '律法精通', '威慑罪犯'],
+    special_effects: ['法学能力+80%', '律法精通', '断案如神'],
+    base_multiplier: 2.0,
+    talent_cost: 15,
+    rarity: 4
+  },
+  {
+    id: 13,
+    name: '神医',
+    tier: '极品',
+    description: '传说中的医学天才，对医理有超凡理解。处理医疗卫生事务速度极快，妙手回春。',
+    cultivation_speed: '2.0x',
+    special_effects: ['医学能力+80%', '妙手回春', '民望提升'],
+    base_multiplier: 2.0,
+    talent_cost: 15,
+    rarity: 4
+  },
+  {
+    id: 14,
+    name: '农圣',
+    tier: '极品',
+    description: '传说中的农学天才，对农事有超凡理解。处理农业事务速度极快，五谷丰登。',
+    cultivation_speed: '2.0x',
+    special_effects: ['农学能力+80%', '五谷丰登', '粮食增产'],
     base_multiplier: 2.0,
     talent_cost: 15,
     rarity: 4
   },
 
-  // 神品后天 - 传说级别
+  // ============== 神品学科 (2.8x+, 25+点) ==============
   {
-    id: 6,
-    name: '全能之才',
+    id: 15,
+    name: '全才',
     tier: '神品',
     description: '传说中的至高全才，文武双全，包容万象。可处理所有政务，无瓶颈，但初期进展缓慢，后期一日千里。',
     cultivation_speed: '0.8x(前期) -> 2.8x(后期)',
@@ -262,145 +321,9 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
     talent_cost: 25,
     rarity: 5
   },
-
-  // 特殊后天
-  {
-    id: 7,
-    name: '清廉之体',
-    tier: '特殊',
-    description: '天生清廉，不爱钱财，升迁速度极为缓慢，常人难以忍受。但一旦突破，根基无比扎实，政绩远超同阶。',
-    cultivation_speed: '0.5x',
-    special_effects: ['根基极其稳固', '升迁后实力暴增+100%', '诱惑抗性+80%', '清名远播'],
-    base_multiplier: 0.5,
-    talent_cost: -5,
-    rarity: 4
-  },
-
-  // 凡品和下品后天
-  {
-    id: 8,
-    name: '平庸之辈',
-    tier: '凡品',
-    description: '最常见的平庸之辈，五项皆有，却驳杂不堪，处理政务慢如龟爬，仕途渺茫。',
-    cultivation_speed: '1.0x',
-    special_effects: ['平庸之道', '大器晚成'],
-    base_multiplier: 1.0,
-    talent_cost: 0,
-    rarity: 1
-  },
-  {
-    id: 13,
-    name: '文书之才',
-    tier: '下品',
-    description: '较为常见的文书才能，虽然资质一般，但胜在细致认真，处理公文迅捷。',
-    cultivation_speed: '1.1x',
-    special_effects: ['文书处理+15%', '办事速度+20%'],
-    base_multiplier: 1.1,
-    talent_cost: 3,
-    rarity: 1
-  },
-  {
-    id: 14,
-    name: '密探天赋',
-    tier: '极品',
-    description: '极为罕见的情报才能，善于收集情报，掌控暗流。处理情报事务速度极快，擅长探听和策反。',
-    cultivation_speed: '2.0x',
-    special_effects: ['情报能力+80%', '隐秘行动', '暗处增幅+50%', '渗透'],
-    base_multiplier: 2.0,
-    talent_cost: 15,
-    rarity: 4
-  },
-  {
-    id: 15,
-    name: '教化之才',
-    tier: '极品',
-    description: '传说中的教化才能，天生亲和百姓，教化民众事半功倍，对恶习有天然克制。',
-    cultivation_speed: '2.0x',
-    special_effects: ['教化能力+80%', '恶习克制+100%', '民风改善', '德行庇护'],
-    base_multiplier: 2.0,
-    talent_cost: 15,
-    rarity: 4
-  },
   {
     id: 16,
-    name: '权谋之才',
-    tier: '特殊',
-    description: '善于权谋，以权谋为引，处理政务迅速但需要大量资源支撑。容易结党营私，但政绩增长极快。',
-    cultivation_speed: '1.8x',
-    special_effects: ['权谋能力+70%', '势力扩张', '结党营私', '派系亲和'],
-    base_multiplier: 1.8,
-    talent_cost: 10,
-    rarity: 4
-  },
-  {
-    id: 17,
-    name: '酷吏天赋',
-    tier: '特殊',
-    description: '善于严刑峻法，能够通过威慑维持治安，处理治安事务速度极快，但被百姓所畏惧。',
-    cultivation_speed: '1.7x',
-    special_effects: ['治安能力+60%', '威慑控制', '恐惧免疫', '严刑天赋'],
-    base_multiplier: 1.7,
-    talent_cost: 8,
-    rarity: 4
-  },
-  {
-    id: 18,
-    name: '治理之才',
-    tier: '中品',
-    description: '治理资质尚可，对政务有不错的亲和力，能够顺利地处理地方事务。',
-    cultivation_speed: '1.3x',
-    special_effects: ['治理能力+25%', '民心提升+20%'],
-    base_multiplier: 1.3,
-    talent_cost: 6,
-    rarity: 2
-  },
-  {
-    id: 19,
-    name: '理财之才',
-    tier: '中品',
-    description: '理财资质良好，财政管理能力不错，适应性强，处理政务较为顺畅。',
-    cultivation_speed: '1.3x',
-    special_effects: ['理财能力+25%', '税收增加+20%'],
-    base_multiplier: 1.3,
-    talent_cost: 6,
-    rarity: 2
-  },
-  {
-    id: 20,
-    name: '行政之才',
-    tier: '中品',
-    description: '行政资质不错，组织力强，稳扎稳打，是行政官员的良好资质。',
-    cultivation_speed: '1.3x',
-    special_effects: ['行政能力+25%', '文书处理+20%'],
-    base_multiplier: 1.3,
-    talent_cost: 6,
-    rarity: 2
-  },
-  {
-    id: 21,
-    name: '御吏之才',
-    tier: '极品',
-    description: '极为罕见的御吏才能，天生善于管理下属，统率部下，是治吏能臣梦寐以求的体质。',
-    cultivation_speed: '2.0x',
-    special_effects: ['御吏能力+80%', '下属敬畏', '威严倍增', '统率力强'],
-    base_multiplier: 2.0,
-    talent_cost: 15,
-    rarity: 4
-  },
-  {
-    id: 22,
-    name: '双才并举',
-    tier: '极品',
-    description: '万中无一的双才能人才，同时拥有两种基础才能的力量。可处理两类政务，但初期进展缓慢。',
-    cultivation_speed: '1.8x',
-    special_effects: ['双类政务亲和', '融合处理+30%', '双修加成'],
-    base_multiplier: 1.8,
-    talent_cost: 14,
-    rarity: 4
-  },
-  {
-    id: 23,
-    name: '权术之才',
+    name: '权术',
     tier: '神品',
     description: '传说中的至高权术才能，掌控官场法则，可周旋各方。处理极难但潜力无穷。',
     cultivation_speed: '0.9x(前期) -> 3.0x(后期)',
@@ -410,8 +333,8 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
     rarity: 5
   },
   {
-    id: 24,
-    name: '天命之才',
+    id: 17,
+    name: '天命',
     tier: '神品',
     description: '最为稀有的传说才能，触及国运机缘。升迁艰难但一旦有成，可逆转局势，掌控时势。',
     cultivation_speed: '0.8x(前期) -> 3.2x(后期)',
@@ -420,27 +343,53 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
     talent_cost: 28,
     rarity: 5
   },
+
+  // ============== 特殊体质 ==============
   {
-    id: 25,
-    name: '民望之才',
-    tier: '神品',
-    description: '吸纳民望的稀世才能，与民意共鸣。处理缓慢但根基稳固，可借民望之力突破瓶颈。',
-    cultivation_speed: '0.85x(前期) -> 2.9x(后期)',
-    special_effects: ['民望之力', '声名演化', '民意庇护', '拥戴之术'],
-    base_multiplier: 2.9,
-    talent_cost: 26,
-    rarity: 5
+    id: 18,
+    name: '清廉',
+    tier: '特殊',
+    description: '天生清廉，不爱钱财，升迁速度极为缓慢，常人难以忍受。但一旦突破，根基无比扎实，政绩远超同阶。',
+    cultivation_speed: '0.5x',
+    special_effects: ['根基极其稳固', '升迁后实力暴增+100%', '诱惑抗性+80%', '清名远播'],
+    base_multiplier: 0.5,
+    talent_cost: -5,
+    rarity: 4
   },
   {
-    id: 26,
-    name: '阴阳之才',
-    tier: '神品',
-    description: '至高双生才能，阴阳调和，刚柔并济。可同时使用两种为官风格，融合后威力倍增。',
-    cultivation_speed: '0.9x(前期) -> 3.1x(后期)',
-    special_effects: ['刚柔并济', '恩威并施', '宽严得当', '阴阳逆转'],
-    base_multiplier: 3.1,
-    talent_cost: 27,
-    rarity: 5
+    id: 19,
+    name: '权谋',
+    tier: '特殊',
+    description: '善于权谋，以权谋为引，处理政务迅速但需要大量资源支撑。容易结党营私，但政绩增长极快。',
+    cultivation_speed: '1.8x',
+    special_effects: ['权谋能力+70%', '势力扩张', '结党营私', '派系亲和'],
+    base_multiplier: 1.8,
+    talent_cost: 10,
+    rarity: 4
+  },
+  {
+    id: 20,
+    name: '酷吏',
+    tier: '特殊',
+    description: '善于严刑峻法，能够通过威慑维持治安，处理治安事务速度极快，但被百姓所畏惧。',
+    cultivation_speed: '1.7x',
+    special_effects: ['治安能力+60%', '威慑控制', '恐惧免疫', '严刑天赋'],
+    base_multiplier: 1.7,
+    talent_cost: 8,
+    rarity: 4
+  },
+
+  // ============== 下品学科 (1.1x, 3点) ==============
+  {
+    id: 21,
+    name: '文书',
+    tier: '下品',
+    description: '较为常见的文书才能，虽然资质一般，但胜在细致认真，处理公文迅捷。',
+    cultivation_speed: '1.1x',
+    special_effects: ['文书处理+15%', '办事速度+20%'],
+    base_multiplier: 1.1,
+    talent_cost: 3,
+    rarity: 1
   },
 ];
 

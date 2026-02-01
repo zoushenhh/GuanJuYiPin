@@ -98,29 +98,29 @@ export const IMPROVED_ORIGIN_PROMPT = `${BASE_INSTRUCTION}
 // 4. 根基类型 - 优化版
 export const IMPROVED_SPIRIT_ROOT_PROMPT = `${BASE_INSTRUCTION}
 
-【任务】生成核心天赋类型（如根基、血统等）
+【任务】生成学科才能类型（用于县令角色的专业技能）
 
 【字段要求】
-- name (字符串): 根基名称，不含等级前缀
-- tier (字符串): 等级，可选值：凡品、下品、中品、上品、极品、卓越、超凡
-- description (字符串): 50-200字的根基描述
-- cultivation_speed (字符串): 施政效率，格式为"数字x"
-- special_effects (数组): 1-3个特殊效果
-- base_multiplier (数字): 基础倍率，纯数字
-- talent_cost (数字): 3-30之间的整数
+- name (字符串): 学科名称，不含等级前缀。可选学科包括：算学、法学、医学、农学、史学、文学、工学、商学、经学等
+- tier (字符串): 等级，可选值：凡品、下品、中品、上品、极品、卓越、超凡、特殊
+- description (字符串): 50-200字的学科描述，说明该学科对县令施政的影响
+- cultivation_speed (字符串): 施政效率，格式为"数字x"或特殊描述如"科举加成"
+- special_effects (数组): 1-3个特殊效果，描述该学科带来的具体加成
+- base_multiplier (数字): 基础倍率，纯数字。凡品1.0，下品1.1，中品1.3，上品1.6，极品2.0，卓越2.4，超凡2.8，特殊根据情况设定
+- talent_cost (数字): 0-30之间的整数。凡品0，下品3，中品6，上品10，极品15，卓越20，超凡25，特殊根据情况设定
 - rarity (数字): 1-5之间的整数
 
 【输出示例】
 \`\`\`json
 {
-  "name": "诗书根基",
+  "name": "算学",
   "tier": "上品",
-  "description": "自幼饱读诗书，文笔出众，科举之路事半功倍，文章之气才情纵横...",
-  "cultivation_speed": "1.8x",
-  "special_effects": ["策论威力提升30%", "抗文学属性压力", "学习速度加快"],
-  "base_multiplier": 1.8,
-  "talent_cost": 15,
-  "rarity": 4
+  "description": "精通算术之理，对财政统计、账目管理有超凡天赋。擅长处理钱粮赋税，是理财的好手。",
+  "cultivation_speed": "1.6x",
+  "special_effects": ["财政管理+50%", "账目处理+40%", "统计精通"],
+  "base_multiplier": 1.6,
+  "talent_cost": 10,
+  "rarity": 3
 }
 \`\`\`
 `;

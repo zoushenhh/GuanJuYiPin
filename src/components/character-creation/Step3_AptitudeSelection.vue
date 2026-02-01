@@ -483,7 +483,7 @@ const activeDisplayName = computed(() => {
 
 const activeDescription = computed(() => {
  if (activeOrigin.value === 'random')
-   return '天道无常，造化弄人。选择此项，你的出身将完全随机生成。是生于帝王之家，或为山野遗孤，皆在天道一念之间。'
+   return '时运无常，造化弄人。选择此项，你的出身将完全随机生成。是生于帝王之家，或为山野遗孤，皆在时运一念之间。'
  if (activeOrigin.value && typeof activeOrigin.value === 'object') return activeOrigin.value.description || '身世如谜，过往一片空白。'
  return '身世如谜，过往一片空白。'
 });

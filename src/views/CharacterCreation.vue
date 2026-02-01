@@ -85,7 +85,7 @@
         <!-- 剩余点数显示 -->
         <div class="points-display">
           <div v-if="store.currentStep >= 3 && store.currentStep <= 7" class="destiny-points">
-            <span class="points-label">{{ $t('剩余天道点') }}:</span>
+            <span class="points-label">{{ $t('剩余官品点') }}:</span>
             <span class="points-value" :class="{ low: store.remainingTalentPoints < 0 }">
               {{ store.remainingTalentPoints }}
             </span>

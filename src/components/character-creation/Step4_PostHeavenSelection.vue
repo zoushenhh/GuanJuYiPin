@@ -23,132 +23,44 @@
           </button>
         </div>
 
-        <!-- 选择模式切换 -->
-        <div class="selection-mode-tabs">
-          <button 
-            :class="{ active: selectionMode === 'preset' }"
-            @click="selectionMode = 'preset'"
-            class="mode-tab"
+        <!-- 预设后天列表 -->
+        <div class="spirit-root-list-container">
+          <div
+            class="spirit-root-item"
+            :class="{ selected: isRandomSelected }"
+            @click="handleSelectRandom"
+            @mouseover="activeSpiritRoot = 'random'"
           >
-            {{ $t('预设后天') }}
-          </button>
-          <button
-            :class="{ active: selectionMode === 'custom' }"
-            @click="selectionMode = 'custom'"
-            class="mode-tab"
-          >
-            {{ $t('组合选择') }}
-          </button>
-        </div>
-
-        <!-- 预设后天模式 -->
-        <div v-if="selectionMode === 'preset'" class="preset-mode">
-          <div class="spirit-root-list-container">
-            <div
-              class="spirit-root-item"
-              :class="{ selected: isRandomSelected }"
-              @click="handleSelectRandom"
-              @mouseover="activeSpiritRoot = 'random'"
-            >
-              <span class="spirit-root-name">{{ $t('随机后天') }}</span>
-              <span class="spirit-root-cost">{{ $t('0 点') }}</span>
-            </div>
-            <div class="divider"></div>
-            <div
-              v-for="root in filteredSpiritRoots"
-              :key="root.id"
-              class="spirit-root-item"
-              :class="{
-                selected: store.characterPayload.spirit_root_id === root.id,
-                disabled: !canSelect(root),
-              }"
-              @click="handleSelectSpiritRoot(root)"
-              @mouseover="activeSpiritRoot = root"
-            >
-              <div class="item-content">
-                <div class="spirit-root-name-container">
-                  <span class="spirit-root-name">{{ getSpiritRootBaseName(root.name) }}</span>
-                  <span v-if="getSpiritRootTier(root)" class="spirit-root-tier" :class="`tier-${getSpiritRootTier(root)}`">
-                    {{ getSpiritRootTier(root) }}
-                  </span>
-                </div>
-                <span class="spirit-root-cost">{{ root.talent_cost }} {{ $t('点') }}</span>
-              </div>
-              <div v-if="root.source === 'cloud' && store.isLocalCreation" class="action-buttons">
-                <button @click.stop="openEditModal(root)" class="edit-btn" title="编辑此项">
-                  <Edit :size="14" />
-                </button>
-                <button @click.stop="handleDeleteSpiritRoot(root.id)" class="delete-btn" title="删除此项">
-                  <Trash2 :size="14" />
-                </button>
-              </div>
-            </div>
+            <span class="spirit-root-name">{{ $t('随机后天') }}</span>
+            <span class="spirit-root-cost">{{ $t('0 点') }}</span>
           </div>
-        </div>
-
-        <!-- 组合选择模式 -->
-        <div v-if="selectionMode === 'custom'" class="custom-mode">
-          <div class="custom-selection-container">
-            <!-- 后天类型选择 -->
-            <div class="selection-group">
-              <label class="selection-label">{{ $t('后天类型') }}</label>
-              <div class="spirit-type-grid">
-                <button
-                  v-for="type in spiritRootTypes"
-                  :key="type.key"
-                  :class="{ selected: customSpirit.type === type.key }"
-                  @click="customSpirit.type = type.key"
-                  class="type-button"
-                  :style="{ '--element-color': type.color }"
-                >
-                  <span class="type-icon">{{ type.icon }}</span>
-                  <span class="type-name">{{ type.name }}</span>
-                </button>
+          <div class="divider"></div>
+          <div
+            v-for="root in filteredSpiritRoots"
+            :key="root.id"
+            class="spirit-root-item"
+            :class="{
+              selected: store.characterPayload.spirit_root_id === root.id,
+              disabled: !canSelect(root),
+            }"
+            @click="handleSelectSpiritRoot(root)"
+            @mouseover="activeSpiritRoot = root"
+          >
+            <div class="item-content">
+              <div class="spirit-root-name-container">
+                <span class="spirit-root-name">{{ getSpiritRootBaseName(root.name) }}</span>
+                <span v-if="getSpiritRootTier(root)" class="spirit-root-tier" :class="`tier-${getSpiritRootTier(root)}`">
+                  {{ getSpiritRootTier(root) }}
+                </span>
               </div>
+              <span class="spirit-root-cost">{{ root.talent_cost }} {{ $t('点') }}</span>
             </div>
-
-            <!-- 品级选择 -->
-            <div class="selection-group">
-              <label class="selection-label">{{ $t('后天品级') }}</label>
-              <div class="tier-selection">
-                <button
-                  v-for="tier in spiritRootTiers"
-                  :key="tier.key"
-                  :class="[
-                    'tier-button',
-                    `tier-${tier.key}`,
-                    { selected: customSpirit.tier === tier.key }
-                  ]"
-                  @click="customSpirit.tier = tier.key"
-                >
-                  <span class="tier-name">{{ tier.name }}</span>
-                  <span class="tier-multiplier">{{ tier.multiplier }}x</span>
-                  <span class="tier-cost">{{ tier.cost }}点</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- 预览和确认 -->
-            <div class="custom-preview">
-              <div class="preview-title">{{ $t('预览') }}</div>
-              <div class="preview-content">
-                <div class="preview-name">
-                  <span>{{ getCustomSpiritName() }}</span>
-                  <span v-if="customSpirit.tier !== 'none'" class="preview-tier" :class="`tier-${customSpirit.tier}`">
-                    {{ getSpiritTierName(customSpirit.tier) }}
-                  </span>
-                </div>
-                <div class="preview-stats">
-                  <div class="stat">{{ $t('政务效率:') }} {{ getCustomSpiritMultiplier() }}x</div>
-                  <div class="stat">{{ $t('消耗点数:') }} {{ getCustomSpiritCost() }}{{ $t('点') }}</div>
-                </div>
-              </div>
-              <button 
-                @click="confirmCustomSpirit"
-                :disabled="!isCustomSpiritValid()"
-                class="confirm-custom-button"
-              >
-                {{ $t('确认选择') }}
+            <div v-if="root.source === 'cloud' && store.isLocalCreation" class="action-buttons">
+              <button @click.stop="openEditModal(root)" class="edit-btn" title="编辑此项">
+                <Edit :size="14" />
+              </button>
+              <button @click.stop="handleDeleteSpiritRoot(root.id)" class="delete-btn" title="删除此项">
+                <Trash2 :size="14" />
               </button>
             </div>
           </div>
@@ -157,7 +69,7 @@
 
       <!-- 右侧详情 -->
       <div class="spirit-root-details-container">
-        <div v-if="activeSpiritRoot || (selectionMode === 'custom' && customSpirit.type !== 'none')" class="spirit-root-details">
+        <div v-if="activeSpiritRoot" class="spirit-root-details">
           <h2>{{ getActiveDisplayName() }}</h2>
           <div class="description-scroll">
             <p>{{ getActiveDescription() }}</p>
@@ -208,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed } from 'vue'
 import { Trash2, Edit } from 'lucide-vue-next'
 import { useCharacterCreationStore } from '../../stores/characterCreationStore'
 import type { SpiritRoot } from '../../types'
@@ -223,33 +135,10 @@ const emit = defineEmits(['ai-generate'])
 const store = useCharacterCreationStore()
 // UI状态
 const activeSpiritRoot = ref<SpiritRoot | 'random' | null>(null)
-const selectionMode = ref<'preset' | 'custom'>('preset')
 const isAdvancedCustomVisible = ref(false)
 const isEditModalVisible = ref(false)
 const isAIPromptModalVisible = ref(false)
 const editingSpiritRoot = ref<SpiritRoot | null>(null)
-
-// 自定义后天状态
-const customSpirit = reactive({
-  type: 'none' as string,
-  tier: 'none' as string
-})
-
-// 后天类型配置
-const spiritRootTypes = [
-  { key: 'fire', name: '火', icon: '🔥', color: '#ef4444', desc: '烈火焚天，爆发力强' },
-  { key: 'water', name: '水', icon: '💧', color: '#3b82f6', desc: '水流不息，绵延悠长' },
-  { key: 'wood', name: '木', icon: '🌿', color: '#10b981', desc: '生机盎然，治愈修复' },
-  { key: 'metal', name: '金', icon: '⚔️', color: '#f59e0b', desc: '锋锐无匹，切金断玉' },
-  { key: 'earth', name: '土', icon: '🗿', color: '#8b5cf6', desc: '厚德载物，防御超群' },
-  { key: 'wind', name: '风', icon: '💨', color: '#06b6d4', desc: '风驰电掣，身法如神' },
-  { key: 'thunder', name: '雷', icon: '⚡', color: '#eab308', desc: '雷霆万钧，毁天灭地' },
-  { key: 'ice', name: '冰', icon: '❄️', color: '#0ea5e9', desc: '冰霜刺骨，万物凋零' },
-  { key: 'light', name: '光', icon: '☀️', color: '#f97316', desc: '光明普照，净化邪恶' },
-  { key: 'dark', name: '暗', icon: '🌑', color: '#6b7280', desc: '幽暗深邃，诡异莫测' },
-  { key: 'space', name: '空间', icon: '🌀', color: '#7c3aed', desc: '虚空挪移，空间掌控' },
-  { key: 'time', name: '时间', icon: '⏰', color: '#ec4899', desc: '时光流转，逆转乾坤' }
-]
 
 // 后天品级配置 - 完整的县令品级体系
 const spiritRootTiers = [
@@ -385,7 +274,7 @@ const activeDisplayName = computed(() => {
 
 const activeDescription = computed(() => {
  if (activeSpiritRoot.value === 'random')
-   return '天道无常，造化弄人。选择此项，你的后天将完全随机生成，可能出类拔萃，亦可能平庸无奇。'
+   return '时运无常，造化弄人。选择此项，你的后天将完全随机生成，可能出类拔萃，亦可能平庸无奇。'
  if (activeSpiritRoot.value && typeof activeSpiritRoot.value === 'object') return activeSpiritRoot.value.description || '后天信息不明。'
  return '后天信息不明。'
 });
@@ -493,102 +382,22 @@ function getSpiritRootTier(root: SpiritRoot): string {
   return root.tier || '';
 }
 
-// 自定义后天相关函数
-function getCustomSpiritName(): string {
-  if (customSpirit.type === 'none') return '请选择后天类型';
-  const typeInfo = spiritRootTypes.find(t => t.key === customSpirit.type);
-  return typeInfo ? `${typeInfo.name}后天` : '未知后天';
-}
-
-function getCustomSpiritMultiplier(): number {
-  if (customSpirit.tier === 'none') return 1.0;
-  const tierInfo = spiritRootTiers.find(t => t.key === customSpirit.tier);
-  return tierInfo ? tierInfo.multiplier : 1.0;
-}
-
-function getCustomSpiritCost(): number {
-  if (customSpirit.tier === 'none') return 0;
-  const tierInfo = spiritRootTiers.find(t => t.key === customSpirit.tier);
-  return tierInfo ? tierInfo.cost : 0;
-}
-
-function getSpiritTierName(tierKey: string): string {
-  const tierInfo = spiritRootTiers.find(t => t.key === tierKey);
-  return tierInfo ? tierInfo.name : '';
-}
-
-function isCustomSpiritValid(): boolean {
-  return customSpirit.type !== 'none' && customSpirit.tier !== 'none';
-}
-
-function confirmCustomSpirit() {
-  if (!isCustomSpiritValid()) {
-    toast.warning('请完整选择后天类型和品级');
-    return;
-  }
-  
-  const typeInfo = spiritRootTypes.find(t => t.key === customSpirit.type);
-  const tierInfo = spiritRootTiers.find(t => t.key === customSpirit.tier);
-  
-  if (!typeInfo || !tierInfo) {
-    toast.error('选择的后天配置无效');
-    return;
-  }
-  
-  const newRoot: SpiritRoot = {
-    id: Date.now(),
-    name: `${typeInfo.name}后天`,
-    description: `${tierInfo.desc}的${typeInfo.desc}`,
-    base_multiplier: tierInfo.multiplier,
-    talent_cost: tierInfo.cost,
-    tier: tierInfo.name,
-    source: 'cloud' as const
-  };
-  
-  store.addSpiritRoot(newRoot);
-  handleSelectSpiritRoot(newRoot);
-  toast.success(`自定义后天 "${newRoot.name}" 已创建！`);
-  
-  // 重置选择
-  customSpirit.type = 'none';
-  customSpirit.tier = 'none';
-}
-
 // 活跃显示相关函数
 function getActiveDisplayName(): string {
-  if (selectionMode.value === 'custom' && customSpirit.type !== 'none') {
-    return getCustomSpiritName();
-  }
   return activeDisplayName.value;
 }
 
 function getActiveDescription(): string {
-  if (selectionMode.value === 'custom' && customSpirit.type !== 'none') {
-    const typeInfo = spiritRootTypes.find(t => t.key === customSpirit.type);
-    const tierInfo = spiritRootTiers.find(t => t.key === customSpirit.tier);
-    if (typeInfo && tierInfo && customSpirit.tier !== 'none') {
-      return `${tierInfo.desc}的${typeInfo.desc}`;
-    } else if (typeInfo) {
-      return typeInfo.desc;
-    }
-    return '请选择后天品级';
-  }
   return activeDescription.value;
 }
 
 function getActiveMultiplier(): string {
-  if (selectionMode.value === 'custom' && customSpirit.type !== 'none') {
-    return getCustomSpiritMultiplier().toString();
-  }
   if (activeSpiritRoot.value === 'random') return '随机'
   if (activeSpiritRoot.value && typeof activeSpiritRoot.value === 'object') return (activeSpiritRoot.value.base_multiplier || 1.0).toString()
   return '1.0'
 }
 
 function getActiveCost(): string {
-  if (selectionMode.value === 'custom' && customSpirit.type !== 'none') {
-    return getCustomSpiritCost().toString();
-  }
   return activeCost.value.toString();
 }
 
@@ -707,13 +516,6 @@ const editInitialData = computed(() => {
 }
 
 /* 预设模式样式 */
-.preset-mode {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
 .spirit-root-list-container {
   flex: 1;
   overflow-y: auto;
@@ -1311,253 +1113,6 @@ const editInitialData = computed(() => {
   background: rgba(59, 130, 246, 0.1);
   border-color: #3b82f6;
   color: #1e40af;
-}
-
-/* 选择模式标签页 */
-.selection-mode-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface-light);
-}
-
-.mode-tab {
-  flex: 1;
-  padding: 0.8rem 1rem;
-  border: none;
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
-}
-
-.mode-tab.active {
-  color: var(--color-primary);
-  background: var(--color-surface);
-  border-bottom: 2px solid var(--color-primary);
-}
-
-.mode-tab:hover:not(.active) {
-  background: rgba(136, 192, 208, 0.1);
-  color: var(--color-text);
-}
-
-/* 自定义模式样式 */
-.custom-mode {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-.custom-selection-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.selection-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.selection-label {
-  font-weight: 600;
-  color: var(--color-text);
-  font-size: 0.9rem;
-}
-
-.spirit-type-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 0.5rem;
-}
-
-.type-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.8rem 0.5rem;
-  border: 2px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 70px;
-}
-
-.type-button:hover {
-  border-color: var(--element-color, var(--color-primary));
-  background: rgba(136, 192, 208, 0.1);
-}
-
-.type-button.selected {
-  border-color: var(--element-color, var(--color-primary));
-  background: var(--element-color, var(--color-primary));
-  color: white;
-}
-
-.type-icon {
-  font-size: 1.2rem;
-}
-
-.type-name {
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.tier-selection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.tier-button {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.8rem 1rem;
-  border: 2px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tier-button:hover {
-  border-color: var(--color-primary);
-  background: rgba(136, 192, 208, 0.1);
-}
-
-.tier-button.selected {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: white;
-}
-
-.tier-button.tier-common {
-  border-color: #9CA3AF;
-}
-
-.tier-button.tier-low {
-  border-color: #8B5CF6;
-}
-
-.tier-button.tier-middle {
-  border-color: #3B82F6;
-}
-
-.tier-button.tier-high {
-  border-color: #10B981;
-}
-
-.tier-button.tier-supreme {
-  border-color: #F59E0B;
-}
-
-.tier-button.tier-heaven {
-  border-color: #FF6B35;
-}
-
-.tier-button.tier-divine {
-  border-color: #DC2626;
-}
-
-.tier-button.tier-special {
-  border-color: #7C3AED;
-}
-
-.tier-name {
-  font-weight: 600;
-}
-
-.tier-multiplier {
-  color: var(--color-accent);
-  font-size: 0.9rem;
-}
-
-.tier-cost {
-  color: var(--color-text-secondary);
-  font-size: 0.8rem;
-}
-
-.custom-preview {
-  padding: 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface-light);
-}
-
-.preview-title {
-  font-weight: 600;
-  margin-bottom: 0.8rem;
-  color: var(--color-text);
-}
-
-.preview-content {
-  margin-bottom: 1rem;
-}
-
-.preview-name {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.8rem;
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
-.preview-tier {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: var(--color-accent);
-  color: white;
-}
-
-.preview-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.preview-stats .stat {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
-}
-
-.confirm-custom-button {
-  width: 100%;
-  padding: 0.8rem;
-  border: none;
-  border-radius: 6px;
-  background: var(--color-primary);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.confirm-custom-button:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-}
-
-.confirm-custom-button:disabled {
-  background: var(--color-border);
-  color: var(--color-text-disabled);
-  cursor: not-allowed;
-}
-
-.actions-container {
-  border-top: 1px solid var(--color-border);
-  background: rgba(0, 0, 0, 0.3);
-  padding: 0.5rem;
-  display: flex;
-  gap: 0.5rem;
 }
 
 /* 兼容新等级名称"仙品" */
