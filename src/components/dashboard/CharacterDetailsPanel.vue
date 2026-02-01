@@ -629,14 +629,18 @@ const vitalsData = computed(() => {
   ];
 });
 
-const buildInnateDefaults = (raw?: Partial<InnateAttributes> | null): InnateAttributes => ({
-  根骨: Number(raw?.根骨 ?? 0),
-  灵性: Number(raw?.灵性 ?? 0),
-  悟性: Number(raw?.悟性 ?? 0),
-  气运: Number(raw?.气运 ?? 0),
-  魅力: Number(raw?.魅力 ?? 0),
-  心性: Number(raw?.心性 ?? 0),
-});
+const buildInnateDefaults = (raw?: Partial<InnateAttributes> | null): InnateAttributes => {
+  // Handle old存档 that use '根骨' instead of '精力'
+  const精力 = raw?.精力 ?? (raw as any)?.根骨 ?? 0;
+  return {
+    精力: Number(精力 ?? 0),
+    灵性: Number(raw?.灵性 ?? 0),
+    悟性: Number(raw?.悟性 ?? 0),
+    气运: Number(raw?.气运 ?? 0),
+    魅力: Number(raw?.魅力 ?? 0),
+    心性: Number(raw?.心性 ?? 0),
+  };
+};
 
 const innateAttributesWithDefaults = computed<InnateAttributes>(() => buildInnateDefaults(baseInfo.value?.先天六司));
 
@@ -688,7 +692,7 @@ const hasTechniqueEffects = computed(() => {
 
 // Skills
 const allLearnedSkills = computed((): LearnedSkillDisplay[] => {
-  const learnedSkills = (gameStateStore.masteredSkills || []) as MasteredSkill[];
+  const learnedSkills = Array.isArray(gameStateStore.masteredSkills) ? gameStateStore.masteredSkills : [] as MasteredSkill[];
   return learnedSkills.map((skill) => ({
     name: skill.技能名称 || '',
     type: t('掌握技能'),
@@ -710,6 +714,7 @@ const daoList = computed<Record<string, DaoData>>(() => {
 });
 
 const unlockedDaoList = computed((): DaoData[] => {
+  if (!daoList.value || typeof daoList.value !== 'object') return [];
   return Object.values(daoList.value)
     .filter((d) => Boolean(d?.是否解锁))
     .sort((a, b) => getDaoProgress(b.道名) - getDaoProgress(a.道名));

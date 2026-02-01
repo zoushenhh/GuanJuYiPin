@@ -208,7 +208,7 @@ function validateValueType(key: string, value: unknown, action: string): string[
       '角色.属性.寿命.上限',
     ];
 
-    const houTianFields = ['根骨', '灵性', '悟性', '气运', '魅力', '心性'];
+    const houTianFields = ['精力', '灵性', '悟性', '气运', '魅力', '心性'];
 
     if (action === 'add') {
       if (numberFields.includes(key) && typeof value !== 'number') {
@@ -500,8 +500,8 @@ export function validateAndRepairCommandValue(command: TavernCommand): Validatio
 
     // 8. 理念对象
     if (key.startsWith('角色.理念.理念列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
-      const理念Name = key.split('.')[3];
-      const result = validateDaoObject(value, 理念Name);
+      const daoName = key.split('.')[3];
+      const result = validateDaoObject(value, daoName);
       errors.push(...result.errors);
     }
 

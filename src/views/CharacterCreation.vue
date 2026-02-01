@@ -227,10 +227,10 @@ const characterDataForPreset = computed(() => ({
 
   // 创角选择（完整对象）
   world: store.selectedWorld,
-  talentTier: store.selectedTalentTier,
-  origin: store.selectedOrigin,
-  spiritRoot: store.selectedSpiritRoot,
-  talents: store.selectedTalents,
+  talentTier: store.selectedBackground,
+  origin: store.selectedAptitude,
+  spiritRoot: store.selectedPostHeaven,
+  talents: store.selectedAbilities,
 
   // 先天六司
   baseAttributes: {
@@ -255,7 +255,7 @@ const isNextDisabled = computed(() => {
   const currentStep = store.currentStep;
   const totalSteps = store.totalSteps;
   const selectedWorld = store.selectedWorld;
-  const selectedTalentTier = store.selectedTalentTier;
+  const selectedTalentTier = store.selectedBackground;
   const remainingPoints = store.remainingTalentPoints;
   const generating = store.isCreating;
 
@@ -336,26 +336,26 @@ async function createCharacter() {
   console.log('[DEBUG] 开始数据校验');
   console.log('[DEBUG] 角色名:', store.characterPayload.character_name);
   console.log('[DEBUG] 选中的世界:', store.selectedWorld);
-  console.log('[DEBUG] 选中的天资:', store.selectedTalentTier);
-  console.log('[DEBUG] 选中的出身:', store.selectedOrigin);
-  console.log('[DEBUG] 选中的才能:', store.selectedSpiritRoot);
+  console.log('[DEBUG] 选中的天资:', store.selectedBackground);
+  console.log('[DEBUG] 选中的出身:', store.selectedAptitude);
+  console.log('[DEBUG] 选中的才能:', store.selectedPostHeaven);
 
   // 角色名自动获取，如果为空则使用默认值
   if (!store.characterPayload.character_name) {
     console.log('[DEBUG] 角色名为空，使用默认值');
     store.characterPayload.character_name = '官员';
   }
-  if (!store.selectedWorld || !store.selectedTalentTier) {
+  if (!store.selectedWorld || !store.selectedBackground) {
     console.log('[DEBUG] 验证失败：缺少必需选择项');
     console.log('[DEBUG] selectedWorld:', store.selectedWorld);
-    console.log('[DEBUG] selectedTalentTier:', store.selectedTalentTier);
+    console.log('[DEBUG] selectedTalentTier:', store.selectedBackground);
     toast.error('创建数据不完整，请检查世界和天资选择！');
     return;
   }
 
   // 出身和才能可以为空（表示随机选择）
-  console.log('[DEBUG] selectedOrigin:', store.selectedOrigin, '(可为空，表示随机出生)');
-  console.log('[DEBUG] selectedSpiritRoot:', store.selectedSpiritRoot, '(可为空，表示随机才能)');
+  console.log('[DEBUG] selectedOrigin:', store.selectedAptitude, '(可为空，表示随机出生)');
+  console.log('[DEBUG] selectedSpiritRoot:', store.selectedPostHeaven, '(可为空，表示随机才能)');
 
   // 进入创建流程后锁定按钮，防止重复点击/重复请求
   store.startCreation();
@@ -380,10 +380,10 @@ async function createCharacter() {
       // 🔥 关键修复：确保所有核心选择都传递完整对象，而不仅仅是名称或ID
       // 这解决了下游服务（如AI提示生成）无法获取详细描述的问题
       世界: store.selectedWorld,
-      天资: store.selectedTalentTier,
-      出生: store.selectedOrigin || '随机出身', // service层会处理字符串
-      才能: store.selectedSpiritRoot || '随机才能', // service层会处理字符串
-      天赋: store.selectedTalents,
+      天资: store.selectedBackground,
+      出生: store.selectedAptitude || '随机出身', // service层会处理字符串
+      才能: store.selectedPostHeaven || '随机才能', // service层会处理字符串
+      天赋: store.selectedAbilities,
       先天六司: {
         根骨: store.attributes.root_bone,
         灵性: store.attributes.spirituality,
@@ -408,10 +408,10 @@ async function createCharacter() {
       charId: `char_${Date.now()}`,
       characterName: store.characterPayload.character_name,
       world: store.selectedWorld,
-      talentTier: store.selectedTalentTier,
-      origin: store.selectedOrigin,
-      spiritRoot: store.selectedSpiritRoot,
-      talents: store.selectedTalents,
+      talentTier: store.selectedBackground,
+      origin: store.selectedAptitude,
+      spiritRoot: store.selectedPostHeaven,
+      talents: store.selectedAbilities,
       baseAttributes: {
         root_bone: store.attributes.root_bone,
         spirituality: store.attributes.spirituality,
@@ -473,10 +473,10 @@ async function onStoreCompleted(result: { success: boolean; message: string; pre
           race: store.characterPayload.race,
           current_age: store.characterPayload.current_age,
           world: store.selectedWorld ?? null,
-          talentTier: store.selectedTalentTier ?? null,
-          origin: store.selectedOrigin ?? null,
-          spiritRoot: store.selectedSpiritRoot ?? null,
-          talents: store.selectedTalents ?? [],
+          talentTier: store.selectedBackground ?? null,
+          origin: store.selectedAptitude ?? null,
+          spiritRoot: store.selectedPostHeaven ?? null,
+          talents: store.selectedAbilities ?? [],
           baseAttributes: {
             root_bone: store.attributes.root_bone,
             spirituality: store.attributes.spirituality,
@@ -565,7 +565,7 @@ async function onLoadCompleted(result: { success: boolean; message: string; pres
     // 5. 验证恢复后的状态
     await nextTick();
 
-    if (!store.selectedWorld || !store.selectedTalentTier) {
+    if (!store.selectedWorld || !store.selectedBackground) {
       console.error('[角色创建] 预设恢复后检查失败，核心数据缺失。');
       toast.error('预设数据不完整或已失效，请重新选择。');
       store.currentStep = 1;

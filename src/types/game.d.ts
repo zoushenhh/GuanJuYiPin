@@ -1497,7 +1497,7 @@ export interface SixSiBonus {
 
 /** 六司权重配置 */
 export interface SixSiWeights {
-  根骨: number;
+  精力: number;
   灵性: number;
   悟性: number;
   心性: number;

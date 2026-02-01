@@ -45,7 +45,7 @@ export interface AdministrationEfficiencyResult {
 
 /** 六司属性权重配置 */
 const SIX_SI_WEIGHTS = {
-  根骨: 0.25,  // 25% - 影响体质和灵气吸收 / 影响健康和民心吸收（县令主题）
+  精力: 0.25,  // 25% - 影响体质和灵气吸收 / 影响健康和民心吸收（县令主题）
   灵性: 0.25,  // 25% - 影响灵气感应和运转 / 影响民心感应和施政运转（县令主题）
   悟性: 0.20,  // 20% - 影响功法理解和突破 / 影响方略理解和晋升（县令主题）
   心性: 0.15,  // 15% - 影响修炼稳定性 / 影响施政稳定性（县令主题）
@@ -135,7 +135,7 @@ function clamp(value: number, min: number, max: number): number {
 
 /** 六司数据类型 */
 export interface SixSiData {
-  根骨: number;
+  精力: number;
   灵性: number;
   悟性: number;
   气运: number;
@@ -148,7 +148,7 @@ export interface SixSiData {
  */
 function calculateWeightedSixSi(sixSi: SixSiData): number {
   return (
-    sixSi.根骨 * SIX_SI_WEIGHTS.根骨 +
+    sixSi.精力 * SIX_SI_WEIGHTS.精力 +
     sixSi.灵性 * SIX_SI_WEIGHTS.灵性 +
     sixSi.悟性 * SIX_SI_WEIGHTS.悟性 +
     sixSi.心性 * SIX_SI_WEIGHTS.心性 +

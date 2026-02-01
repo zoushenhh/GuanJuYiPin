@@ -1815,7 +1815,7 @@ const relationshipStats = computed(() => {
   return { total, valid: list.length, invalid, list };
 });
 
-const relationships = computed<NpcProfile[]>(() => relationshipStats.value.list);
+const relationships = computed<NpcProfile[]>(() => relationshipStats.value?.list ?? []);
 
 // 过滤后的关系列表（只保留搜索功能）
 const filteredRelationships = computed<NpcProfile[]>(() => {

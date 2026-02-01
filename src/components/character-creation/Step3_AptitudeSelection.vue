@@ -120,7 +120,7 @@ const isAIPromptModalVisible = ref(false)
 const editingOrigin = ref<Origin | null>(null)
 
 const filteredOrigins = computed(() => {
-  const allOrigins = store.creationData.origins;
+  const allOrigins = store.creationData.aptitudes || [];
   console.log("【出身选择】所有出身数据:", allOrigins);
 
   // 单机模式：显示本地和云端数据

@@ -200,7 +200,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { User, Sparkles, Heart, Droplet, Brain, Clock, Star, Zap } from 'lucide-vue-next';
-import { LOCAL_TALENTS } from '@/data/creationData';
+import { LOCAL_ABILITIES } from '@/data/creationData';
 import DetailModal from '@/components/common/DetailModal.vue';
 import StatusDetailCard from './components/StatusDetailCard.vue';
 import { useGameStateStore } from '@/stores/gameStateStore';
@@ -336,8 +336,8 @@ const showTalentDetail = (talent: string) => {
   const baseInfoValue = characterInfo.value;
   const customTalent = baseInfoValue?.天赋?.find((t: any) => t.name === talent);
 
-  // 然后从LOCAL_TALENTS中查找天赋信息(前端内嵌天赋)
-  const localTalent = LOCAL_TALENTS.find(t => t.name === talent);
+  // 然后从LOCAL_ABILITIES中查找天赋信息(前端内嵌天赋)
+  const localTalent = LOCAL_ABILITIES.find(t => t.name === talent);
 
   // 优先使用自定义天赋数据,其次使用内嵌天赋数据
   const talentInfo = customTalent ? {

@@ -119,7 +119,7 @@ const isAIPromptModalVisible = ref(false)
 const editingTier = ref<TalentTier | null>(null)
 
 const filteredTalentTiers = computed(() => {
-  const allTiers = store.creationData.talentTiers;
+  const allTiers = store.creationData.backgrounds || [];
   console.log("【天资选择】所有天资数据:", allTiers);
   console.log("【天资选择】数据明细:", allTiers.map(t => ({ name: t.name, source: t.source, id: t.id })));
 

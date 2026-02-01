@@ -108,7 +108,7 @@ const isAIPromptModalVisible = ref(false)
 const editingTalent = ref<Talent | null>(null)
 
 const filteredTalents = computed(() => {
-  const allTalents = store.creationData.talents;
+  const allTalents = store.creationData.abilities || [];
   console.log("【天赋选择】所有天赋数据:", allTalents.length, "个");
 
   // 单机模式：显示本地和云端数据

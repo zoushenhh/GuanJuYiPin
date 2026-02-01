@@ -34,7 +34,7 @@ import { useUIStore } from '@/stores/uiStore';
 import { useCharacterCreationStore } from '../../stores/characterCreationStore';
 import { toast } from '../../utils/toast';
 import { getTavernHelper } from '../../utils/tavern';
-import { LOCAL_WORLDS, LOCAL_TALENT_TIERS, LOCAL_ORIGINS, LOCAL_SPIRIT_ROOTS, LOCAL_TALENTS } from '../../data/creationData';
+import { LOCAL_REGIONS, LOCAL_POST_HEAVENS, LOCAL_BACKGROUNDS, LOCAL_APTITUDES, LOCAL_ABILITIES } from '../../data/creationData';
 
 // Props
 defineProps<{
@@ -54,26 +54,32 @@ const uiStore = useUIStore();
 // 检查是否有自定义数据
 const hasCustomData = computed(() => {
   // 检查是否有ID大于本地基础数据最大ID的项目（这些是自定义或AI生成的）
-  const maxLocalWorldId = Math.max(...LOCAL_WORLDS.map(w => w.id));
-  const maxLocalTalentTierId = Math.max(...LOCAL_TALENT_TIERS.map(t => t.id));
-  const maxLocalOriginId = Math.max(...LOCAL_ORIGINS.map(o => o.id));
-  const maxLocalSpiritRootId = Math.max(...LOCAL_SPIRIT_ROOTS.map(s => s.id));
-  const maxLocalTalentId = Math.max(...LOCAL_TALENTS.map(t => t.id));
-  
-  return store.creationData.worlds.some(w => w.source === 'cloud' || w.id > maxLocalWorldId) ||
-         store.creationData.talentTiers.some(t => t.source === 'cloud' || t.id > maxLocalTalentTierId) ||
-         store.creationData.origins.some(o => o.source === 'cloud' || o.id > maxLocalOriginId) ||
-         store.creationData.spiritRoots.some(s => s.source === 'cloud' || s.id > maxLocalSpiritRootId) ||
-         store.creationData.talents.some(t => t.source === 'cloud' || t.id > maxLocalTalentId);
+  const maxLocalRegionId = Math.max(...LOCAL_REGIONS.map(w => w.id));
+  const maxLocalPostHeavenId = Math.max(...LOCAL_POST_HEAVENS.map(t => t.id));
+  const maxLocalBackgroundId = Math.max(...LOCAL_BACKGROUNDS.map(o => o.id));
+  const maxLocalAptitudeId = Math.max(...LOCAL_APTITUDES.map(s => s.id));
+  const maxLocalAbilityId = Math.max(...LOCAL_ABILITIES.map(t => t.id));
+
+  const data = store.creationData;
+  if (!data) return false;
+
+  return (data.worlds || []).some(w => w.source === 'cloud' || w.id > maxLocalRegionId) ||
+         (data.backgrounds || []).some(t => t.source === 'cloud' || t.id > maxLocalPostHeavenId) ||
+         (data.aptitudes || []).some(o => o.source === 'cloud' || o.id > maxLocalBackgroundId) ||
+         (data.postHeavens || []).some(s => s.source === 'cloud' || s.id > maxLocalAptitudeId) ||
+         (data.abilities || []).some(t => t.source === 'cloud' || t.id > maxLocalAbilityId);
 });
 
 // 检查是否有云端数据
 const hasCloudData = computed(() => {
-  return store.creationData.worlds.some(w => w.source === 'cloud') ||
-         store.creationData.talentTiers.some(t => t.source === 'cloud') ||
-         store.creationData.origins.some(o => o.source === 'cloud') ||
-         store.creationData.spiritRoots.some(s => s.source === 'cloud') ||
-         store.creationData.talents.some(t => t.source === 'cloud');
+  const data = store.creationData;
+  if (!data) return false;
+
+  return (data.worlds || []).some(w => w.source === 'cloud') ||
+         (data.backgrounds || []).some(t => t.source === 'cloud') ||
+         (data.aptitudes || []).some(o => o.source === 'cloud') ||
+         (data.postHeavens || []).some(s => s.source === 'cloud') ||
+         (data.abilities || []).some(t => t.source === 'cloud');
 });
 
 // 清理酒馆全局变量中的自定义数据
@@ -116,31 +122,32 @@ async function clearCustomData() {
     confirmText: '确认清除',
     cancelText: '取消',
     onConfirm: async () => {
+      const data = store.creationData;
       const originalCounts = {
-        worlds: store.creationData.worlds.length,
-        talentTiers: store.creationData.talentTiers.length,
-        origins: store.creationData.origins.length,
-        spiritRoots: store.creationData.spiritRoots.length,
-        talents: store.creationData.talents.length
+        worlds: data.worlds?.length || 0,
+        backgrounds: data.backgrounds?.length || 0,
+        aptitudes: data.aptitudes?.length || 0,
+        postHeavens: data.postHeavens?.length || 0,
+        abilities: data.abilities?.length || 0
       };
 
-      const maxLocalWorldId = Math.max(...LOCAL_WORLDS.map(w => w.id));
-      const maxLocalTalentTierId = Math.max(...LOCAL_TALENT_TIERS.map(t => t.id));
-      const maxLocalOriginId = Math.max(...LOCAL_ORIGINS.map(o => o.id));
-      const maxLocalSpiritRootId = Math.max(...LOCAL_SPIRIT_ROOTS.map(s => s.id));
-      const maxLocalTalentId = Math.max(...LOCAL_TALENTS.map(t => t.id));
+      const maxLocalRegionId = Math.max(...LOCAL_REGIONS.map(w => w.id));
+      const maxLocalPostHeavenId = Math.max(...LOCAL_POST_HEAVENS.map(t => t.id));
+      const maxLocalBackgroundId = Math.max(...LOCAL_BACKGROUNDS.map(o => o.id));
+      const maxLocalAptitudeId = Math.max(...LOCAL_APTITUDES.map(s => s.id));
+      const maxLocalAbilityId = Math.max(...LOCAL_ABILITIES.map(t => t.id));
 
-      store.creationData.worlds = store.creationData.worlds.filter(w => w.source === 'local' || w.id <= maxLocalWorldId);
-      store.creationData.talentTiers = store.creationData.talentTiers.filter(t => t.source === 'local' || t.id <= maxLocalTalentTierId);
-      store.creationData.origins = store.creationData.origins.filter(o => o.source === 'local' || o.id <= maxLocalOriginId);
-      store.creationData.spiritRoots = store.creationData.spiritRoots.filter(s => s.source === 'local' || s.id <= maxLocalSpiritRootId);
-      store.creationData.talents = store.creationData.talents.filter(t => t.source === 'local' || t.id <= maxLocalTalentId);
+      data.worlds = (data.worlds || []).filter(w => w.source === 'local' || w.id <= maxLocalRegionId);
+      data.backgrounds = (data.backgrounds || []).filter(t => t.source === 'local' || t.id <= maxLocalPostHeavenId);
+      data.aptitudes = (data.aptitudes || []).filter(o => o.source === 'local' || o.id <= maxLocalBackgroundId);
+      data.postHeavens = (data.postHeavens || []).filter(s => s.source === 'local' || s.id <= maxLocalAptitudeId);
+      data.abilities = (data.abilities || []).filter(t => t.source === 'local' || t.id <= maxLocalAbilityId);
 
-      const removedCount = (originalCounts.worlds - store.creationData.worlds.length) +
-                           (originalCounts.talentTiers - store.creationData.talentTiers.length) +
-                           (originalCounts.origins - store.creationData.origins.length) +
-                           (originalCounts.spiritRoots - store.creationData.spiritRoots.length) +
-                           (originalCounts.talents - store.creationData.talents.length);
+      const removedCount = (originalCounts.worlds - (data.worlds?.length || 0)) +
+                           (originalCounts.backgrounds - (data.backgrounds?.length || 0)) +
+                           (originalCounts.aptitudes - (data.aptitudes?.length || 0)) +
+                           (originalCounts.postHeavens - (data.postHeavens?.length || 0)) +
+                           (originalCounts.abilities - (data.abilities?.length || 0));
 
       store.resetCharacter();
       
@@ -164,25 +171,26 @@ async function clearCloudData() {
     confirmText: '确认清除',
     cancelText: '取消',
     onConfirm: async () => {
+      const data = store.creationData;
       const originalCounts = {
-        worlds: store.creationData.worlds.length,
-        talentTiers: store.creationData.talentTiers.length,
-        origins: store.creationData.origins.length,
-        spiritRoots: store.creationData.spiritRoots.length,
-        talents: store.creationData.talents.length
+        worlds: data.worlds?.length || 0,
+        backgrounds: data.backgrounds?.length || 0,
+        aptitudes: data.aptitudes?.length || 0,
+        postHeavens: data.postHeavens?.length || 0,
+        abilities: data.abilities?.length || 0
       };
 
-      store.creationData.worlds = store.creationData.worlds.filter(w => w.source !== 'cloud');
-      store.creationData.talentTiers = store.creationData.talentTiers.filter(t => t.source !== 'cloud');
-      store.creationData.origins = store.creationData.origins.filter(o => o.source !== 'cloud');
-      store.creationData.spiritRoots = store.creationData.spiritRoots.filter(s => s.source !== 'cloud');
-      store.creationData.talents = store.creationData.talents.filter(t => t.source !== 'cloud');
+      data.worlds = (data.worlds || []).filter(w => w.source !== 'cloud');
+      data.backgrounds = (data.backgrounds || []).filter(t => t.source !== 'cloud');
+      data.aptitudes = (data.aptitudes || []).filter(o => o.source !== 'cloud');
+      data.postHeavens = (data.postHeavens || []).filter(s => s.source !== 'cloud');
+      data.abilities = (data.abilities || []).filter(t => t.source !== 'cloud');
 
-      const removedCount = (originalCounts.worlds - store.creationData.worlds.length) +
-                           (originalCounts.talentTiers - store.creationData.talentTiers.length) +
-                           (originalCounts.origins - store.creationData.origins.length) +
-                           (originalCounts.spiritRoots - store.creationData.spiritRoots.length) +
-                           (originalCounts.talents - store.creationData.talents.length);
+      const removedCount = (originalCounts.worlds - (data.worlds?.length || 0)) +
+                           (originalCounts.backgrounds - (data.backgrounds?.length || 0)) +
+                           (originalCounts.aptitudes - (data.aptitudes?.length || 0)) +
+                           (originalCounts.postHeavens - (data.postHeavens?.length || 0)) +
+                           (originalCounts.abilities - (data.abilities?.length || 0));
 
       store.resetCharacter();
       await store.persistCustomData();

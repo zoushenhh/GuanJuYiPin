@@ -264,12 +264,13 @@ const spiritRootTiers = [
 ]
 
 const filteredSpiritRoots = computed(() => {
+  const data = store.creationData.postHeavens || [];
   if (store.isLocalCreation) {
-    return store.creationData.spiritRoots.filter(root => 
+    return data.filter(root =>
       root.source === 'local' || root.source === 'cloud'
     );
   } else {
-    return store.creationData.spiritRoots.filter(root => 
+    return data.filter(root =>
       root.source === 'cloud'
     );
   }

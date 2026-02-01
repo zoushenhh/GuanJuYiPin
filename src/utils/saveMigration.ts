@@ -243,8 +243,8 @@ const buildDefaultIdentity = () => ({
   出生: '平民',
   灵根: '五行杂才干',
   天赋: [],
-  先天六司: { 根骨: 5, 灵性: 5, 悟性: 5, 气运: 5, 魅力: 5, 心性: 5 },
-  后天六司: { 根骨: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 },
+  先天六司: { 精力: 5, 灵性: 5, 悟性: 5, 气运: 5, 魅力: 5, 心性: 5 },
+  后天六司: { 精力: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 },
 });
 
 export function migrateSaveDataToV3(raw: SaveData): { migrated: SaveDataV3; report: SaveMigrationReport } {

@@ -26,7 +26,7 @@ function resolveCharacterTarget(saveData: SaveData): { character: any } {
   const anySave = saveData as any;
   if (anySave.角色?.身份 && typeof anySave.角色.身份 === 'object') return { character: anySave.角色.身份 };
   anySave.角色 = anySave.角色 && typeof anySave.角色 === 'object' ? anySave.角色 : {};
-  anySave.角色.身份 = { 后天六司: { 根骨: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 } };
+  anySave.角色.身份 = { 后天六司: { 精力: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 } };
   return { character: anySave.角色.身份 };
 }
 
@@ -83,7 +83,7 @@ export function applyEquipmentBonus(saveData: SaveData, equipmentItemId: string)
 
     // 应用后天六司加成
     if (bonus.后天六司) {
-      const 后天六司属性 = ['根骨', '灵性', '悟性', '气运', '魅力', '心性'] as const;
+      const 后天六司属性 = ['精力', '灵性', '悟性', '气运', '魅力', '心性'] as const;
       后天六司属性.forEach(attr => {
         const bonusValue = bonus.后天六司?.[attr as keyof typeof bonus.后天六司];
         if (bonusValue && typeof bonusValue === 'number') {
@@ -175,7 +175,7 @@ export function removeEquipmentBonus(saveData: SaveData, equipmentItemId: string
 
     // 移除后天六司加成
     if (bonus.后天六司) {
-      const 后天六司属性 = ['根骨', '灵性', '悟性', '气运', '魅力', '心性'] as const;
+      const 后天六司属性 = ['精力', '灵性', '悟性', '气运', '魅力', '心性'] as const;
       后天六司属性.forEach(attr => {
         const bonusValue = bonus.后天六司?.[attr as keyof typeof bonus.后天六司];
         if (bonusValue && typeof bonusValue === 'number') {
@@ -207,7 +207,7 @@ export function recalculateAllEquipmentBonuses(saveData: SaveData): void {
     const { character } = resolveCharacterTarget(saveData);
 
     // 1. 重置后天六司为0（清除所有装备加成）
-    const emptyBonuses = { 根骨: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 };
+    const emptyBonuses = { 精力: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 };
     character.后天六司 = { ...emptyBonuses };
 
     console.log('[装备增幅] 已重置后天六司为0');
@@ -221,7 +221,7 @@ export function recalculateAllEquipmentBonuses(saveData: SaveData): void {
     }
 
     const totalBonuses = {
-      根骨: 0,
+      精力: 0,
       灵性: 0,
       悟性: 0,
       气运: 0,

@@ -242,12 +242,25 @@ export function calculateFinalAttributes(
   后天六司: InnateAttributes,
   最终六司: InnateAttributes
 } {
-  // 🔥 [BUG修复] 动态计算后天六司，确保装备和天赋加成正确显示
+  // 🔥 [BUG修复] 数据迁移：将旧存档中的 '根骨' 映射到 '精力'
+  const normalizeAttributes = (attrs: any): InnateAttributes => {
+    if (!attrs) return { 精力: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 };
+    return {
+      精力: attrs.精力 ?? attrs.根骨 ?? 0,
+      灵性: attrs.灵性 ?? 0,
+      悟性: attrs.悟性 ?? 0,
+      气运: attrs.气运 ?? 0,
+      魅力: attrs.魅力 ?? 0,
+      心性: attrs.心性 ?? 0,
+    };
+  };
+
+  // Also normalize the innateAttributes parameter
+  const normalizedInnate = normalizeAttributes(innateAttributes);
+
   // 1. 从存档读取基础后天六司（可能包含永久加成）
   const character = (saveData as any).角色?.身份 ?? null;
-  const storedAcquiredAttributes = character?.后天六司 || {
-    精力: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0
-  };
+  const storedAcquiredAttributes = normalizeAttributes(character?.后天六司);
 
   // 2. 计算装备加成（实时计算，确保准确）
   const equipmentState = (saveData as any).角色?.装备 ?? null;
@@ -269,16 +282,16 @@ export function calculateFinalAttributes(
 
   // 5. 计算最终属性（先天 + 后天）
   const finalAttributes: InnateAttributes = {
-    精力: innateAttributes.精力 + totalAcquiredAttributes.精力,
-    灵性: innateAttributes.灵性 + totalAcquiredAttributes.灵性,
-    悟性: innateAttributes.悟性 + totalAcquiredAttributes.悟性,
-    气运: innateAttributes.气运 + totalAcquiredAttributes.气运,
-    魅力: innateAttributes.魅力 + totalAcquiredAttributes.魅力,
-    心性: innateAttributes.心性 + totalAcquiredAttributes.心性,
+    精力: normalizedInnate.精力 + totalAcquiredAttributes.精力,
+    灵性: normalizedInnate.灵性 + totalAcquiredAttributes.灵性,
+    悟性: normalizedInnate.悟性 + totalAcquiredAttributes.悟性,
+    气运: normalizedInnate.气运 + totalAcquiredAttributes.气运,
+    魅力: normalizedInnate.魅力 + totalAcquiredAttributes.魅力,
+    心性: normalizedInnate.心性 + totalAcquiredAttributes.心性,
   };
 
   return {
-    先天六司: innateAttributes,
+    先天六司: normalizedInnate,
     后天六司: totalAcquiredAttributes,
     最终六司: finalAttributes
   };
