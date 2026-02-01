@@ -6,13 +6,13 @@
     <div class="preview-grid">
       <!-- Character Name -->
       <div class="preview-item name-item">
-        <label for="characterName">{{ $t('官衔:') }}</label>
+        <label for="characterName">{{ $t('名字:') }}</label>
         <input
           type="text"
           id="characterName"
           class="named"
           v-model="store.characterPayload.character_name"
-          :placeholder="$t('请输入官衔')"
+          :placeholder="$t('请输入姓名')"
         />
         <span class="name-hint">{{ $t('可自定义修改') }}</span>
       </div>
@@ -55,12 +55,13 @@
       <div class="preview-item age-item">
         <h3>{{ $t('初始年龄') }}</h3>
         <div class="age-control">
-          <button type="button" @click="decrementAge" :disabled="store.characterPayload.current_age <= 0" class="age-btn">-</button>
+          <button type="button" @click="decrementAge" :disabled="store.characterPayload.current_age <= 16" class="age-btn">-</button>
           <input
             type="number"
             v-model.number="store.characterPayload.current_age"
             class="age-input"
-            min="0"
+            min="16"
+            max="40"
             @input="validateAge"
           />
           <span class="age-unit">{{ $t('岁') }}</span>
@@ -250,19 +251,24 @@ onMounted(async () => {
 })
 
 const incrementAge = () => {
-  store.characterPayload.current_age++
+  if (store.characterPayload.current_age < 40) {
+    store.characterPayload.current_age++
+  }
 }
 
 const decrementAge = () => {
-  if (store.characterPayload.current_age > 0) {
+  if (store.characterPayload.current_age > 16) {
     store.characterPayload.current_age--
   }
 }
 
 const validateAge = () => {
-  // 确保年龄不为负数
-  if (store.characterPayload.current_age < 0) {
-    store.characterPayload.current_age = 0
+  // 确保年龄在16-40之间
+  if (store.characterPayload.current_age < 16) {
+    store.characterPayload.current_age = 16
+  }
+  if (store.characterPayload.current_age > 40) {
+    store.characterPayload.current_age = 40
   }
   // 确保年龄是整数
   store.characterPayload.current_age = Math.floor(store.characterPayload.current_age)

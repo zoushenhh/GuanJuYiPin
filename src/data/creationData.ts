@@ -122,14 +122,14 @@ export const LOCAL_APTITUDES: Omit<Aptitude, 'source'>[] = [
   { id: 5, name: '幕僚出身', description: '你的恩师是一位游历四方的大幕僚，你继承了他的部分衣钵和见识。', talent_cost: 4, attribute_modifiers: { 经济: 1, 文化: 1 }, rarity: 4 },
   { id: 6, name: '前朝遗臣', description: '你保留着前朝的记忆，虽然官位尽失，但对官场和未来的大事了如指掌。', talent_cost: 5, attribute_modifiers: { 经济: 2, 文化: 1 }, rarity: 5 },
   { id: 7, name: '世家子弟', description: '你的家族中流淌着稀薄的高官血脉，天生威严十足，升迁速度略快于常人。', talent_cost: 6, attribute_modifiers: { 威望: 2, 政务: 1 }, rarity: 5 },
-  { id: 8, name: '革职复起', description: '你是一名被革职后重新起用的老臣，虽然占据了新的职位，但灵魂中蕴含着庞大的经验。', talent_cost: 7, attribute_modifiers: { 经济: 3, 威望: -1 }, rarity: 5 },
+  { id: 8, name: '革职复起', description: '你是一名被革职后重新起用的老臣，虽然占据了新的职位，但记忆中蕴含着庞大的官场经验。', talent_cost: 7, attribute_modifiers: { 经济: 3, 威望: -1 }, rarity: 5 },
   { id: 9, name: '渔民之后', description: '祖上世代捕鱼为生，水性极佳，体魄强健。', talent_cost: 1, attribute_modifiers: { 政务: 2 }, rarity: 2 },
   { id: 10, name: '皇室宗亲', description: '生于皇家的权力之巅，自幼享受锦衣玉食和最好的教育，但与基层官场的接触较少。', talent_cost: 3, attribute_modifiers: { 民生: 2, 威望: 1 }, rarity: 4 },
   { id: 11, name: '药铺伙计', description: '自幼在药铺长大，日夜与药材为伴，对医理有超常的敏感。', talent_cost: 2, attribute_modifiers: { 民生: 1, 经济: 1 }, rarity: 3 },
   { id: 12, name: '账房学徒', description: '师从账房先生，自小研习账目，对数字极其敏锐。', talent_cost: 3, attribute_modifiers: { 经济: 2, 民生: 1 }, rarity: 4 },
-  { id: 13, name: '捕快世家', description: '祖上世代捕快，血脉中蕴含微弱的武学之力，对罪犯极其敏感。', talent_cost: 4, attribute_modifiers: { 军事: 2, 威望: 1 }, rarity: 4 },
+  { id: 13, name: '捕快世家', description: '祖上世代捕快，骨子里透着勇武之气，对罪犯极其敏感。', talent_cost: 4, attribute_modifiers: { 军事: 2, 威望: 1 }, rarity: 4 },
   { id: 14, name: '乞丐出身', description: '自幼流落街头，饱经风霜，磨练出超凡的意志和适应能力。', talent_cost: -1, attribute_modifiers: { 威望: 2, 民生: -1 }, rarity: 2 },
-  { id: 15, name: '矿工余生', description: '曾是矿工，在暗无天日的矿洞中挣扎求生，体魄强健但缺乏灵性。', talent_cost: 0, attribute_modifiers: { 政务: 3, 文化: -1 }, rarity: 2 },
+  { id: 15, name: '矿工余生', description: '曾是矿工，在暗无天日的矿洞中挣扎求生，体魄强健但不通文墨。', talent_cost: 0, attribute_modifiers: { 政务: 3, 文化: -1 }, rarity: 2 },
   { id: 16, name: '画师弟子', description: '师承名家，精通书画之道，对文书有天生的理解力。', talent_cost: 3, attribute_modifiers: { 文化: 1, 民生: 2 }, rarity: 3 },
   { id: 17, name: '戏班出身', description: '自幼学戏，擅长察言观色，魅力非凡，但为官之心不够坚定。', talent_cost: 1, attribute_modifiers: { 民生: 3, 威望: -1 }, rarity: 2 },
   { id: 18, name: '儒生世家', description: '世代科举入仕，饱读诗书，对经典和政事有超常理解力。', talent_cost: 4, attribute_modifiers: { 文化: 2, 政务: 1 }, rarity: 4 },
@@ -263,11 +263,11 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
     rarity: 1
   },
 
-  // ============== 极品学科 (2.0x, 15点) ==============
+  // ============== 绝品学科 (2.0x, 15点) ==============
   {
     id: 11,
     name: '神算',
-    tier: '极品',
+    tier: '绝品',
     description: '万中无一的算学奇才，对数字有超凡敏感。处理财政事务速度极快，是理财的天生奇才。',
     cultivation_speed: '2.0x',
     special_effects: ['算学能力+80%', '神机妙算', '财政精通'],
@@ -278,7 +278,7 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
   {
     id: 12,
     name: '法圣',
-    tier: '极品',
+    tier: '绝品',
     description: '极为罕见的法学天才，精通律法，明察秋毫。处理刑名案件速度极快，断案如神。',
     cultivation_speed: '2.0x',
     special_effects: ['法学能力+80%', '律法精通', '断案如神'],
@@ -289,7 +289,7 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
   {
     id: 13,
     name: '神医',
-    tier: '极品',
+    tier: '绝品',
     description: '传说中的医学天才，对医理有超凡理解。处理医疗卫生事务速度极快，妙手回春。',
     cultivation_speed: '2.0x',
     special_effects: ['医学能力+80%', '妙手回春', '民望提升'],
@@ -300,7 +300,7 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
   {
     id: 14,
     name: '农圣',
-    tier: '极品',
+    tier: '绝品',
     description: '传说中的农学天才，对农事有超凡理解。处理农业事务速度极快，五谷丰登。',
     cultivation_speed: '2.0x',
     special_effects: ['农学能力+80%', '五谷丰登', '粮食增产'],
@@ -309,14 +309,14 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
     rarity: 4
   },
 
-  // ============== 神品学科 (2.8x+, 25+点) ==============
+  // ============== 国士学科 (2.8x+, 25+点) ==============
   {
     id: 15,
     name: '全才',
-    tier: '神品',
-    description: '传说中的至高全才，文武双全，包容万象。可处理所有政务，无瓶颈，但初期进展缓慢，后期一日千里。',
+    tier: '国士',
+    description: '传说中的至高全才，文武双全，包容万象。可处理所有政务，触类旁通，但初期进展缓慢，后期一日千里。',
     cultivation_speed: '0.8x(前期) -> 2.8x(后期)',
-    special_effects: ['全系政务亲和', '无领域限制', '越阶处理+50%', '升迁概率+30%'],
+    special_effects: ['全系政务亲和', '无领域限制', '超常发挥+50%', '升迁概率+30%'],
     base_multiplier: 2.8,
     talent_cost: 25,
     rarity: 5
@@ -324,7 +324,7 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
   {
     id: 16,
     name: '权术',
-    tier: '神品',
+    tier: '国士',
     description: '传说中的至高权术才能，掌控官场法则，可周旋各方。处理极难但潜力无穷。',
     cultivation_speed: '0.9x(前期) -> 3.0x(后期)',
     special_effects: ['权术精通', '周旋各方', '平衡之道', '制衡之术'],
@@ -335,23 +335,23 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
   {
     id: 17,
     name: '天命',
-    tier: '神品',
+    tier: '国士',
     description: '最为稀有的传说才能，触及国运机缘。升迁艰难但一旦有成，可逆转局势，掌控时势。',
     cultivation_speed: '0.8x(前期) -> 3.2x(后期)',
-    special_effects: ['天命政事精通', '时来运转', '因果推演', '机会把握'],
+    special_effects: ['天命政事精通', '时来运转', '局势推演', '机会把握'],
     base_multiplier: 3.2,
     talent_cost: 28,
     rarity: 5
   },
 
-  // ============== 特殊体质 ==============
+  // ============== 处世之道 ==============
   {
     id: 18,
     name: '清廉',
     tier: '特殊',
-    description: '天生清廉，不爱钱财，升迁速度极为缓慢，常人难以忍受。但一旦突破，根基无比扎实，政绩远超同阶。',
+    description: '天生清廉，不爱钱财，升迁速度极为缓慢，常人难以忍受。但一旦厚积薄发，名望无比扎实，政绩远超同阶。',
     cultivation_speed: '0.5x',
-    special_effects: ['根基极其稳固', '升迁后实力暴增+100%', '诱惑抗性+80%', '清名远播'],
+    special_effects: ['名望极其稳固', '升迁后实力暴增+100%', '诱惑抗性+80%', '清名远播'],
     base_multiplier: 0.5,
     talent_cost: -5,
     rarity: 4
@@ -400,7 +400,7 @@ export const LOCAL_ABILITIES: Omit<Ability, 'source'>[] = [
   {
     id: 1,
     name: '天命县令',
-    description: '气运惊人，总是能在绝境中逢生，获得意想不到的机遇。',
+    description: '福星高照，总是能在绝境中逢生，获得意想不到的机遇。',
     talent_cost: 15,
     rarity: 5,
     effects: [
@@ -630,13 +630,13 @@ export const LOCAL_ABILITIES: Omit<Ability, 'source'>[] = [
   {
     id: 22,
     name: '刚正不阿',
-    description: '天生刚正，不畏权贵。断案威力倍增，领悟正气速度极快。',
+    description: '天生刚正，不畏权贵。断案威力倍增，积累威望速度极快。',
     talent_cost: 10,
     rarity: 5,
     effects: [
       { 类型: '县令六司', 目标: '军事', 数值: 2 },
       { 类型: '技能加成', 技能: '断案', 数值: 0.25 },
-      { 类型: '特殊能力', 名称: '正气感悟', 数值: 0.2 }
+      { 类型: '特殊能力', 名称: '威望积累', 数值: 0.2 }
     ]
   },
   {
@@ -701,36 +701,36 @@ export const LOCAL_ABILITIES: Omit<Ability, 'source'>[] = [
   },
   {
     id: 28,
-    name: '孤星命格',
-    description: '天煞孤星，注定孤独一生。气运极低，但在绝境中更容易突破。',
+    name: '孤僻性格',
+    description: '性情孤僻，不善交际。人缘极差，但在逆境中更容易爆发。',
     talent_cost: -3,
     rarity: 3,
     effects: [
       { 类型: '县令六司', 目标: '文化', 数值: -5 },
-      { 类型: '特殊能力', 名称: '绝境突破', 数值: 0.3 }
+      { 类型: '特殊能力', 名称: '逆境爆发', 数值: 0.3 }
     ]
   },
   {
     id: 29,
-    name: '先知梦境',
-    description: '偶尔能在梦中窥见未来的片段，提前规避危险或把握机遇。',
+    name: '高瞻远瞩',
+    description: '能从蛛丝马迹中推断未来走向，提前规避危险或把握机遇。',
     talent_cost: 8,
     rarity: 5,
     effects: [
       { 类型: '县令六司', 目标: '文化', 数值: 2 },
       { 类型: '县令六司', 目标: '民生', 数值: 3 },
-      { 类型: '特殊能力', 名称: '预知危险', 数值: 1 }
+      { 类型: '特殊能力', 名称: '风险洞察', 数值: 1 }
     ]
   },
   {
     id: 30,
-    name: '长寿体格',
-    description: '天生体格健壮，比常人更不易衰老，有更多时间追求政绩。',
+    name: '精力充沛',
+    description: '天生体格健壮，精力旺盛，能比常人处理更多政务。',
     talent_cost: 12,
     rarity: 5,
     effects: [
       { 类型: '县令六司', 目标: '军事', 数值: 3 },
-      { 类型: '特殊能力', 名称: '寿命延长', 数值: 0.3 }
+      { 类型: '特殊能力', 名称: '精力恢复', 数值: 0.3 }
     ]
   }
 ];
