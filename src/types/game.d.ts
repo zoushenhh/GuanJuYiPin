@@ -167,23 +167,23 @@ export interface ItemQuality {
 // --- 先天六司 ---
 
 export interface InnateAttributes {
-  精力: number;  // 原根骨 - 影响健康、处理政务耐力
-  灵性: number;
-  悟性: number;
-  气运: number;
-  魅力: number;
-  心性: number;
+  断案: number;   // 原精力/根骨 - 影响断案能力
+  治理: number;   // 原灵性 - 影响政务处理能力
+  用人: number;   // 原悟性 - 影响识人用人能力
+  威望: number;   // 原气运 - 影响机缘、晋升
+  民心: number;   // 原魅力 - 影响百姓支持度
+  清廉: number;   // 原心性 - 影响廉洁从政
 }
 
-/** 英文键名的先天六司，用于组件传参 */
+/** 英文键名的先天六司，用于组件传参（向后兼容） */
 
 export interface InnateAttributesEnglish {
-  root_bone: number;    // 精力（原根骨）
-  spirituality: number;
-  comprehension: number;
-  fortune: number;
-  charm: number;
-  temperament: number;
+  root_bone: number;    // 断案（原精力/根骨）
+  spirituality: number; // 治理（原灵性）
+  comprehension: number; // 用人（原悟性）
+  fortune: number;      // 威望（原气运）
+  charm: number;        // 民心（原魅力）
+  temperament: number;  // 清廉（原心性）
 }
 
 export type AttributeKey = keyof InnateAttributesEnglish;

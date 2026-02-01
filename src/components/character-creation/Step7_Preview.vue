@@ -137,8 +137,8 @@
       <!-- Talents -->
       <div class="preview-item talents-item">
         <h3>{{ $t('能力') }}</h3>
-        <ul v-if="store.selectedTalents.length">
-          <li v-for="talent in store.selectedTalents" :key="talent.id">
+        <ul v-if="store.selectedAbilities?.length">
+          <li v-for="talent in store.selectedAbilities" :key="talent.id">
             <strong>{{ talent.name }}</strong>
             <p class="item-description">{{ talent.description }}</p>
           </li>
@@ -150,12 +150,12 @@
       <div v-if="props.isLocalCreation" class="preview-item attributes-item">
         <h3>{{ $t('六司属性') }}</h3>
         <ul>
-          <li>{{ $t('精力') }}: {{ store.attributes.root_bone }}</li>
-          <li>{{ $t('威望') }}: {{ store.attributes.spirituality }}</li>
-          <li>{{ $t('悟性') }}: {{ store.attributes.comprehension }}</li>
-          <li>{{ $t('气运') }}: {{ store.attributes.fortune }}</li>
-          <li>{{ $t('魅力') }}: {{ store.attributes.charm }}</li>
-          <li>{{ $t('心性') }}: {{ store.attributes.temperament }}</li>
+          <li>{{ $t('断案') }}: {{ store.attributes.root_bone || 0 }}</li>
+          <li>{{ $t('治理') }}: {{ store.attributes.spirituality || 0 }}</li>
+          <li>{{ $t('用人') }}: {{ store.attributes.comprehension || 0 }}</li>
+          <li>{{ $t('威望') }}: {{ store.attributes.fortune || 0 }}</li>
+          <li>{{ $t('民心') }}: {{ store.attributes.charm || 0 }}</li>
+          <li>{{ $t('清廉') }}: {{ store.attributes.temperament || 0 }}</li>
         </ul>
       </div>
 
