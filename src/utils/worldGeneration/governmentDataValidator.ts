@@ -3,33 +3,48 @@
  * 确保AI生成的衙门数据逻辑一致性
  */
 
-// 境界等级映射 - 支持带"期"和不带"期"的格式
-// 注意：同一境界的不同阶段（初期、中期、后期、圆满、极境）都算同一等级
-const REALM_LEVELS: Record<string, number> = {
-  // 不带期的格式
-  '练气': 1, '练气初期': 1, '练气中期': 1, '练气后期': 1, '练气圆满': 1, '练气极境': 1,
-  '筑基': 2, '筑基初期': 2, '筑基中期': 2, '筑基后期': 2, '筑基圆满': 2, '筑基极境': 2,
-  '金丹': 3, '金丹初期': 3, '金丹中期': 3, '金丹后期': 3, '金丹圆满': 3, '金丹极境': 3,
-  '元婴': 4, '元婴初期': 4, '元婴中期': 4, '元婴后期': 4, '元婴圆满': 4, '元婴极境': 4,
-  '化神': 5, '化神初期': 5, '化神中期': 5, '化神后期': 5, '化神圆满': 5, '化神极境': 5,
-  '炼虚': 6, '炼虚初期': 6, '炼虚中期': 6, '炼虚后期': 6, '炼虚圆满': 6, '炼虚极境': 6,
-  '合体': 7, '合体初期': 7, '合体中期': 7, '合体后期': 7, '合体圆满': 7, '合体极境': 7,
-  '渡劫': 8, '渡劫初期': 8, '渡劫中期': 8, '渡劫后期': 8, '渡劫圆满': 8, '渡劫极境': 8,
+// 官品等级映射 - 支持带"品"和阶段的格式
+// 注意：同一品级的不同阶段（初品、中品、后品、圆满、极境）都算同一等级
+const RANK_LEVELS: Record<string, number> = {
+  // 九品（最低）
+  '九品': 1, '九品初品': 1, '九品中品': 1, '九品后品': 1, '九品圆满': 1, '九品极境': 1,
+  // 八品
+  '八品': 2, '八品初品': 2, '八品中品': 2, '八品后品': 2, '八品圆满': 2, '八品极境': 2,
+  // 七品
+  '七品': 3, '七品初品': 3, '七品中品': 3, '七品后品': 3, '七品圆满': 3, '七品极境': 3,
+  // 六品
+  '六品': 4, '六品初品': 4, '六品中品': 4, '六品后品': 4, '六品圆满': 4, '六品极境': 4,
+  // 五品
+  '五品': 5, '五品初品': 5, '五品中品': 5, '五品后品': 5, '五品圆满': 5, '五品极境': 5,
+  // 四品
+  '四品': 6, '四品初品': 6, '四品中品': 6, '四品后品': 6, '四品圆满': 6, '四品极境': 6,
+  // 三品
+  '三品': 7, '三品初品': 7, '三品中品': 7, '三品后品': 7, '三品圆满': 7, '三品极境': 7,
+  // 二品
+  '二品': 8, '二品初品': 8, '二品中品': 8, '二品后品': 8, '二品圆满': 8, '二品极境': 8,
+  // 一品（最高）
+  '一品': 9, '一品初品': 9, '一品中品': 9, '一品后品': 9, '一品圆满': 9, '一品极境': 9,
 
-  // 带期的格式
-  '练气期': 1, '筑基期': 2, '金丹期': 3, '元婴期': 4, '化神期': 5,
-  '炼虚期': 6, '合体期': 7, '渡劫期': 8
+  // 兼容旧存档格式（修仙官品映射到对应官品）
+  '练气': 1, '练气初品': 1, '练气中品': 1, '练气后品': 1, '练气圆满': 1, '练气极境': 1,
+  '筑基': 2, '筑基初品': 2, '筑基中品': 2, '筑基后品': 2, '筑基圆满': 2, '筑基极境': 2,
+  '金丹': 3, '金丹初品': 3, '金丹中品': 3, '金丹后品': 3, '金丹圆满': 3, '金丹极境': 3,
+  '元婴': 4, '元婴初品': 4, '元婴中品': 4, '元婴后品': 4, '元婴圆满': 4, '元婴极境': 4,
+  '化神': 5, '化神初品': 5, '化神中品': 5, '化神后品': 5, '化神圆满': 5, '化神极境': 5,
+  '炼虚': 6, '炼虚初品': 6, '炼虚中品': 6, '炼虚后品': 6, '炼虚圆满': 6, '炼虚极境': 6,
+  '合体': 7, '合体初品': 7, '合体中品': 7, '合体后品': 7, '合体圆满': 7, '合体极境': 7,
+  '渡劫': 8, '渡劫初品': 8, '渡劫中品': 8, '渡劫后品': 8, '渡劫圆满': 8, '渡劫极境': 8,
 };
 
 /**
- * 获取境界等级
+ * 获取官品等级
  */
-function getRealmLevel(realm: string): number {
-  return REALM_LEVELS[realm] || 0;
+function getRankLevel(rank: string): number {
+  return RANK_LEVELS[rank] || 0;
 }
 
 /**
- * 验证并修复衙门境界分布数据
+ * 验证并修复衙门官品分布数据
  */
 export function validateAndFixGovernmentRealmData(governmentData: any): any {
   if (!governmentData) return governmentData;
@@ -46,8 +61,8 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
     if (!governmentData.领导层) {
       governmentData.领导层 = {
         主官: '合欢老魔',
-        主官修为: governmentData.最强修为 || '化神期',
-        最强修为: governmentData.最强修为 || '化神期',
+        主官品级: governmentData.最强品级 || '化神品',
+        最强品级: governmentData.最强品级 || '化神品',
         圣女: '灰夫人(合欢圣女)'
       };
     } else if (!governmentData.领导层.圣女) {
@@ -63,7 +78,7 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
   if (governmentData.memberCount && !governmentData.成员数量) {
     governmentData.成员数量 = {
       总数: governmentData.memberCount.total,
-      按境界: governmentData.memberCount.byRealm,
+      按官品: governmentData.memberCount.byRealm,
       按职位: governmentData.memberCount.byPosition
     };
     delete governmentData.memberCount;
@@ -78,9 +93,9 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
       memberCount.总数 = memberCount.total;
     }
 
-    // 转换 byRealm -> 按境界
-    if (memberCount.byRealm && !memberCount.按境界) {
-      memberCount.按境界 = memberCount.byRealm;
+    // 转换 byRealm -> 按官品
+    if (memberCount.byRealm && !memberCount.按官品) {
+      memberCount.按官品 = memberCount.byRealm;
     }
 
     // 转换 byPosition -> 按职位
@@ -89,25 +104,25 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
     }
   }
 
-  // 获取最强修为等级
-  const maxRealm = governmentData.领导层?.最强修为 || governmentData.最强修为;
-  const maxLevel = getRealmLevel(maxRealm);
+  // 获取最强品级等级
+  const maxRealm = governmentData.领导层?.最强品级 || governmentData.最强品级;
+  const maxLevel = getRankLevel(maxRealm);
 
-  console.log(`[衙门验证] ${governmentData.名称}: 最强修为="${maxRealm}" → 等级=${maxLevel}`);
-  console.log(`[衙门验证] ${governmentData.名称}: 原始境界分布=`, governmentData.成员数量?.按境界);
+  console.log(`[衙门验证] ${governmentData.名称}: 最强品级="${maxRealm}" → 等级=${maxLevel}`);
+  console.log(`[衙门验证] ${governmentData.名称}: 原始官品分布=`, governmentData.成员数量?.按官品);
 
-  // 🔥 智能修复：根据境界分布自动设置最强修为
-  if (governmentData.成员数量?.按境界) {
-    const realmDist = governmentData.成员数量.按境界;
+  // 🔥 智能修复：根据官品分布自动设置最强品级
+  if (governmentData.成员数量?.按官品) {
+    const realmDist = governmentData.成员数量.按官品;
 
-    // 找出境界分布中的最高境界
+    // 找出官品分布中的最高官品
     let highestRealmLevel = 0;
     let highestRealmName = '';
 
     Object.keys(realmDist).forEach(realm => {
       const count = realmDist[realm];
       if (count > 0) {
-        const realmLevel = getRealmLevel(realm);
+        const realmLevel = getRankLevel(realm);
         if (realmLevel > highestRealmLevel) {
           highestRealmLevel = realmLevel;
           highestRealmName = realm;
@@ -115,41 +130,41 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
       }
     });
 
-    // 如果找到了最高境界，用它来更新最强修为
+    // 如果找到了最高官品，用它来更新最强品级
     if (highestRealmLevel > 0 && highestRealmName) {
-      // 将"练气期"转换为"练气圆满"等更合理的描述
-      const realmNameWithoutSuffix = highestRealmName.replace('期', '');
+      // 将"九品初期"转换为"九品圆满"等更合理的描述
+      const realmNameWithoutSuffix = highestRealmName.replace('初期', '').replace('中期', '').replace('后期', '').replace('极境', '');
       const correctedMaxRealm = `${realmNameWithoutSuffix}圆满`;
 
-      // 更新leadership中的最强修为
+      // 更新leadership中的最强品级
       if (governmentData.领导层) {
-        const oldMaxRealm = governmentData.领导层.最强修为;
-        governmentData.领导层.最强修为 = correctedMaxRealm;
-        console.log(`[衙门验证] ${governmentData.名称}: 根据境界分布自动修正最强修为: "${oldMaxRealm}" → "${correctedMaxRealm}"`);
+        const oldMaxRealm = governmentData.领导层.最强品级;
+        governmentData.领导层.最强品级 = correctedMaxRealm;
+        console.log(`[衙门验证] ${governmentData.名称}: 根据官品分布自动修正最强品级: "${oldMaxRealm}" → "${correctedMaxRealm}"`);
 
-        // 如果主官修为低于最强修为，也更新主官修为
-        const masterRealmLevel = getRealmLevel(governmentData.领导层.主官修为 || '');
+        // 如果主官品级低于最强品级，也更新主官品级
+        const masterRealmLevel = getRankLevel(governmentData.领导层.主官品级 || '');
         if (masterRealmLevel < highestRealmLevel) {
-          governmentData.领导层.主官修为 = correctedMaxRealm;
-          console.log(`[衙门验证] ${governmentData.名称}: 同时更新主官修为为: "${correctedMaxRealm}"`);
+          governmentData.领导层.主官品级 = correctedMaxRealm;
+          console.log(`[衙门验证] ${governmentData.名称}: 同时更新主官品级为: "${correctedMaxRealm}"`);
         }
       }
     }
 
-    console.log(`[衙门验证] ${governmentData.名称}: 境界分布包含:`, Object.keys(realmDist).filter(r => realmDist[r] > 0));
+    console.log(`[衙门验证] ${governmentData.名称}: 官品分布包含:`, Object.keys(realmDist).filter(r => realmDist[r] > 0));
   }
 
-  console.log(`[衙门验证] ${governmentData.名称}: 验证后境界分布=`, governmentData.成员数量?.按境界);
+  console.log(`[衙门验证] ${governmentData.名称}: 验证后官品分布=`, governmentData.成员数量?.按官品);
 
-  // 验证长老数量与高境界修士数量的一致性
-  if (governmentData.领导层?.长老数量 && governmentData.成员数量?.按境界) {
-    const elderCount = governmentData.领导层.长老数量;
-    const realmDist = governmentData.成员数量.按境界;
+  // 验证资深官员数量与高品级官员数量的一致性
+  if (governmentData.领导层?.资深官员数量 && governmentData.成员数量?.按官品) {
+    const elderCount = governmentData.领导层.资深官员数量;
+    const realmDist = governmentData.成员数量.按官品;
 
-    // 计算元婴期及以上的修士总数
+    // 计算六品及以上的官员总数
     let highRealmCount = 0;
     Object.keys(realmDist).forEach(realm => {
-      const realmLevel = getRealmLevel(realm);
+      const realmLevel = getRankLevel(realm);
       if (realmLevel >= 4) {
         highRealmCount += realmDist[realm] || 0;
       }
@@ -158,7 +173,7 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
     if (highRealmCount > elderCount * 1.5) {
       const ratio = elderCount * 1.2 / highRealmCount;
       Object.keys(realmDist).forEach(realm => {
-        const realmLevel = getRealmLevel(realm);
+        const realmLevel = getRankLevel(realm);
         if (realmLevel >= 4) {
           const originalCount = realmDist[realm];
           realmDist[realm] = Math.max(1, Math.round(originalCount * ratio));
@@ -181,32 +196,32 @@ export function validateGovernmentConsistency(governmentData: any): { isValid: b
     return { isValid: false, errors };
   }
 
-  // 检查最强修为与境界分布的一致性
-  const maxRealm = governmentData.领导层?.最强修为 || governmentData.最强修为;
-  const maxLevel = getRealmLevel(maxRealm);
+  // 检查最强品级与官品分布的一致性
+  const maxRealm = governmentData.领导层?.最强品级 || governmentData.最强品级;
+  const maxLevel = getRankLevel(maxRealm);
 
-  if (governmentData.成员数量?.按境界) {
-    Object.keys(governmentData.成员数量.按境界).forEach(realm => {
-      const realmLevel = getRealmLevel(realm);
+  if (governmentData.成员数量?.按官品) {
+    Object.keys(governmentData.成员数量.按官品).forEach(realm => {
+      const realmLevel = getRankLevel(realm);
       if (realmLevel > maxLevel) {
-        errors.push(`境界分布错误: 存在${realm}期修士，但最强修为仅为${maxRealm}`);
+        errors.push(`官品分布错误: 存在${realm}品官员，但最强品级仅为${maxRealm}`);
       }
     });
   }
 
-  // 检查长老数量与高境界修士的合理性
-  const elderCount = governmentData.领导层?.长老数量;
-  if (elderCount && governmentData.成员数量?.按境界) {
+  // 检查资深官员数量与高官品官员的合理性
+  const elderCount = governmentData.领导层?.资深官员数量;
+  if (elderCount && governmentData.成员数量?.按官品) {
     let highRealmCount = 0;
-    Object.keys(governmentData.成员数量.按境界).forEach(realm => {
-      const realmLevel = getRealmLevel(realm);
+    Object.keys(governmentData.成员数量.按官品).forEach(realm => {
+      const realmLevel = getRankLevel(realm);
       if (realmLevel >= 4) {
-        highRealmCount += governmentData.成员数量.按境界[realm] || 0;
+        highRealmCount += governmentData.成员数量.按官品[realm] || 0;
       }
     });
 
     if (highRealmCount > elderCount * 2) {
-      errors.push(`人员配置不合理: 长老${elderCount}位，但元婴期以上修士${highRealmCount}人`);
+      errors.push(`人员配置不合理: 资深官员${elderCount}位，但六品以上官员${highRealmCount}人`);
     }
   }
 
