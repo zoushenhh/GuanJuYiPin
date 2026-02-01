@@ -2,22 +2,9 @@
 
 /**
  * @fileoverview
- * 县令模拟器 - 游戏核心数据结构天规
+ * 县令模拟器 - 游戏核心数据结构定义
  * 此文件定义了整个游戏存档、角色、NPC等核心数据的TypeScript类型。
  * 所有数据结构均基于县令模拟器主题设定。
- *
- * 术语对照说明:
- * - 修炼/修炼功法 -> 施政/治理方略
- * - 境界 -> 官品/职位
- * - 灵石 -> 银两/资金
- * - 宗门 -> 衙门/官府
- * - 掌门 -> 县令/长官
- * - 弟子 -> 下属/官员
- * - 灵气 -> 民心/威望
- * - 气血 -> 健康/体力
- * - 神识 -> 智慧/洞察
- * - 寿元 -> 任期/寿命
- * - 功德 -> 政绩/功绩
  */
 
 import type { QualityType, GradeType } from '@/data/itemQuality';
@@ -106,7 +93,7 @@ export interface ProcessedResponse {
 // --- 天道系统相关类型 ---
 /**
  * @deprecated 使用 GovernanceCalculation 替代
- * 旧术语：天道计算（修仙游戏中的天道系统）
+ * 旧术语：天道计算（旧系统）
  * 新术语：施政计算（县令游戏中的施政系统）
  */
 export interface HeavenlyCalculation {
@@ -127,7 +114,7 @@ export interface GovernanceCalculation {
 // 简化的核心属性类型（仅用于天道系统内部计算）
 /**
  * @deprecated 使用 MagistrateCoreAttributes 替代
- * 旧术语：核心属性（修仙游戏中的角色属性）
+ * 旧术语：核心属性（旧系统）
  * 新术语：县令核心属性（县令游戏中的官员属性）
  */
 export interface CoreAttributes {
@@ -152,7 +139,7 @@ export interface MagistrateCoreAttributes {
 // 简化的死亡状态类型（仅用于天道系统内部判定）
 /**
  * @deprecated 使用 TermState 替代
- * 旧术语：死亡状态（修仙游戏中的生死状态）
+ * 旧术语：死亡状态（旧系统）
  * 新术语：任期状态（县令游戏中的任职状态）
  */
 export interface DeathState {
@@ -171,7 +158,7 @@ export interface TermState {
 // 简化的天道系统类型（仅用于内部计算，不存储到 PlayerStatus）
 /**
  * @deprecated 使用 GovernanceSystem 替代
- * 旧术语：天道系统（修仙游戏中的天道系统）
+ * 旧术语：天道系统（旧系统）
  * 新术语：施政系统（县令游戏中的施政系统）
  */
 export interface HeavenlySystem {
@@ -502,18 +489,18 @@ export type RankLevel =
   | '五品' | '四品' | '三品' | '二品' | '一品';
 
 // ============================================================================
-// 关系类型（县令/修仙通用）
+// 关系类型（县令主题）
 // ============================================================================
 
-/** 衙门关系/宗门关系（县令主题：衙门关系；修仙主题：宗门关系） */
+/** 衙门关系/宗门关系（县令主题：衙门关系） */
 export type SectRelationship = '仇敌' | '敌对' | '冷淡' | '中立' | '友好' | '盟友' | '附庸';
 
 /**
- * 衙门成员信息/宗门成员信息（县令主题：衙门成员信息；修仙主题：宗门成员信息）
+ * 衙门成员信息/宗门成员信息（县令主题：衙门成员信息）
  *
  * @deprecated 接口名保留为SectMemberInfo是为了向后兼容旧存档
- * 旧术语：宗门成员信息（修仙游戏中的组织成员）
- * 新术语：衙门成员信息（县令游戏中的政府官员）
+ * 旧术语：宗门成员信息（旧数据结构）
+ * 新术语：衙门成员信息（县令主题）
  *
  * 术语映射：
  * - 宗门名称 -> 衙门名称
@@ -534,7 +521,7 @@ export interface SectMemberInfo {
   描述?: string;
 }
 
-/** 衙门基础信息/宗门基础信息（县令主题：衙门基础信息；修仙主题：宗门基础信息） */
+/** 衙门基础信息/宗门基础信息（县令主题：衙门基础信息） */
 export interface SectInfo {
   名称: string; // 宗门名称
   类型: GovernmentOfficeType; // 宗门类型
@@ -574,7 +561,7 @@ export interface SectMemberCount {
   byPosition?: Record<string, number>; // 英文字段名兼容
 }
 
-/** 衙门系统数据/宗门系统数据（县令主题：衙门系统数据；修仙主题：宗门系统数据） */
+/** 衙门系统数据/宗门系统数据（县令主题：衙门系统数据） */
 export interface SectSystemData extends AIMetadata {
   availableSects: SectInfo[]; // 可用的宗门列表
   sectRelationships: Record<string, number>; // 与各宗门的关系值
@@ -601,7 +588,7 @@ export interface SectSystemV2 extends AIMetadata {
   宗门任务状态?: Record<string, SectTaskStatus>;
   迁移记录?: SectMigrationRecord;
   内容状态?: Record<string, SectContentStatus>; // 衙门/宗门内容初始化状态
-  /** 衙门轻度经营/宗门轻度经营（县令主题：县令面板；修仙主题：宗主面板） */
+  /** 衙门轻度经营/宗门轻度经营（县令主题：县令面板） */
   宗门经营?: Record<string, SectManagementState>;
   /** 衙门大战/宗门大战（分阶段推进） */
   宗门战争?: SectWarSystem;
@@ -767,7 +754,7 @@ export interface SectTaskStatus {
 
 /**
  * @deprecated 接口名使用Dao（道）是为了向后兼容旧存档
- * 旧术语：大道阶段（修仙游戏中的修行境界）
+ * 旧术语：大道阶段（旧系统中的修行境界）
  * 新术语：方略阶段（县令游戏中的治理方略阶段）
  */
 export interface DaoStage {
@@ -778,7 +765,7 @@ export interface DaoStage {
 
 /**
  * @deprecated 接口名使用Dao（道）是为了向后兼容旧存档
- * 旧术语：大道数据（修仙游戏中的修行体系）
+ * 旧术语：大道数据（旧系统中的修行体系）
  * 新术语：方略数据（县令游戏中的治理方略体系）
  */
 export interface DaoData {
@@ -797,7 +784,7 @@ export interface DaoData {
  * 治理方略系统数据
  *
  * @deprecated 接口名ThousandDaoSystem保留是为了向后兼容旧存档
- * 旧术语：千道系统（修仙游戏中可修炼的多条大道）
+ * 旧术语：千道系统（旧系统中可修炼的多条大道）
  * 新术语：方略系统（县令游戏中可学习治理方略）
  */
 export interface ThousandDaoSystem extends AIMetadata {
@@ -860,7 +847,7 @@ export interface StatusEffect {
 
 /**
  * @deprecated 使用 OfficialRank 替代
- * 旧术语：境界（修仙游戏中的修行境界）
+ * 旧术语：境界（旧系统中的修行境界）
  * 新术语：官品（县令游戏中的官员等级）
  * 接口名保留为Realm是为了向后兼容旧存档
  */

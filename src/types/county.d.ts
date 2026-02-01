@@ -1,14 +1,6 @@
 /**
  * @fileoverview 县治状态类型定义
  *
- * 【术语映射说明】
- * 旧术语（修仙主题）      ->  新术语（县令主题）
- * ------------------------------------------------
- * SpiritStone            ->  Silver/Treasury (库银)
- * Population (灵气浓度)  ->  Population (人口)
- * Sect Resources         ->  County Resources (县治资源)
- * Territory              ->  Jurisdiction (辖区)
- *
  * 【设计理念】
  * - 县治是县令治理的行政区域
  * - 多维度指标反映治理状况

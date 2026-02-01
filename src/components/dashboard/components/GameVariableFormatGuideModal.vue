@@ -80,9 +80,9 @@
               </div>
             </section>
 
-            <!-- 治国方略 -->
+            <!-- 治理方略 -->
             <section id="dao" class="format-section">
-              <h4 class="section-title">2. 治国方略</h4>
+              <h4 class="section-title">2. 治理方略</h4>
               <div class="section-content">
                 <pre class="code-block">方略列表: {方略名: DaoData对象}
   - 道名: string

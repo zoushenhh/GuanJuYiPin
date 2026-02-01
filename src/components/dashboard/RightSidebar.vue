@@ -388,7 +388,7 @@ const getTalentData = (talent: string): any => {
     }
   }
 
-  // 向后兼容：从治国方略系统中查找
+  // 向后兼容：从治理方略系统中查找
   const daoDataValue = gameStateStore.thousandDao;
   const daoProgress = daoDataValue?.方略列表?.[talent];
   return daoProgress;

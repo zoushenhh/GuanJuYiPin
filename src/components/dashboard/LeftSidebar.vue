@@ -60,7 +60,7 @@
               <Zap :size="18" />
             </div>
             <div class="btn-content">
-              <span class="btn-text">{{ t('治国方略') }}</span>
+              <span class="btn-text">{{ t('治理方略') }}</span>
               <span class="btn-desc">{{ t('百家治国理念') }}</span>
             </div>
             <ChevronRight :size="14" class="btn-arrow" />

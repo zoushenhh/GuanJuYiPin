@@ -1,11 +1,11 @@
 /**
- * @fileoverview 治国方略系统 - AI动态生成框架
- * 所有治国方略都由AI根据游戏情况动态生成和管理
+ * @fileoverview 治理方略系统 - AI动态生成框架
+ * 所有治理方略都由AI根据游戏情况动态生成和管理
  */
 
 import type { DaoData, ThousandDaoSystem } from '../types/game';
 
-/** 创建空的治国方略系统 */
+/** 创建空的治理方略系统 */
 export function createEmptyThousandDaoSystem(): ThousandDaoSystem {
   return {
     方略列表: {}, // 开局无任何方略，完全由AI根据机缘解锁
@@ -16,7 +16,7 @@ export function createEmptyThousandDaoSystem(): ThousandDaoSystem {
  * 为新解锁的方略创建初始数据（数据+进度合并）
  * 所有方略都从第0阶段开始
  */
-export function createNewDaoData(daoName: string, description: string = '神秘的治国方略'): DaoData {
+export function createNewDaoData(daoName: string, description: string = '神秘的治理方略'): DaoData {
   return {
     道名: daoName,
     描述: description,
@@ -29,11 +29,11 @@ export function createNewDaoData(daoName: string, description: string = '神秘�
 }
 
 /**
- * 预设治国方略模板（供AI参考）
- * 这些是常见的治国方略类型，AI可根据实际情况创造新的
+ * 预设治理方略模板（供AI参考）
+ * 这些是常见的治理方略类型，AI可根据实际情况创造新的
  */
 
-/** 治国方略分类 */
+/** 治理方略分类 */
 export type GovernanceStrategyType =
   | '仁政'      // 以民为本，轻徭薄赋
   | '法治'      // 以法治国，严明赏罚
@@ -44,7 +44,7 @@ export type GovernanceStrategyType =
   | '严刑'      // 严刑峻法，威慑犯罪
   | '富国';     // 富国强兵，增强实力
 
-/** 治国方略模板 */
+/** 治理方略模板 */
 export interface GovernanceStrategyTemplate {
   /** 方略ID */
   id: string;
@@ -78,7 +78,7 @@ export interface GovernanceStrategyTemplate {
   specialAbilities?: string[];
 }
 
-/** 预设治国方略模板列表 */
+/** 预设治理方略模板列表 */
 export const GOVERNANCE_STRATEGY_TEMPLATES: GovernanceStrategyTemplate[] = [
   {
     id: 'benevolent_government',
@@ -226,7 +226,7 @@ export function getAllStrategyTypes(): GovernanceStrategyType[] {
  */
 export function generateStrategySystemPrompt(): string {
   return `
-## 治国方略系统
+## 治理方略系统
 
 方略是县令治理地方的核心理念和方法。每个方略都有独特的优缺点，需要根据实际情况选择。
 
@@ -266,7 +266,7 @@ export function generateStrategySystemPrompt(): string {
 
 ### AI创作方略指南：
 
-当游戏需要新的治国方略时，AI可以：
+当游戏需要新的治理方略时，AI可以：
 1. 参考预设方略模板
 2. 结合当前游戏情况（民心、治安、财政等）
 3. 创造性地设计新的方略
