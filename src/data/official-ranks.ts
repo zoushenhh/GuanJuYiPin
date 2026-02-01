@@ -537,3 +537,71 @@ export function canPromote(currentMerit: number, currentLevel: number, category:
   if (!currentRank) return false;
   return currentMerit >= currentRank.meritRequired;
 }
+
+// ============================================================================
+// 官品颜色主题系统
+// ============================================================================
+
+/** 官品颜色主题 */
+export type RankColorTheme =
+  | 'rank-high-noble'   // 一品：黄色（高阶显贵）
+  | 'rank-high-minister' // 二品至三品：紫色（高位重臣）
+  | 'rank-mid-senior'    // 四品至五品：红色（中层资深）
+  | 'rank-mid-junior'    // 六品：蓝色（中层初级）
+  | 'rank-low-senior'    // 七品：绿色（基层资深）
+  | 'rank-low-junior';   // 八品至九品：灰色（基层初级）
+
+/** 官品颜色主题映射 */
+export const RANK_COLOR_THEMES: Record<RankColorTheme, { description: string; cssClass: string }> = {
+  'rank-high-noble': {
+    description: '一品高官，身着紫袍金带，位极人臣',
+    cssClass: 'high-noble-rank'
+  },
+  'rank-high-minister': {
+    description: '二至三品大员，身着紫袍，朝廷重臣',
+    cssClass: 'high-minister-rank'
+  },
+  'rank-mid-senior': {
+    description: '四至五品官员，身着红袍，中层骨干',
+    cssClass: 'mid-senior-rank'
+  },
+  'rank-mid-junior': {
+    description: '六品官员，身着绿袍，中层干部',
+    cssClass: 'mid-junior-rank'
+  },
+  'rank-low-senior': {
+    description: '七品官员，身着青袍，基层长官',
+    cssClass: 'low-senior-rank'
+  },
+  'rank-low-junior': {
+    description: '八九品吏员，身着皂袍，基层办事',
+    cssClass: 'low-junior-rank'
+  }
+};
+
+/**
+ * 根据品级获取颜色主题
+ */
+export function getRankColorTheme(rankLevel: number): RankColorTheme {
+  if (rankLevel === 1) return 'rank-high-noble';
+  if (rankLevel <= 3) return 'rank-high-minister';
+  if (rankLevel <= 5) return 'rank-mid-senior';
+  if (rankLevel === 6) return 'rank-mid-junior';
+  if (rankLevel === 7) return 'rank-low-senior';
+  return 'rank-low-junior';
+}
+
+/**
+ * 根据品级字符串获取颜色主题
+ * 支持格式：'正一品'、'从二品'、'七品' 等
+ */
+export function parseRankColorTheme(rankString?: string): RankColorTheme | 'civilian' {
+  if (!rankString) return 'civilian';
+
+  // 提取品级数字
+  const match = rankString.match(/(\d+)品/);
+  if (!match) return 'civilian';
+
+  const level = parseInt(match[1], 10);
+  return getRankColorTheme(level);
+}

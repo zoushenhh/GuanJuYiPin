@@ -53,11 +53,11 @@
       <div v-if="isFullscreen" class="fullscreen-header">
         <button @click="handleClose" class="fullscreen-back-btn">
           <ArrowLeft :size="20" />
-          <span>{{ $t('返回道途') }}</span>
+          <span>{{ $t('返回仕途') }}</span>
         </button>
         <div class="fullscreen-title">
           <h1>{{ $t('续前世因缘') }}</h1>
-          <p>{{ $t('择一法身，入道重修') }}</p>
+          <p>{{ $t('择一身份，入官重整') }}</p>
         </div>
       </div>
 
@@ -94,7 +94,7 @@
       <div v-if="Object.keys(characterStore.rootState.角色列表).length === 0" class="empty-state">
         <div class="empty-icon"><Star :size="32" /></div>
         <h2>{{ $t('道途未启') }}</h2>
-        <p>{{ $t('尚未创建任何法身，请返回道途开启修仙之旅') }}</p>
+        <p>{{ $t('尚未创建任何角色，请返回仕途开启为官之旅') }}</p>
         <div class="empty-actions">
           <button @click="goBack" class="btn-create">{{ $t('踏上仕途') }}</button>
           <button @click="importCharacter" class="btn-import">{{ $t('导入角色') }}</button>
@@ -307,7 +307,7 @@
                         <div class="save-stats">
                           <div class="stat-grid">
                             <div class="stat">
-                              <span class="label">气血</span>
+                              <span class="label">健康</span>
                               <span class="value"
                                 >{{ normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.气血?.当前 ?? 0 }}/{{
                                   normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.气血?.上限 ?? 0
@@ -315,7 +315,7 @@
                               >
                             </div>
                             <div class="stat">
-                              <span class="label">灵气</span>
+                              <span class="label">威望</span>
                               <span class="value"
                                 >{{ normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.灵气?.当前 ?? 0 }}/{{
                                   normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.灵气?.上限 ?? 0
@@ -323,7 +323,7 @@
                               >
                             </div>
                             <div class="stat">
-                              <span class="label">神识</span>
+                              <span class="label">智慧</span>
                               <span class="value"
                                 >{{ normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.神识?.当前 ?? 0 }}/{{
                                   normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.神识?.上限 ?? 0
@@ -399,7 +399,7 @@
                   <span class="value">{{ getFieldName(detailsCharacter.角色.出生) }}</span>
                 </div>
                 <div class="detail-item">
-                  <span class="label">{{ $t('灵根') }}</span>
+                  <span class="label">{{ $t('才能') }}</span>
                   <span class="value">{{ getFieldName(detailsCharacter.角色.灵根) }}</span>
                 </div>
                 <div class="detail-item">
@@ -422,7 +422,7 @@
             </div>
 
             <div class="detail-section">
-              <h4>{{ $t('天赋神通') }}</h4>
+              <h4>{{ $t('天赋能力') }}</h4>
               <div class="talents-list">
                 <div v-if="detailsCharacter.角色.天赋?.length" class="talent-items">
                   <span

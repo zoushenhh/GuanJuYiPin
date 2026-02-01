@@ -276,7 +276,7 @@ export interface JudgementAbility {
  * 根据属性计算断案能力
  */
 export interface JudgementAbilityInput {
-  根骨: number;                  // 影响审讯时的体力消耗
+  精力: number;                  // 影响审讯时的体力消耗（原根骨）
   悟性: number;                  // 影响推理力
   心性: number;                  // 影响观察力和判断力
   气运: number;                  // 影响发现关键线索的概率

@@ -288,7 +288,7 @@
                <section class="info-card glass-panel">
                   <div class="card-header">
                     <Zap :size="20" class="header-icon blue"/>
-                    <h3>{{ t('神通技能') }} <span class="count-badge">{{ totalSkillsCount }}</span></h3>
+                    <h3>{{ t('能力技能') }} <span class="count-badge">{{ totalSkillsCount }}</span></h3>
                   </div>
 
                   <div class="skills-grid-wrapper custom-scrollbar">
@@ -304,17 +304,17 @@
                         </div>
                      </div>
                      <div v-if="allLearnedSkills.length === 0" class="empty-placeholder text-sm">
-                        {{ t('尚未领悟神通') }}
+                        {{ t('尚未领悟能力') }}
                      </div>
                   </div>
                </section>
 
-               <!-- 三千大道 -->
+               <!-- 治国理念 -->
                <section class="info-card glass-panel full-width">
                   <div class="card-header toggle-header" @click="toggleDaoDetails">
                      <div class="flex-row">
                         <Mountain :size="20" class="header-icon ink" />
-                        <h3>{{ t('三千大道') }}</h3>
+                        <h3>{{ t('治国理念') }}</h3>
                      </div>
                      <div class="header-actions">
                         <span class="text-mini">{{ t('已感悟') }} {{ unlockedDaoList.length }}</span>
@@ -400,7 +400,7 @@
                      </div>
                       <div class="inv-stat">
                         <span class="num gold-text">{{ spiritStoneEquivalent }}</span>
-                        <span class="lbl">{{ t('灵石折算') }}</span>
+                        <span class="lbl">{{ t('银两折算') }}</span>
                      </div>
                   </div>
                   <div class="spirit-stones-grid">
@@ -548,21 +548,22 @@ const isTavernEnvFlag = ref(isTavernEnv());
 const isRefreshing = ref(false);
 const isLoading = computed(() => isRefreshing.value || !gameStateStore.isGameLoaded);
 
-const extractRealmName = (realm?: string) => {
-  if (!realm) return 'mortal';
-  // 默认境界体系
-  if (realm.includes('炼气')) return 'qi-refining';
-  if (realm.includes('筑基')) return 'foundation';
-  if (realm.includes('金丹')) return 'golden-core';
-  if (realm.includes('元婴')) return 'nascent-soul';
-  if (realm.includes('化神')) return 'soul-formation';
-  if (realm.includes('炼虚')) return 'void-refining';
-  if (realm.includes('合体')) return 'body-integration';
-  if (realm.includes('渡劫')) return 'tribulation';
-  // 凡人/无境界
-  if (realm.includes('凡人') || realm === '凡人') return 'mortal';
-  // 自定义境界 - 返回 'custom' 使用通用高亮样式
-  return 'custom';
+const extractRealmName = (rank?: string) => {
+  if (!rank) return 'civilian';
+
+  // 提取品级数字
+  const match = rank.match(/(\d+)品/);
+  if (!match) return 'civilian';
+
+  const level = parseInt(match[1], 10);
+
+  // 根据品级返回对应的颜色主题
+  if (level === 1) return 'rank-high-noble';      // 一品：黄色
+  if (level <= 3) return 'rank-high-minister';    // 二至三品：紫色
+  if (level <= 5) return 'rank-mid-senior';       // 四至五品：红色
+  if (level === 6) return 'rank-mid-junior';      // 六品：蓝色
+  if (level === 7) return 'rank-low-senior';      // 七品：绿色
+  return 'rank-low-junior';                       // 八至九品：灰色
 };
 
 // ... 你的所有其他 computed (baseInfo, playerStatus, fullCultivationTechnique 等) ...
@@ -603,7 +604,7 @@ const tabs = computed(() => {
     { id: 'social', label: '社交', icon: Handshake },
     { id: 'inventory', label: '物品', icon: Backpack },
   ];
-  if (isTavernEnvFlag.value) base.push({ id: 'body', label: '法身', icon: Heart });
+  if (isTavernEnvFlag.value) base.push({ id: 'body', label: '身体', icon: Heart });
   return base;
 });
 
@@ -621,10 +622,10 @@ const vitalsData = computed(() => {
   if (!playerStatus.value) return [];
   const s = playerStatus.value;
   return [
-    { label: t('气血'), current: s.气血?.当前 || 0, max: s.气血?.上限 || 100, color: 'red-bar' },
-    { label: t('灵气'), current: s.灵气?.当前 || 0, max: s.灵气?.上限 || 100, color: 'blue-bar' },
-    { label: t('神识'), current: s.神识?.当前 || 0, max: s.神识?.上限 || 100, color: 'gold-bar' },
-    { label: t('寿元'), current: currentAge.value || 0, max: s.寿命?.上限 || 100, color: 'purple-bar' },
+    { label: t('健康'), current: s.气血?.当前 || 0, max: s.气血?.上限 || 100, color: 'red-bar' },
+    { label: t('威望'), current: s.灵气?.当前 || 0, max: s.灵气?.上限 || 100, color: 'blue-bar' },
+    { label: t('智慧'), current: s.神识?.当前 || 0, max: s.神识?.上限 || 100, color: 'gold-bar' },
+    { label: t('寿命'), current: currentAge.value || 0, max: s.寿命?.上限 || 100, color: 'purple-bar' },
   ];
 });
 
@@ -1373,56 +1374,54 @@ const closeModals = () => {
   display: none;
 }
 
-/* 境界颜色变体 */
-.avatar-circle[data-realm="qi-refining"] {
+/* 官品颜色变体 */
+.avatar-circle[data-realm="civilian"] {
   background: rgba(var(--color-border-rgb), 0.1);
   border-color: rgba(var(--color-border-rgb), 0.3);
 }
-.avatar-circle[data-realm="qi-refining"] .avatar-text { color: var(--text-muted); }
+.avatar-circle[data-realm="civilian"] .avatar-text { color: var(--text-muted); }
 
-.avatar-circle[data-realm="foundation"] {
-  background: rgba(var(--color-success-rgb), 0.1);
-  border-color: rgba(var(--color-success-rgb), 0.3);
+/* 一品高官：紫袍金带 */
+.avatar-circle[data-realm="rank-high-noble"] {
+  background: rgba(250, 204, 21, 0.15);
+  border-color: rgba(250, 204, 21, 0.4);
 }
-.avatar-circle[data-realm="foundation"] .avatar-text { color: var(--color-success); }
+.avatar-circle[data-realm="rank-high-noble"] .avatar-text { color: #facc15; }
 
-.avatar-circle[data-realm="golden-core"] {
-  background: rgba(var(--color-info-rgb), 0.1);
-  border-color: rgba(var(--color-info-rgb), 0.3);
+/* 二至三品大员：紫色 */
+.avatar-circle[data-realm="rank-high-minister"] {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.4);
 }
-.avatar-circle[data-realm="golden-core"] .avatar-text { color: var(--color-info); }
+.avatar-circle[data-realm="rank-high-minister"] .avatar-text { color: #a855f7; }
 
-.avatar-circle[data-realm="nascent-soul"] {
-  background: rgba(var(--color-primary-rgb), 0.1);
-  border-color: rgba(var(--color-primary-rgb), 0.3);
+/* 四至五品官员：红色 */
+.avatar-circle[data-realm="rank-mid-senior"] {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
 }
-.avatar-circle[data-realm="nascent-soul"] .avatar-text { color: var(--color-primary); }
+.avatar-circle[data-realm="rank-mid-senior"] .avatar-text { color: #ef4444; }
 
-.avatar-circle[data-realm="soul-formation"] {
-  background: rgba(var(--color-accent-rgb), 0.1);
-  border-color: rgba(var(--color-accent-rgb), 0.3);
+/* 六品官员：蓝色 */
+.avatar-circle[data-realm="rank-mid-junior"] {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
 }
-.avatar-circle[data-realm="soul-formation"] .avatar-text { color: var(--color-accent); }
+.avatar-circle[data-realm="rank-mid-junior"] .avatar-text { color: #3b82f6; }
 
-.avatar-circle[data-realm="void-refining"] {
-  background: rgba(var(--color-warning-rgb), 0.1);
-  border-color: rgba(var(--color-warning-rgb), 0.3);
+/* 七品官员：绿色 */
+.avatar-circle[data-realm="rank-low-senior"] {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
 }
-.avatar-circle[data-realm="void-refining"] .avatar-text { color: var(--color-warning); }
+.avatar-circle[data-realm="rank-low-senior"] .avatar-text { color: #22c55e; }
 
-.avatar-circle[data-realm="body-integration"] {
-  background: rgba(var(--color-error-rgb), 0.1);
-  border-color: rgba(var(--color-error-rgb), 0.3);
+/* 八至九品吏员：灰色 */
+.avatar-circle[data-realm="rank-low-junior"] {
+  background: rgba(107, 114, 128, 0.15);
+  border-color: rgba(107, 114, 128, 0.4);
 }
-.avatar-circle[data-realm="body-integration"] .avatar-text { color: var(--color-error); }
-
-.avatar-circle[data-realm="tribulation"],
-.avatar-circle[data-realm="custom"] {
-  background: rgba(var(--color-accent-rgb), 0.1);
-  border-color: rgba(var(--color-accent-rgb), 0.3);
-}
-.avatar-circle[data-realm="tribulation"] .avatar-text,
-.avatar-circle[data-realm="custom"] .avatar-text { color: var(--color-accent); }
+.avatar-circle[data-realm="rank-low-junior"] .avatar-text { color: #6b7280; }
 
 /* ========== 身份信息 ========== */
 .identity-info {

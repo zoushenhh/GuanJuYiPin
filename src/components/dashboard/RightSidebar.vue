@@ -119,12 +119,12 @@
       </div>
 
 
-      <!-- 天赋神通 -->
+      <!-- 天赋能力 -->
       <div class="collapsible-section talents-section">
         <div class="section-header" @click="talentsCollapsed = !talentsCollapsed">
           <h3 class="section-title">
             <Star :size="14" class="section-icon gold" />
-            <span>{{ t('天赋神通') }}</span>
+            <span>{{ t('天赋能力') }}</span>
           </h3>
           <button class="collapse-toggle" :class="{ 'collapsed': talentsCollapsed }">
             <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
@@ -146,7 +146,7 @@
 
           <!-- 空状态显示 -->
           <div v-if="!characterInfo.天赋 || characterInfo.天赋.length === 0" class="empty-talents">
-            <div class="empty-text">{{ t('暂无天赋神通') }}</div>
+            <div class="empty-text">{{ t('暂无天赋能力') }}</div>
           </div>
         </div>
       </div>
@@ -914,7 +914,7 @@ const getReputationClass = (): string => {
   backdrop-filter: blur(4px);
 }
 
-/* 天赋神通特定样式 */
+/* 天赋能力特定样式 */
 .talents-list {
   padding: 0 12px 12px;
   display: flex;

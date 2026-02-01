@@ -44,18 +44,18 @@
 
         <div class="card">
           <div class="card-title">府库</div>
-          <div class="row"><span class="k">灵石</span><span class="v">{{ safeNum(management.府库?.灵石) }}</span></div>
-          <div class="row"><span class="k">灵材</span><span class="v">{{ safeNum(management.府库?.灵材) }}</span></div>
-          <div class="row"><span class="k">丹药</span><span class="v">{{ safeNum(management.府库?.丹药) }}</span></div>
-          <div class="row"><span class="k">阵材</span><span class="v">{{ safeNum(management.府库?.阵材) }}</span></div>
+          <div class="row"><span class="k">存银</span><span class="v">{{ safeNum(management.府库?.灵石) }}</span></div>
+          <div class="row"><span class="k">材料</span><span class="v">{{ safeNum(management.府库?.灵材) }}</span></div>
+          <div class="row"><span class="k">药品</span><span class="v">{{ safeNum(management.府库?.丹药) }}</span></div>
+          <div class="row"><span class="k">器材</span><span class="v">{{ safeNum(management.府库?.阵材) }}</span></div>
         </div>
 
         <div class="card">
           <div class="card-title">设施等级</div>
-          <div class="row"><span class="k">练功房</span><span class="v">{{ safeNum(management.设施?.练功房) }}</span></div>
-          <div class="row"><span class="k">藏经阁</span><span class="v">{{ safeNum(management.设施?.藏经阁) }}</span></div>
-          <div class="row"><span class="k">炼丹房</span><span class="v">{{ safeNum(management.设施?.炼丹房) }}</span></div>
-          <div class="row"><span class="k">护山大阵</span><span class="v">{{ safeNum(management.设施?.护山大阵) }}</span></div>
+          <div class="row"><span class="k">演武场</span><span class="v">{{ safeNum(management.设施?.练功房) }}</span></div>
+          <div class="row"><span class="k">文书阁</span><span class="v">{{ safeNum(management.设施?.藏经阁) }}</span></div>
+          <div class="row"><span class="k">炼药房</span><span class="v">{{ safeNum(management.设施?.炼丹房) }}</span></div>
+          <div class="row"><span class="k">城防工事</span><span class="v">{{ safeNum(management.设施?.护山大阵) }}</span></div>
         </div>
       </div>
 
@@ -244,12 +244,12 @@ async function initManagement() {
 - 社交.宗门.宗门经营.${sectName} : 完整覆盖
 
 ## 对象结构（必须）
-{"宗门名称":"${sectName}","战力":number,"安定":number,"外门训练度":number,"府库":{"灵石":number,"灵材":number,"丹药":number,"阵材":number},"设施":{"练功房":number,"藏经阁":number,"炼丹房":number,"护山大阵":number},"最近结算":"${nowIso}","月报":[]}
+{"衙门名称":"${sectName}","战力":number,"安定":number,"外门训练度":number,"府库":{"灵石":number,"灵材":number,"丹药":number,"阵材":number},"设施":{"练功房":number,"藏经阁":number,"炼丹房":number,"护山大阵":number},"最近结算":"${nowIso}","月报":[]}
 
 ## 数值约束（必须）
-- 战力：优先用宗门档案.领导层.综合战力（若缺失则 30-80）
+- 战力：优先用衙门档案.领导层.综合战力（若缺失则 30-80）
 - 安定 55-85，外门训练度 35-75
-- 灵石 20000-200000，灵材/丹药/阵材 0-5000，设施等级 0-5
+- 存银 20000-200000，材料/药品/器材 0-5000，设施等级 0-5
 - 所有数值不得为负
 
 ## 衙门档案（参考）

@@ -111,7 +111,7 @@
             <ol>
               <li><strong>{{ $t('基础值') }}</strong>：{{ $t('先天属性加权 + 境界加成 + 技艺加成') }}</li>
               <li><strong>{{ $t('幸运点') }}</strong>：{{ $t('基于气运的随机波动（约-10到+15）') }} <span class="note">({{ $t('气运越高，期望值和上限越高') }})</span></li>
-              <li><strong>{{ $t('环境修正') }}</strong>：{{ $t('灵气浓度影响（修炼/炼丹/战斗），探索社交不受影响') }}</li>
+              <li><strong>{{ $t('环境修正') }}</strong>：{{ $t('发展活力影响（治理/审案/断案），探索社交不受影响') }}</li>
               <li><strong>{{ $t('状态修正') }}</strong>：{{ $t('生命状态（重伤/虚弱）及 Buff/Debuff 影响') }}</li>
             </ol>
           </div>
@@ -153,7 +153,7 @@
                 <span class="type-attrs">{{ $t('根骨50% + 灵性30% + 气运20%') }}</span>
               </div>
               <div class="type-item">
-                <span class="type-name">{{ $t('修炼判定') }}</span>
+                <span class="type-name">{{ $t('治理判定') }}</span>
                 <span class="type-attrs">{{ $t('悟性50% + 灵性30% + 心性20%') }}</span>
               </div>
               <div class="type-item">

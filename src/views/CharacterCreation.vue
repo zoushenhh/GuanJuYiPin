@@ -42,27 +42,27 @@
       <div class="step-content">
         <transition name="fade-step" mode="out-in">
           <div :key="store.currentStep" class="step-wrapper">
-            <Step1_WorldSelection
+            <Step1_RegionSelection
               v-if="store.currentStep === 1"
               ref="step1Ref"
               @ai-generate="handleAIGenerateClick"
             />
-            <Step2_TalentTierSelection
+            <Step2_BackgroundSelection
               v-else-if="store.currentStep === 2"
               ref="step2Ref"
               @ai-generate="handleAIGenerateClick"
             />
-            <Step3_OriginSelection
+            <Step3_AptitudeSelection
               v-else-if="store.currentStep === 3"
               ref="step3Ref"
               @ai-generate="handleAIGenerateClick"
             />
-            <Step4_TalentSelection
+            <Step4_PostHeavenSelection
               v-else-if="store.currentStep === 4"
               ref="step4Ref"
               @ai-generate="handleAIGenerateClick"
             />
-            <Step5_TalentSelection
+            <Step5_AbilitySelection
               v-else-if="store.currentStep === 5"
               ref="step5Ref"
               @ai-generate="handleAIGenerateClick"
@@ -131,11 +131,11 @@ import DataClearButtons from '@/components/common/DataClearButtons.vue';
 import StorePreSeting from '@/components/common/StorePreSeting.vue';
 import LoadingPreSeting from '@/components/common/LoadingPreSeting.vue';
 import { useCharacterCreationStore } from '../stores/characterCreationStore';
-import Step1_WorldSelection from '../components/character-creation/Step1_WorldSelection.vue'
-import Step2_TalentTierSelection from '../components/character-creation/Step2_TalentTierSelection.vue'
-import Step3_OriginSelection from '../components/character-creation/Step3_OriginSelection.vue'
-import Step4_TalentSelection from '../components/character-creation/Step4_TalentSelection.vue'
-import Step5_TalentSelection from '../components/character-creation/Step5_TalentSelection.vue'
+import Step1_RegionSelection from '../components/character-creation/Step1_RegionSelection.vue'
+import Step2_BackgroundSelection from '../components/character-creation/Step2_BackgroundSelection.vue'
+import Step3_AptitudeSelection from '../components/character-creation/Step3_AptitudeSelection.vue'
+import Step4_PostHeavenSelection from '../components/character-creation/Step4_PostHeavenSelection.vue'
+import Step5_AbilitySelection from '../components/character-creation/Step5_AbilitySelection.vue'
 import Step6_AttributeAllocation from '../components/character-creation/Step6_AttributeAllocation.vue'
 import Step7_Preview from '../components/character-creation/Step7_Preview.vue'
 import RedemptionCodeModal from '../components/character-creation/RedemptionCodeModal.vue'
@@ -209,11 +209,11 @@ defineExpose({
 })
 
 const stepLabels = computed(() => [
-  t('选择世界'),
-  t('选择天资'),
+  t('选择地界'),
   t('选择出身'),
-  t('选择才能'),
-  t('选择天赋'),
+  t('选择天资'),
+  t('选择后天'),
+  t('选择能力'),
   t('分配属性'),
   t('预览确认'),
 ])

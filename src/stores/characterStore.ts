@@ -423,11 +423,11 @@ export const useCharacterStore = defineStore('characterV3', () => {
       世界: creationStore.selectedWorld!,
       天资: creationStore.selectedBackground || '随机天资' as any,
       出生: creationStore.selectedAptitude || '随机天资' as any,
-      灵根: creationStore.selectedPostHeaven || '随机后天' as any,
+      后天: creationStore.selectedPostHeaven || '随机后天' as any,
       天赋: creationStore.selectedAbilities,
       // 确保后天六司存在且初始化为0（开局默认全为0）
       后天六司: baseInfo.后天六司 || {
-        根骨: 0,
+        精力: 0,  // 原根骨
         灵性: 0,
         悟性: 0,
         气运: 0,

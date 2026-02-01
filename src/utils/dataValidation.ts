@@ -188,10 +188,10 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
 
     try {
       if (!repairedNpc.先天六司 || typeof repairedNpc.先天六司 !== 'object') {
-        repairedNpc.先天六司 = { 根骨: 5, 灵性: 5, 悟性: 5, 气运: 5, 魅力: 5, 心性: 5 };
+        repairedNpc.先天六司 = { 精力: 5, 灵性: 5, 悟性: 5, 气运: 5, 魅力: 5, 心性: 5 };
       }
     } catch (e) {
-      repairedNpc.先天六司 = { 根骨: 5, 灵性: 5, 悟性: 5, 气运: 5, 魅力: 5, 心性: 5 };
+      repairedNpc.先天六司 = { 精力: 5, 灵性: 5, 悟性: 5, 气运: 5, 魅力: 5, 心性: 5 };
     }
 
     // 3. 结构检查与修复 (官品/职位) - 防御性处理

@@ -77,7 +77,7 @@
           </button>
           <button class="action-btn secondary" @click="comprehendFromNature">
             <Sparkles :size="16" />
-            阅典籍悟道
+            阅典籍研究
           </button>
         </div>
       </div>
@@ -186,7 +186,7 @@
               </div>
               <div class="stat-card-content">
                 <span class="stat-card-value">{{ formatNumber(getNextStageRequirement(selectedDao)) }}</span>
-                <span class="stat-card-label">突破所需</span>
+                <span class="stat-card-label">升阶所需</span>
               </div>
             </div>
             <div class="detail-stat-card">
@@ -226,11 +226,11 @@
             </div>
           </div>
 
-          <!-- 突破指引 -->
+          <!-- 升阶指引 -->
           <div v-if="canBreakthroughDao(selectedDao)" class="breakthrough-guide">
             <div class="guide-header">
               <TrendingUp :size="16" />
-              <span>突破指引</span>
+              <span>升阶指引</span>
             </div>
             <div class="guide-content">
               <p class="guide-desc">当前政绩已达到晋升要求，可尝试晋升至下一阶段</p>
@@ -254,7 +254,7 @@
             </button>
             <button class="action-btn secondary large" @click="meditateDao(selectedDao)">
               <Moon :size="18" />
-              深度参悟
+              深度研究
             </button>
             <button
               v-if="canBreakthroughDao(selectedDao)"
@@ -262,7 +262,7 @@
               @click="attemptDaoBreakthrough(selectedDao)"
             >
               <TrendingUp :size="18" />
-              尝试突破
+              尝试升阶
             </button>
           </div>
         </div>
@@ -476,26 +476,26 @@ const cultivateDao = (daoName: string) => {
   toast.success(`开始感悟《${daoName}》`);
 };
 
-// 深度参悟
+// 深度研究
 const meditateDao = (daoName: string) => {
   actionQueueStore.addAction({
     type: 'meditate',
     itemName: daoName,
     itemType: '参悟',
-    description: `深度参悟《${daoName}》`
+    description: `深度研究《${daoName}》`
   });
   toast.info(`进入《${daoName}》参悟状态`);
 };
 
-// 尝试突破
+// 尝试升阶
 const attemptDaoBreakthrough = (daoName: string) => {
   actionQueueStore.addAction({
     type: 'dao_breakthrough',
     itemName: daoName,
     itemType: '突破',
-    description: `尝试突破《${daoName}》境界`
+    description: `尝试升阶《${daoName}》境界`
   });
-  toast.warning(`尝试突破《${daoName}》`);
+  toast.warning(`尝试升阶《${daoName}》`);
 };
 
 // 探索新道
@@ -520,15 +520,15 @@ const startMeditation = () => {
   toast.info('进入冥想状态...');
 };
 
-// 从功法领悟
+// 从方略领悟
 const comprehendFromSkill = () => {
   actionQueueStore.addAction({
     type: 'comprehend',
-    itemName: '功法',
+    itemName: '方略',
     itemType: '领悟',
-    description: '从已修炼的功法中领悟大道'
+    description: '从已推行的方略中领悟理念'
   });
-  toast.info('尝试从功法中领悟大道...');
+  toast.info('尝试从方略中领悟理念...');
 };
 
 // 观天地悟道
@@ -537,7 +537,7 @@ const comprehendFromNature = () => {
     type: 'comprehend',
     itemName: '天地',
     itemType: '悟道',
-    description: '观察天地自然，感悟大道法则'
+    description: '观察民情社稷，感悟治国法则'
   });
   toast.info('开始观天地悟道...');
 };
@@ -1136,7 +1136,7 @@ const comprehendFromNature = () => {
   color: var(--color-text-secondary);
 }
 
-/* 突破指引 */
+/* 升阶指引 */
 .breakthrough-guide {
   margin-bottom: 16px;
   padding: 14px;

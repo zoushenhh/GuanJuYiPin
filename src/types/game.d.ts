@@ -167,7 +167,7 @@ export interface ItemQuality {
 // --- 先天六司 ---
 
 export interface InnateAttributes {
-  根骨: number;
+  精力: number;  // 原根骨 - 影响健康、处理政务耐力
   灵性: number;
   悟性: number;
   气运: number;
@@ -178,7 +178,7 @@ export interface InnateAttributes {
 /** 英文键名的先天六司，用于组件传参 */
 
 export interface InnateAttributesEnglish {
-  root_bone: number;
+  root_bone: number;    // 精力（原根骨）
   spirituality: number;
   comprehension: number;
   fortune: number;
@@ -1134,9 +1134,9 @@ export interface NpcProfile {
   // === 修炼属性 ===
   境界: Realm;
   官品?: Realm; // 县令主题字段（与境界保持同步）
-  灵根: CharacterBaseInfo['灵根'];
-  才能?: CharacterBaseInfo['灵根']; // 县令主题字段（与灵根保持同步）
-  天赋: CharacterBaseInfo['天赋']; // 天赋列表
+  灵根?: SpiritRoot | string; // 修仙主题字段（向后兼容，可选）
+  才能: CharacterBaseInfo['后天']; // 县令主题字段（后天才能）
+  天赋: CharacterBaseInfo['天赋']; // 能力列表
   先天六司: InnateAttributes; // NPC只有一个六司字段，不分先天/最终
 
   // === 核心数值（整合为属性对象）===
@@ -1259,14 +1259,14 @@ export interface CharacterBaseInfo extends AIMetadata {
   性别: '男' | '女' | '其他' | string;
   出生日期: { 年: number; 月: number; 日: number; 小时?: number; 分钟?: number }; // 出生日期（用于自动计算年龄）
   种族?: string; // 添加种族字段
-  境界?: string; // NPC当前境界
+  官品?: string; // NPC当前官品（原境界）
   世界: World;
   天资: TalentTier;
   出生: Origin | string;
-  灵根: SpiritRoot | string;
-  天赋: Talent[];
+  后天: SpiritRoot | string;  // 后天才能（原灵根）
+  天赋: Talent[];  // 能力列表
   先天六司: InnateAttributes;
-  后天六司: InnateAttributes; // 后天获得的六司加成（装备、大道等），开局默认全为0
+  后天六司: InnateAttributes; // 后天获得的六司加成（装备、理念等），开局默认全为0
   创建时间?: string; // 添加创建时间字段
   描述?: string; // 添加描述字段
 }

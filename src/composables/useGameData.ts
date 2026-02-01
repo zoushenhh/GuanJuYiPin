@@ -186,7 +186,7 @@ export function useGameData() {
     let sixSiBonus = 1;
     if (innateAttrs) {
       const weightedSum =
-        (innateAttrs.根骨 || 0) * 0.25 +
+        (innateAttrs.精力 || 0) * 0.25 +
         (innateAttrs.灵性 || 0) * 0.25 +
         (innateAttrs.悟性 || 0) * 0.20 +
         (innateAttrs.心性 || 0) * 0.15 +

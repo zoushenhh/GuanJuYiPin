@@ -275,12 +275,12 @@ export interface Character {
 
   // --- 先天六司 (永不改变) ---
   // @deprecated 使用 Magistrate.先天六司
-  root_bone: number;      // 旧术语：根骨 -> 新术语：精力
-  spirituality: number;   // 保留（灵性）
-  comprehension: number;  // 保留（悟性）
-  fortune: number;        // 保留（气运）
-  charm: number;          // 保留（魅力）
-  temperament: number;    // 保留（心性）
+  root_bone: number;      // 精力（原根骨）- 影响健康、处理政务耐力
+  spirituality: number;   // 灵性 - 影响威望、施政效果
+  comprehension: number;  // 悟性 - 影响政务理解、晋升概率
+  fortune: number;        // 气运 - 影响机缘、政绩、晋升
+  charm: number;          // 魅力 - 影响社交、NPC好感
+  temperament: number;    // 心性 - 影响处理政务稳定、抗压能力
 
   // --- 创角选择 (永不改变) ---
   world?: World | null;
@@ -311,25 +311,30 @@ export type CharacterData = Character & {
  * 角色创建时的载荷类型
  *
  * 术语映射：
- * - origin -> 出身背景
- * - spiritRoot -> 出身背景
- * - root_bone -> 精力
+ * - origin -> 出身（天资选择）
+ * - spiritRoot -> 后天（才能补全）
+ * - root_bone -> 精力（县令主题六司）
+ * - spirituality -> 灵性
+ * - comprehension -> 悟性
+ * - fortune -> 气运
+ * - charm -> 魅力
+ * - temperament -> 心性
  */
 export interface CharacterCreationPayload {
   charId: string;
   characterName: string;
   world: World;
   talentTier: TalentTier;
-  origin: Origin | null;  // @deprecated 使用 MagistrateBackground
-  spiritRoot: SpiritRoot | null;  // @deprecated 使用 MagistrateBackground
-  talents: Talent[];
+  origin: Origin | null;  // @deprecated 使用 MagistrateBackground（出身/天资）
+  spiritRoot: SpiritRoot | null;  // @deprecated 使用 MagistrateBackground（后天/才能）
+  talents: Talent[];      // 能力列表
   baseAttributes: {
-    root_bone: number;       // @deprecated -> 精力
-    spirituality: number;
-    comprehension: number;
-    fortune: number;
-    charm: number;
-    temperament: number;
+    root_bone: number;       // 精力 - 影响健康、处理政务耐力
+    spirituality: number;    // 灵性 - 影响威望、施政效果
+    comprehension: number;   // 悟性 - 影响政务理解、晋升概率
+    fortune: number;         // 气运 - 影响机缘、政绩、晋升
+    charm: number;           // 魅力 - 影响社交、NPC好感
+    temperament: number;     // 心性 - 影响处理政务稳定、抗压能力
   };
   age: number;
   gender: string;
@@ -363,7 +368,7 @@ export interface InitialGameData {
   baseInfo: {
     名字: string;
     先天六司?: {
-      根骨?: number;
+      精力?: number;  // 原根骨 - 影响健康、处理政务耐力
       灵性?: number;
       悟性?: number;
       气运?: number;

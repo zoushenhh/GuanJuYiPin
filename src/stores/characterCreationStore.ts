@@ -23,6 +23,7 @@ import {
 //                           本地类型定义
 // =======================================================================
 
+// 六司属性键（对应精力、灵性、悟性、气运、魅力、心性）
 export type AttributeKey = 'root_bone' | 'spirituality' | 'comprehension' | 'fortune' | 'charm' | 'temperament';
 
 export interface CharacterCreationPayload {
@@ -32,15 +33,16 @@ export interface CharacterCreationPayload {
   world_id: number | '';
   talent_tier_id: number | '';
   current_age: number;
-  root_bone: number;
-  spirituality: number;
-  comprehension: number;
-  fortune: number;
-  charm: number;
-  temperament: number;
-  origin_id: number | null;
-  spirit_root_id: number | null;
-  selected_talent_ids: number[];
+  // 六司属性（县令主题）：
+  root_bone: number;        // 精力（原根骨）- 影响健康、处理政务耐力
+  spirituality: number;     // 灵性 - 影响威望、施政效果
+  comprehension: number;    // 悟性 - 影响政务理解、晋升概率
+  fortune: number;          // 气运 - 影响机缘、政绩、晋升
+  charm: number;            // 魅力 - 影响社交、NPC好感
+  temperament: number;      // 心性 - 影响处理政务稳定、抗压能力
+  origin_id: number | null;           // 出身ID（天资选择）
+  spirit_root_id: number | null;      // 后天ID
+  selected_talent_ids: number[];      // 能力ID列表
 }
 
 type DataSource = 'local' | 'custom' | 'cloud';

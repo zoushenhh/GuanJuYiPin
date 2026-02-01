@@ -57,7 +57,7 @@
         </button>
         <div class="fullscreen-title">
           <h1>{{ $t('续前世因缘') }}</h1>
-          <p>{{ $t('择一法身，入仕为官') }}</p>
+          <p>{{ $t('选择角色，入仕为官') }}</p>
         </div>
       </div>
 
@@ -94,7 +94,7 @@
       <div v-if="Object.keys(characterStore.rootState.角色列表).length === 0" class="empty-state">
         <div class="empty-icon"><Star :size="32" /></div>
         <h2>{{ $t('道途未启') }}</h2>
-        <p>{{ $t('尚未创建任何法身，请返回道途开启为官之旅') }}</p>
+        <p>{{ $t('尚未创建任何角色，请返回仕途开启为官之旅') }}</p>
         <div class="empty-actions">
           <button @click="goBack" class="btn-create">{{ $t('踏上仕途') }}</button>
           <button @click="importCharacter" class="btn-import">{{ $t('导入角色') }}</button>
@@ -422,7 +422,7 @@
             </div>
 
             <div class="detail-section">
-              <h4>{{ $t('天赋神通') }}</h4>
+              <h4>{{ $t('天赋能力') }}</h4>
               <div class="talents-list">
                 <div v-if="detailsCharacter.角色.天赋?.length" class="talent-items">
                   <span

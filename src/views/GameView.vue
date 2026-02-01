@@ -221,7 +221,7 @@ const maybePromptSectMigration = () => {
 const panelRoutes = new Set([
   'Inventory', 'CharacterDetails', 'Memory', 'Relationships',
   'Cultivation', 'Techniques', 'ThousandDao', 'Settings', 'Save', 'WorldMap',
-  'Events', 'Crafting', 'Sect', 'SectOverview', 'SectMembers', 'SectManagement', 'SectLibrary', 'SectTasks', 'SectContribution', 'SectWar', 'GameVariables',
+  'Events', 'Sect', 'SectOverview', 'SectMembers', 'SectManagement', 'SectLibrary', 'SectTasks', 'SectContribution', 'SectWar', 'GameVariables',
   'Prompts', 'APIManagement'
 ]);
 
@@ -250,7 +250,6 @@ const panelTitles: Record<string, { title: string; icon: IconComponent }> = {
   Save: { title: '保存游戏', icon: Save },
   WorldMap: { title: '世界地图', icon: Map },
   Events: { title: '世界事件', icon: Bell },
-  Crafting: { title: '炼制工坊', icon: Hammer },
   Sect: { title: '衙门势力', icon: Home },
   SectOverview: { title: '衙门概览', icon: Home },
   SectMembers: { title: '衙门成员', icon: Users },

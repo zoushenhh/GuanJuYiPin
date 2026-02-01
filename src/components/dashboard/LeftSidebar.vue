@@ -66,16 +66,6 @@
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
 
-          <button class="function-btn cultivation" @click="handleCrafting">
-            <div class="btn-icon">
-              <Hammer :size="18" />
-            </div>
-            <div class="btn-content">
-              <span class="btn-text">{{ t('炼制工坊') }}</span>
-              <span class="btn-desc">{{ t('炼丹炼器炼天地') }}</span>
-            </div>
-            <ChevronRight :size="14" class="btn-arrow" />
-          </button>
         </div>
       </div>
 
@@ -128,7 +118,7 @@
             </div>
             <div class="btn-content">
               <span class="btn-text">{{ t('衙门') }}</span>
-              <span class="btn-desc">{{ t('门派事务管理') }}</span>
+              <span class="btn-desc">{{ t('衙门事务管理') }}</span>
             </div>
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
@@ -261,7 +251,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Package, User, Users, BookOpen, Zap, Brain, Map, Globe, Save, Settings, LogOut, Compass, Home, Bell, ChevronRight, Database, Clock, FileText, Plug, LayoutGrid, Heart, Hammer } from 'lucide-vue-next';
+import { Package, User, Users, BookOpen, Zap, Brain, Map, Globe, Save, Settings, LogOut, Compass, Home, Bell, ChevronRight, Database, Clock, FileText, Plug, LayoutGrid, Heart } from 'lucide-vue-next';
 import { useCharacterStore } from '@/stores/characterStore';
 import { toast } from '@/utils/toast';
 import { useUIStore } from '@/stores/uiStore';
@@ -337,10 +327,6 @@ const handleTechniques = () => {
 
 const handleThousandDao = () => {
   router.push('/game/thousand-dao');
-};
-
-const handleCrafting = () => {
-  router.push('/game/crafting');
 };
 
 const handleMemoryCenter = () => {

@@ -46,7 +46,6 @@ import SettingsPanel from '../components/dashboard/SettingsPanel.vue';
 import SavePanel from '../components/dashboard/SavePanel.vue';
 import WorldMapRoute from '../components/dashboard/WorldMapRoute.vue';
 import EventPanel from '../components/dashboard/EventPanel.vue';
-import CraftingPanel from '../components/dashboard/CraftingPanel.vue';
 import SectPanel from '../components/dashboard/SectPanel.vue';
 import SectSystemPanel from '../components/dashboard/SectSystemPanel.vue';
 import SectMembersContent from '../components/dashboard/components/SectMembersContent.vue';
@@ -135,11 +134,6 @@ const routes = [
         path: 'events',
         name: 'Events',
         component: EventPanel,
-      },
-      {
-        path: 'crafting',
-        name: 'Crafting',
-        component: CraftingPanel,
       },
       {
         path: 'sect',

@@ -49,30 +49,30 @@ export const SIX_SI_CONSTRAINTS: InternalSixSiConstraints = {
 };
 
 /** 六司属性名称 */
-export const SIX_SI_ATTRIBUTES = ['根骨', '灵性', '悟性', '气运', '魅力', '心性'] as const;
+export const SIX_SI_ATTRIBUTES = ['精力', '灵性', '悟性', '气运', '魅力', '心性'] as const;
 export type SixSiAttribute = (typeof SIX_SI_ATTRIBUTES)[number];
 
 /** 六司属性权重（用于综合计算） */
 export const SIX_SI_WEIGHTS: Record<SixSiAttribute, number> = {
-  根骨: 0.25,  // 影响体质、气血、灵气吸收
-  灵性: 0.25,  // 影响灵气感应、法术威力
+  精力: 0.25,  // 影响健康、处理政务耐力
+  灵性: 0.25,  // 影响威望、施政效果
   悟性: 0.20,  // 影响政务理解、晋升概率
-  心性: 0.15,  // 影响处理政务稳定、抗心魔
-  气运: 0.10,  // 影响机缘、掉落、晋升
+  心性: 0.15,  // 影响处理政务稳定、抗压能力
+  气运: 0.10,  // 影响机缘、政绩、晋升
   魅力: 0.05,  // 影响社交、NPC好感
 };
 
 /** 六司对各项属性的加成系数 */
 export const SIX_SI_BONUS_COEFFICIENTS = {
-  根骨: {
-    气血上限: 0.05,      // 每点根骨增加5%气血上限
-    灵气吸收: 0.03,      // 每点根骨增加3%灵气吸收效率
-    体质强度: 0.04,      // 每点根骨增加4%体质强度
+  精力: {
+    健康上限: 0.05,      // 每点精力增加5%健康上限
+    处理耐力: 0.03,      // 每点精力增加3%处理政务耐力
+    身体强度: 0.04,      // 每点精力增加4%身体强度
   },
   灵性: {
-    灵气上限: 0.05,      // 每点灵性增加5%灵气上限
-    法术威力: 0.04,      // 每点灵性增加4%法术威力
-    灵气感应: 0.03,      // 每点灵性增加3%灵气感应范围
+    威望上限: 0.05,      // 每点灵性增加5%威望上限
+    施政效果: 0.04,      // 每点灵性增加4%施政效果
+    民心影响: 0.03,      // 每点灵性增加3%民心影响
   },
   悟性: {
     处理政务速度: 0.04,      // 每点悟性增加4%处理政务速度
@@ -81,12 +81,12 @@ export const SIX_SI_BONUS_COEFFICIENTS = {
   },
   心性: {
     处理政务稳定: 0.04,      // 每点心性增加4%处理政务稳定性
-    抗心魔: 0.05,        // 每点心性增加5%抗心魔能力
+    抗压能力: 0.05,        // 每点心性增加5%抗压能力
     意志强度: 0.03,      // 每点心性增加3%意志强度
   },
   气运: {
     机缘概率: 0.03,      // 每点气运增加3%机缘触发概率
-    掉落品质: 0.02,      // 每点气运增加2%掉落品质
+    政绩品质: 0.02,      // 每点气运增加2%政绩品质
     晋升运势: 0.02,      // 每点气运增加2%晋升运势
   },
   魅力: {
@@ -99,11 +99,11 @@ export const SIX_SI_BONUS_COEFFICIENTS = {
 /** 后天六司获取方式 */
 export const ACQUIRED_SIX_SI_SOURCES = {
   装备增幅: { 最大增加: 3, 描述: '穿戴特殊装备获得的临时/永久加成' },
-  天赋效果: { 最大增加: 2, 描述: '特殊天赋带来的永久加成' },
-  服用丹药: { 最大增加: 2, 描述: '服用洗髓丹等特殊丹药' },
-  机缘奇遇: { 最大增加: 5, 描述: '极稀有机缘，如仙人传承、神物洗礼' },
-  大道感悟: { 最大增加: 1, 描述: '大道突破时的感悟加成' },
-  境界突破: { 最大增加: 1, 描述: '大境界突破时的体质蜕变' },
+  天赋效果: { 最大增加: 2, 描述: '特殊能力带来的永久加成' },
+  服用药品: { 最大增加: 2, 描述: '服用补药等特殊药品' },
+  机缘奇遇: { 最大增加: 5, 描述: '极稀有机缘，如名师指点、神物洗礼' },
+  理念感悟: { 最大增加: 1, 描述: '理念突破时的感悟加成' },
+  官品晋升: { 最大增加: 1, 描述: '大官品晋升时的能力蜕变' },
 } as const;
 
 // ============================================================================
@@ -112,7 +112,7 @@ export const ACQUIRED_SIX_SI_SOURCES = {
 
 /** 六司数据 */
 export interface SixSiData {
-  根骨: number;
+  精力: number;
   灵性: number;
   悟性: number;
   气运: number;
@@ -278,11 +278,11 @@ export function calculateSingleBonus(
 
 /** 六司加成结果 - 内部扩展版本 */
 export interface InternalSixSiBonus {
-  修炼速度加成: number;
-  气血上限加成: number;
-  灵气上限加成: number;
-  神识上限加成: number;
-  突破概率加成: number;
+  施政速度加成: number;
+  健康上限加成: number;
+  威望上限加成: number;
+  心境上限加成: number;
+  晋升概率加成: number;
   机缘概率加成: number;
 }
 
@@ -294,30 +294,30 @@ export function calculateSixSiBonus(
   acquiredSixSi: SixSiData
 ): InternalSixSiBonus {
   const bonus: InternalSixSiBonus = {
-    修炼速度加成: 0,
-    气血上限加成: 0,
-    灵气上限加成: 0,
-    神识上限加成: 0,
-    突破概率加成: 0,
+    施政速度加成: 0,
+    健康上限加成: 0,
+    威望上限加成: 0,
+    心境上限加成: 0,
+    晋升概率加成: 0,
     机缘概率加成: 0,
   };
 
-  // 根骨加成
-  bonus.气血上限加成 += calculateSingleBonus('根骨', innateSixSi.根骨, acquiredSixSi.根骨, '气血上限');
+  // 精力加成
+  bonus.健康上限加成 += calculateSingleBonus('精力', innateSixSi.精力, acquiredSixSi.精力, '健康上限');
 
   // 灵性加成
-  bonus.灵气上限加成 += calculateSingleBonus('灵性', innateSixSi.灵性, acquiredSixSi.灵性, '灵气上限');
+  bonus.威望上限加成 += calculateSingleBonus('灵性', innateSixSi.灵性, acquiredSixSi.灵性, '威望上限');
 
   // 悟性加成
-  bonus.修炼速度加成 += calculateSingleBonus('悟性', innateSixSi.悟性, acquiredSixSi.悟性, '修炼速度');
-  bonus.突破概率加成 += calculateSingleBonus('悟性', innateSixSi.悟性, acquiredSixSi.悟性, '突破概率');
+  bonus.施政速度加成 += calculateSingleBonus('悟性', innateSixSi.悟性, acquiredSixSi.悟性, '处理政务速度');
+  bonus.晋升概率加成 += calculateSingleBonus('悟性', innateSixSi.悟性, acquiredSixSi.悟性, '晋升概率');
 
-  // 心性加成（影响神识）
-  bonus.神识上限加成 += calculateSingleBonus('心性', innateSixSi.心性, acquiredSixSi.心性, '抗心魔') * 0.5;
+  // 心性加成（影响心境）
+  bonus.心境上限加成 += calculateSingleBonus('心性', innateSixSi.心性, acquiredSixSi.心性, '抗压能力') * 0.5;
 
   // 气运加成
   bonus.机缘概率加成 += calculateSingleBonus('气运', innateSixSi.气运, acquiredSixSi.气运, '机缘概率');
-  bonus.突破概率加成 += calculateSingleBonus('气运', innateSixSi.气运, acquiredSixSi.气运, '突破运势');
+  bonus.晋升概率加成 += calculateSingleBonus('气运', innateSixSi.气运, acquiredSixSi.气运, '晋升运势');
 
   return bonus;
 }
@@ -374,7 +374,7 @@ export function calculateSixSiScore(
  */
 export function createEmptySixSi(): SixSiData {
   return {
-    根骨: 0,
+    精力: 0,
     灵性: 0,
     悟性: 0,
     气运: 0,
@@ -388,7 +388,7 @@ export function createEmptySixSi(): SixSiData {
  */
 export function createDefaultInnateSixSi(): SixSiData {
   return {
-    根骨: 5,
+    精力: 5,
     灵性: 5,
     悟性: 5,
     气运: 5,

@@ -140,7 +140,7 @@ export const useLegalStore = defineStore('legal', {
       const 观察力 = Math.min(100, (
         input.心性 * 0.5 +
         input.魅力 * 0.2 +
-        input.根骨 * 0.1 +
+        input.精力 * 0.1 +
         input.气运 * 0.2
       ));
 
@@ -153,7 +153,7 @@ export const useLegalStore = defineStore('legal', {
       const 审讯技巧 = Math.min(100, (
         input.魅力 * 0.4 +
         input.心性 * 0.3 +
-        input.根骨 * 0.2 +
+        input.精力 * 0.2 +
         input.气运 * 0.1
       ));
 

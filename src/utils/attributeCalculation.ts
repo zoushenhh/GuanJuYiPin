@@ -6,7 +6,7 @@ import { LOCAL_ABILITIES } from '../data/creationData';
  * 中文键名到英文键名的映射（用于组件传参）
  */
 const CHINESE_TO_ENGLISH_MAP: Record<string, string> = {
-  '根骨': 'root_bone',
+  '精力': 'root_bone',
   '灵性': 'spirituality',
   '悟性': 'comprehension', 
   '气运': 'fortune',
@@ -19,7 +19,7 @@ const CHINESE_TO_ENGLISH_MAP: Record<string, string> = {
  */
 export function calculateEquipmentBonuses(equipment: Equipment, inventory: SaveData['背包']): InnateAttributes {
   const bonuses: InnateAttributes = {
-    根骨: 0,
+    精力: 0,
     灵性: 0,
     悟性: 0,
     气运: 0,
@@ -74,7 +74,7 @@ export function calculateEquipmentBonuses(equipment: Equipment, inventory: SaveD
  */
 export function calculateTalentBonusesFromCharacter(saveData: SaveData): InnateAttributes {
   const bonuses: InnateAttributes = {
-    根骨: 0,
+    精力: 0,
     灵性: 0,
     悟性: 0,
     气运: 0,
@@ -142,7 +142,7 @@ export function calculateTalentBonusesFromCharacter(saveData: SaveData): InnateA
  */
 export function calculateTalentBonuses(talents: Ability[]): InnateAttributes {
   const bonuses: InnateAttributes = {
-    根骨: 0,
+    精力: 0,
     灵性: 0,
     悟性: 0,
     气运: 0,
@@ -165,7 +165,7 @@ export function calculateTalentBonuses(talents: Ability[]): InnateAttributes {
           let chineseAttr: string | undefined = target;
           if (target === '神识') chineseAttr = '悟性'; // 神识映射到悟性
           if (target === '惟性') chineseAttr = '悟性'; // 惟性映射到悟性（修正拼写）
-          if (target === '体质') chineseAttr = '根骨'; // 体质映射到根骨
+          if (target === '体质') chineseAttr = '精力'; // 体质映射到精力
           if (target === '敏捷') chineseAttr = '灵性'; // 敏捷映射到灵性
 
           if (chineseAttr && chineseAttr in bonuses) {
@@ -182,8 +182,8 @@ export function calculateTalentBonuses(talents: Ability[]): InnateAttributes {
 
           // 英文属性名到中文映射
           const englishToChinese: Record<string, string> = {
-            'STR': '根骨',     // 力量 -> 根骨
-            'CON': '根骨',     // 体质 -> 根骨
+            'STR': '精力',     // 力量 -> 精力
+            'CON': '精力',     // 体质 -> 精力
             'DEX': '灵性',     // 敏捷 -> 灵性
             'INT': '悟性',     // 智力 -> 悟性
             'SPI': '悟性',     // 神魂 -> 悟性
@@ -206,7 +206,7 @@ export function calculateTalentBonuses(talents: Ability[]): InnateAttributes {
  * 计算已装备治国方略提供的属性加成
  */
 export function calculateTechniqueBonuses(saveData: SaveData): InnateAttributes {
-  const bonuses: InnateAttributes = { 根骨: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 };
+  const bonuses: InnateAttributes = { 精力: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 };
 
   const itemsMap = (saveData as any)?.角色?.背包?.物品 ?? (saveData as any)?.背包?.物品;
   if (!itemsMap) {
@@ -246,7 +246,7 @@ export function calculateFinalAttributes(
   // 1. 从存档读取基础后天六司（可能包含永久加成）
   const character = (saveData as any).角色?.身份 ?? null;
   const storedAcquiredAttributes = character?.后天六司 || {
-    根骨: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0
+    精力: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0
   };
 
   // 2. 计算装备加成（实时计算，确保准确）
@@ -259,7 +259,7 @@ export function calculateFinalAttributes(
 
   // 4. 合并所有后天加成
   const totalAcquiredAttributes: InnateAttributes = {
-    根骨: storedAcquiredAttributes.根骨 + equipmentBonuses.根骨 + talentBonuses.根骨,
+    精力: storedAcquiredAttributes.精力 + equipmentBonuses.精力 + talentBonuses.精力,
     灵性: storedAcquiredAttributes.灵性 + equipmentBonuses.灵性 + talentBonuses.灵性,
     悟性: storedAcquiredAttributes.悟性 + equipmentBonuses.悟性 + talentBonuses.悟性,
     气运: storedAcquiredAttributes.气运 + equipmentBonuses.气运 + talentBonuses.气运,
@@ -269,7 +269,7 @@ export function calculateFinalAttributes(
 
   // 5. 计算最终属性（先天 + 后天）
   const finalAttributes: InnateAttributes = {
-    根骨: innateAttributes.根骨 + totalAcquiredAttributes.根骨,
+    精力: innateAttributes.精力 + totalAcquiredAttributes.精力,
     灵性: innateAttributes.灵性 + totalAcquiredAttributes.灵性,
     悟性: innateAttributes.悟性 + totalAcquiredAttributes.悟性,
     气运: innateAttributes.气运 + totalAcquiredAttributes.气运,
@@ -305,7 +305,7 @@ export function convertToEnglishAttributes(chineseAttrs: InnateAttributes): Reco
  */
 export function getAttributeDescription(attributeName: string, value: number): string {
   const descriptions: Record<string, Record<number, string>> = {
-    根骨: {
+    精力: {
       0: "羸弱不堪", 1: "体弱多病", 2: "身体孱弱", 3: "体质一般",
       4: "身体健康", 5: "体质不错", 6: "身强体壮", 7: "筋骨强健",
       8: "体魄过人", 9: "天生神力", 10: "金刚不坏"

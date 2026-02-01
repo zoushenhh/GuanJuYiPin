@@ -25,7 +25,7 @@ import { EnhancedWorldGenerator } from '@/utils/worldGeneration/enhancedWorldGen
 import { LOCAL_POST_HEAVENS, LOCAL_APTITUDES } from '@/data/creationData';
 
 /**
- * 判断是否为随机才干（县令主题：才干替代灵根/才能）
+ * 判断是否为随机才干（县令主题：才干替代后天/才能）
  */
 function isRandomTalent(talent: string | object): boolean {
   if (typeof talent === 'string') {
@@ -112,22 +112,22 @@ export function calculateInitialAttributes(baseInfo: CharacterBaseInfo, age: num
 
   // 确保先天六司都是有效的数值，避免NaN
   // ⚠️ 使用 ?? 而不是 ||，因为 || 会将 0 视为 falsy 值
-  const 根骨 = Number(先天六司?.根骨 ?? 0);
+  const 精力 = Number(先天六司?.精力 ?? 0);
   const 灵性 = Number(先天六司?.灵性 ?? 0);
   const 悟性 = Number(先天六司?.悟性 ?? 0);
 
   // 基础属性计算公式
-  const 初始气血 = 100 + 根骨 * 10;
+  const 初始气血 = 100 + 精力 * 10;
   const 初始灵气 = 50 + 灵性 * 5;
   const 初始神识 = 30 + 悟性 * 3;
 
   // -- 任期计算逻辑 --
   const 基础任期 = 80; // 平民基础寿命
-  const 根骨任期系数 = 5; // 每点根骨增加5年任期
-  const 最大任期 = 基础任期 + 根骨 * 根骨任期系数;
+  const 精力任期系数 = 5; // 每点精力增加5年任期
+  const 最大任期 = 基础任期 + 精力 * 精力任期系数;
 
   console.log(`[角色初始化] 属性计算: 气血=${初始气血}, 灵气=${初始灵气}, 神识=${初始神识}, 年龄=${age}/${最大任期}`);
-  console.log(`[角色初始化] 先天六司: 根骨=${根骨}, 灵性=${灵性}, 悟性=${悟性}`);
+  console.log(`[角色初始化] 先天六司: 精力=${精力}, 灵性=${灵性}, 悟性=${悟性}`);
 
   return {
     境界: {
@@ -199,7 +199,7 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
   // 确保后天六司存在，开局默认全为0
   if (!processedBaseInfo.后天六司) {
     processedBaseInfo.后天六司 = {
-      根骨: 0,
+      精力: 0,
       灵性: 0,
       悟性: 0,
       气运: 0,
@@ -209,7 +209,7 @@ function prepareInitialData(baseInfo: CharacterBaseInfo, age: number): { saveDat
     console.log('[角色初始化] 初始化后天六司为全0');
   }
 
-  if (isRandomTalent(processedBaseInfo.灵根)) {
+  if (isRandomTalent(processedBaseInfo.后天)) {
     console.log('[才干生成] 检测到随机才干，将由 AI 创造性生成');
     // 保留"随机才干"字符串，让 AI 处理
   } else {
@@ -415,7 +415,7 @@ async function generateOpeningScene(saveData: SaveData, baseInfo: CharacterBaseI
     world: baseInfo.世界 || world, // 优先使用 baseInfo 中的完整对象
     talentTier: baseInfo.天资, // 现在是完整对象
     origin: baseInfo.出生,     // 现在是完整对象或"随机出身"
-    spiritRoot: baseInfo.灵根, // 现在是完整对象或"随机灵根"
+    spiritRoot: baseInfo.后天, // 现在是完整对象或"随机后天"
     talents: baseInfo.天赋 || [], // 现在是完整对象数组
     attributes: (baseInfo.先天六司 || {}) as unknown as Record<string, number>,
     difficultyPrompt: characterCreationStore.currentDifficultyPrompt // 🔥 添加难度提示词
@@ -730,20 +730,20 @@ function deriveBaseFieldsFromDetails(baseInfo: CharacterBaseInfo): CharacterBase
     console.warn('[数据校准] 警告: 无法找到权威的天资数据。');
   }
 
-  // 4. 后天 (灵根) - 如果AI已生成具体后天，则保留AI生成的
+  // 4. 后天 (后天) - 如果AI已生成具体后天，则保留AI生成的
   const authoritativePostHeaven = creationStore.selectedPostHeaven;
-  const hasAIGeneratedPostHeaven = derivedInfo.灵根 && typeof derivedInfo.灵根 === 'object' && (derivedInfo.灵根 as any).名称 !== '随机后天';
+  const hasAIGeneratedPostHeaven = derivedInfo.后天 && typeof derivedInfo.后天 === 'object' && (derivedInfo.后天 as any).名称 !== '随机后天';
 
   if (authoritativePostHeaven && !hasAIGeneratedPostHeaven) {
     console.log(`[数据校准] ✅ 同步用户选择的后天: ${authoritativePostHeaven.name} (${authoritativePostHeaven.tier})`);
-    derivedInfo.灵根 = authoritativePostHeaven;
+    derivedInfo.后天 = authoritativePostHeaven;
   } else if (hasAIGeneratedPostHeaven) {
     // 如果用户选择随机，并且一个具体的对象已经存在（由AI或后备逻辑生成），则直接信任和保留它。
-    console.log('[数据校准] ✅ 保留已生成的具体后天:', (derivedInfo.灵根 as SpiritRoot).name);
+    console.log('[数据校准] ✅ 保留已生成的具体后天:', (derivedInfo.后天 as SpiritRoot).name);
   } else if (creationStore.characterPayload.spirit_root_id === null) {
     // 仅当没有生成任何具体后天时，才可能需要标记回随机（作为最后的保险措施）
     console.log('[数据校准] 🎲 用户选择随机后天，但无有效生成值，标记为随机');
-    derivedInfo.灵根 = '随机后天';
+    derivedInfo.后天 = '随机后天';
   } else {
     console.warn('[数据校准] 警告: 无法找到权威的后天数据。');
   }
@@ -763,7 +763,7 @@ function deriveBaseFieldsFromDetails(baseInfo: CharacterBaseInfo): CharacterBase
   if (authoritativeAttributes) {
     console.log('[数据校准] ✅ 同步用户分配的先天六司:', authoritativeAttributes);
     derivedInfo.先天六司 = {
-      根骨: authoritativeAttributes.root_bone,
+      精力: authoritativeAttributes.root_bone,
       灵性: authoritativeAttributes.spirituality,
       悟性: authoritativeAttributes.comprehension,
       气运: authoritativeAttributes.fortune,
@@ -804,16 +804,16 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
 
 
   // 才干权威覆盖
-  const userChoseRandomSpiritRoot = (typeof baseInfo.灵根 === 'object' && (baseInfo.灵根 as SpiritRoot)?.name?.includes('随机')) ||
-                                (typeof baseInfo.灵根 === 'string' && baseInfo.灵根.includes('随机'));
+  const userChoseRandomSpiritRoot = (typeof baseInfo.后天 === 'object' && (baseInfo.后天 as SpiritRoot)?.name?.includes('随机')) ||
+                                (typeof baseInfo.后天 === 'string' && baseInfo.后天.includes('随机'));
 
   if (userChoseRandomSpiritRoot) {
     console.log('[数据最终化] 🎲 用户选择随机才干，使用AI生成的数据');
-    const aiGeneratedSpiritRoot = (saveData as any).角色?.身份?.灵根;
-    mergedBaseInfo.灵根 = aiGeneratedSpiritRoot || '随机才干'; // Fallback to string
+    const aiGeneratedSpiritRoot = (saveData as any).角色?.身份?.后天;
+    mergedBaseInfo.后天 = aiGeneratedSpiritRoot || '随机才干'; // Fallback to string
 
     // 验证AI是否正确替换了随机才干
-    if (typeof mergedBaseInfo.灵根 === 'string' && mergedBaseInfo.灵根.includes('随机')) {
+    if (typeof mergedBaseInfo.后天 === 'string' && mergedBaseInfo.后天.includes('随机')) {
       console.warn('[数据最终化] ⚠️ 警告：AI未能正确替换随机才干，使用本地数据库生成');
 
       // 🔥 后备逻辑：使用本地数据库随机生成
@@ -841,12 +841,12 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
       }
 
       const 随机才干 = 才干池[Math.floor(Math.random() * 才干池.length)];
-      mergedBaseInfo.灵根 = 随机才干;
+      mergedBaseInfo.后天 = 随机才干;
       console.log(`[数据最终化] ✅ 已从本地数据库生成随机才干: ${随机才干.name} (${随机才干.tier})`);
     }
   } else {
-    console.log(`[数据最终化] ✅ 用户选择特定才干，强制使用用户选择: ${(baseInfo.灵根 as SpiritRoot)?.name}`);
-    mergedBaseInfo.灵根 = baseInfo.灵根;
+    console.log(`[数据最终化] ✅ 用户选择特定才干，强制使用用户选择: ${(baseInfo.后天 as SpiritRoot)?.name}`);
+    mergedBaseInfo.后天 = baseInfo.后天;
   }
 
   // 出生权威覆盖
@@ -1145,9 +1145,9 @@ export async function initializeCharacter(
           外貌描述: "身材极度丰满，拥有夸张的丰乳肥臀，腰肢纤细如蛇。面容妖媚，眼神含春，举手投足间散发着惊人的魅惑力。身着轻薄纱衣，曼妙身姿若隐若现。",
           性格特征: ["平易近人", "开放", "双性恋", "M体质", "S体质", "痴女(潜在)"],
           境界: { 名称: "从七品", 阶段: "圆满", 当前进度: 0, 下一级所需: 100, 晋升描述: "政绩卓著，升迁有望" },
-          灵根: { name: "天阴才能", tier: "天品" } as any,
+          才能: { name: "天阴才能", tier: "天品" } as any,
           天赋: [{ name: "媚骨天成", description: "天生媚骨，极适合处理政务，效果翻倍" }] as any,
-          先天六司: { 根骨: 8, 灵性: 9, 悟性: 8, 气运: 7, 魅力: 10, 心性: 5 },
+          先天六司: { 精力: 8, 灵性: 9, 悟性: 8, 气运: 7, 魅力: 10, 心性: 5 },
           属性: {
             气血: { 当前: 5000, 上限: 5000 }, // 从七品圆满
             灵气: { 当前: 8000, 上限: 8000 },
