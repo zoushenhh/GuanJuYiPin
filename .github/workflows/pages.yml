@@ -36,12 +36,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Add extra static pages
-        run: |
-          if [ -f "游戏介绍.html" ]; then
-            cp "游戏介绍.html" "dist/游戏介绍.html"
-          fi
-
       - name: Disable Jekyll
         run: |
           if [ -d dist ]; then

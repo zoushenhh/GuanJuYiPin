@@ -21,6 +21,9 @@ coverage
 *.db
 backup/
 bug/
+config.yaml
+游戏介绍.html
+REFACTOR_*.md
 
 /cypress/videos/
 /cypress/screenshots/

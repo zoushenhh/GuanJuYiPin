@@ -1,14 +1,3 @@
-<p align="center">
-  <img src="https://ddct.top/XianLing.png">
-</p>
-
-<table align="center">
-  <tr>
-    <td><img src="https://ddct.top/XianLing_black.png" width="400" alt="黑色主题"/></td>
-    <td><img src="https://ddct.top/XianLing_light.png" width="400" alt="浅色主题"/></td>
-  </tr>
-</table>
-
 <h1 align="center">县令（Xian Ling）</h1>
 
 <p align="center">
@@ -16,11 +5,10 @@
 </p>
 
 <p align="center">
-  <a href="https://qm.qq.com/q/mKtqgX0FSo">💬 QQ群：1079437686</a> •
+  <a href="https://github.com/qianye60/XianTu">🔗 原项目：qianye60/XianTu</a> •
   <a href="#功能概览">功能</a> •
   <a href="#技术栈">技术栈</a> •
-  <a href="#快速开始">快速开始</a> •
-  <a href="#许可证">许可证</a>
+  <a href="#快速开始">快速开始</a>
 </p>
 
 <p align="center">
@@ -38,16 +26,6 @@
   <img src="https://img.shields.io/badge/SillyTavern-兼容-purple?style=flat-square" alt="SillyTavern"/>
 </p>
 
-<p align="center">
-  <img src="https://visitor-badge.laobi.icu/badge?page_id=qianye60.XianTu&left_color=gray&right_color=blue" alt="visitors"/>
-  <img src="https://img.shields.io/github/stars/qianye60/XianTu?style=flat-square&color=yellow" alt="stars"/>
-  <img src="https://img.shields.io/github/forks/qianye60/XianTu?style=flat-square" alt="forks"/>
-</p>
-
-<p align="center">
-  <a href="https://qianye60.github.io/XianTu/游戏介绍.html">📖 游戏介绍</a> •
-  <a href="https://www.ddct.top/">🎮 在线体验</a>
-</p>
 
 ---
 
@@ -55,13 +33,19 @@
 
 **AI 动态叙事** — 支持 Gemini / Claude / OpenAI / DeepSeek 等多种大模型，实时生成个性化剧情
 
-**完整官场体系** — 官品升迁、三千大道、治国方略、装备炼制、NPC 互动
+**九品官制** — 完整的宋代文官武官体系，从九品到正一品的晋升之路
 
-**智能判定系统** — 基于官品、属性、装备、治国方略等多维度计算判定结果
+**朝代出身系统** — 选择秦、汉、唐、宋等多个朝代背景，不同地域出身赋予独特属性加成
 
-**多存档管理** — 多角色、多存档槽位，支持导入导出与云同步
+**政务方略** — 治国方略、政务处理、衙门管理，多维度治理系统
 
-**开放世界** — 自由探索古代大陆，触发奇遇事件，建立人物关系网络
+**官场建筑** — 升级衙门各类建筑，提升政务效率和治理能力
+
+**智能判定** — 基于官品、属性、装备、方略等多维度计算判定结果
+
+**NPC 关系** — 互动交流，建立人际关系网络，NPC 间关系矩阵动态演化
+
+**多存档管理** — 多角色、多存档槽位，支持导入导出
 
 **全平台适配** — 完美支持桌面端与移动端，亮/暗双主题
 
@@ -83,14 +67,6 @@
 ---
 
 ## 🚀 快速开始
-
-### Docker 部署（推荐）
-
-```bash
-docker run -d -p 8080:80 qianye60/xianling:latest
-```
-
-访问 http://localhost:8080 即可使用。
 
 ### 本地开发
 
@@ -141,33 +117,8 @@ uvicorn server.main:app --reload --port 12345
 
 ---
 
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-详见 [CONTRIBUTING.md](./CONTRIBUTING.md)
-
----
-
 ## 📄 许可证
 
-本项目个人学习、研究免费使用。商业用途请先联系作者。
+本项目基于原项目 [qianye60/XianTu](https://github.com/qianye60/XianTu) 修改而来。
 
-详见 [LICENSE](./LICENSE) | 联系方式：QQ 1538548527
-
----
-
-## ☕ 支持项目
-
-如果这个项目对你有帮助，欢迎赞助支持~
-
-<p align="center">
-  <img src="https://ddct.top/weixing.jpg" width="200" alt="微信赞助"/>
-  <img src="https://ddct.top/zhifubao.jpg" width="200" alt="支付宝赞助"/>
-</p>
-
----
-
-<p align="center">
-  <sub>如果觉得有帮助，请给个 ⭐ Star 支持一下！</sub>
-</p>
+原项目个人学习、研究免费使用。商业用途请先联系原作者。
