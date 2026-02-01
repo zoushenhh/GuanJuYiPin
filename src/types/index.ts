@@ -216,6 +216,25 @@ export interface Talent {
     技能?: string;
     名称?: string;
   }>;
+  // 初始随从标记（type === 'subordinate' 表示这是随从而非天赋）
+  type?: 'talent' | 'subordinate';
+  subordinate_type?: string; // 随从类型：护卫、师爷、丫鬟等
+  subordinate_data?: {
+    名字: string;
+    性别: '男' | '女';
+    职位: string;
+    描述: string;
+    属性: {
+      精力: number;
+      灵性: number;
+      悟性: number;
+      气运: number;
+      魅力: number;
+      心性: number;
+    };
+    技能: string[];
+    加成: Record<string, number>;
+  };
 }
 
 /**

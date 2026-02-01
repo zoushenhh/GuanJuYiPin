@@ -273,9 +273,18 @@ export function buildCharacterSelectionsSummary(
   const originIsObj = typeof origin === 'object' && origin !== null;
   const spiritRootIsObj = typeof spiritRoot === 'object' && spiritRoot !== null;
 
-  // 格式化天赋列表
-  const talentsList = talents.length > 0
-    ? talents.map(t => `- ${t.name}: ${t.description}`).join('\n')
+  // 分类：普通天赋 vs 初始随从
+  const normalTalents = talents.filter(t => t.type !== 'subordinate');
+  const followerTalents = talents.filter(t => t.type === 'subordinate');
+
+  // 格式化普通天赋列表
+  const talentsList = normalTalents.length > 0
+    ? normalTalents.map(t => `- ${t.name}: ${t.description}`).join('\n')
+    : '无';
+
+  // 格式化初始随从列表（AI必须生成NPC）
+  const followersList = followerTalents.length > 0
+    ? followerTalents.map(t => `- 【${t.name}】: ${t.description} (类型: ${t.subordinate_type || '随从'})`).join('\n')
     : '无';
 
   // 格式化属性
@@ -310,8 +319,18 @@ ${originIsObj ? (origin as Origin).name : origin}: ${originIsObj ? (origin as Or
 ## 根基
 ${spiritRootIsObj ? `${(spiritRoot as SpiritRoot).name} (${(spiritRoot as SpiritRoot).tier})` : spiritRoot}: ${spiritRootIsObj ? (spiritRoot as SpiritRoot).description : '(随机，需AI生成)'}
 
-## 天赋
+## 天赋能力
 ${talentsList}
+
+## 初始随从（AI必须通过 tavern_commands 为以下随从生成完整NPC数据到社交.关系中）
+${followersList}
+${followerTalents.length > 0 ? `
+**重要要求**：
+1. 必须为每个随从生成完整的NPC数据（包括：名字、性别、年龄、性格、属性、技能等）
+2. 必须使用 tavern_commands 将随从NPC添加到"社交.关系"中
+3. 在开局剧情中安排随从出场（如跟随上任、介绍认识等）
+4. 随从的属性和性格应符合其类型特点（如护卫武力高、师爷智谋高、丫鬟照顾人等）
+` : ''}
 
 ## 先天六司
 ${attrList}

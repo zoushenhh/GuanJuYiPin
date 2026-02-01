@@ -732,5 +732,71 @@ export const LOCAL_ABILITIES: Omit<Ability, 'source'>[] = [
       { 类型: '县令六司', 目标: '军事', 数值: 3 },
       { 类型: '特殊能力', 名称: '精力恢复', 数值: 0.3 }
     ]
+  },
+  // ========== 初始随从（消耗官品点，AI自动生成NPC） ==========
+  {
+    id: 101,
+    name: '贴身书童',
+    description: '一名从小跟随的书童。虽然能力平平，但胜在忠心耿耿，可协助处理简单的文书工作，也是你最信任的人。',
+    talent_cost: 1,
+    rarity: 2,
+    type: 'subordinate',
+    subordinate_type: '书童',
+    effects: [
+      { 类型: '特殊能力', 名称: '初始随从', 数值: 1 },
+      { 类型: '县令六司', 目标: '民生', 数值: 1 }
+    ]
+  },
+  {
+    id: 102,
+    name: '俏丽丫鬟',
+    description: '一名容貌俏丽的丫鬟，善解人意。不仅能照顾起居，似乎还有些特殊的才艺，能缓解你的压力。',
+    talent_cost: 2,
+    rarity: 3,
+    type: 'subordinate',
+    subordinate_type: '丫鬟',
+    effects: [
+      { 类型: '特殊能力', 名称: '初始随从', 数值: 1 },
+      { 类型: '特殊能力', 名称: '魅力光环', 数值: 0.05 }
+    ]
+  },
+  {
+    id: 103,
+    name: '忠诚护卫',
+    description: '一名沉默寡言的武师，性格粗豪。武艺虽不算绝顶，但关键时刻愿为你挡刀，守护你的安全。',
+    talent_cost: 2,
+    rarity: 3,
+    type: 'subordinate',
+    subordinate_type: '护卫',
+    effects: [
+      { 类型: '特殊能力', 名称: '初始随从', 数值: 1 },
+      { 类型: '县令六司', 目标: '军事', 数值: 2 }
+    ]
+  },
+  {
+    id: 104,
+    name: '落魄师爷',
+    description: '一名屡试不第的落魄秀才，虽有些迂腐且爱发牢骚，但对官场规矩颇为熟悉，可为你出谋划策。',
+    talent_cost: 3,
+    rarity: 4,
+    type: 'subordinate',
+    subordinate_type: '师爷',
+    effects: [
+      { 类型: '特殊能力', 名称: '初始随从', 数值: 1 },
+      { 类型: '县令六司', 目标: '政务', 数值: 3 }
+    ]
+  },
+  {
+    id: 105,
+    name: '老练管家',
+    description: '一名经验丰富的老管家，对打理家务井井有条。可帮你管理县衙财务，减少资源浪费。',
+    talent_cost: 2,
+    rarity: 3,
+    type: 'subordinate',
+    subordinate_type: '管家',
+    effects: [
+      { 类型: '特殊能力', 名称: '初始随从', 数值: 1 },
+      { 类型: '特殊能力', 名称: '资源效率', 数值: 0.1 }
+    ]
   }
 ];
