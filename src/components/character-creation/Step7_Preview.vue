@@ -17,21 +17,6 @@
         <span class="name-hint">{{ $t('可自定义修改') }}</span>
       </div>
 
-      <!-- Character Race -->
-      <div class="preview-item race-item input-field">
-        <label for="characterRace">{{ $t('种族:') }}</label>
-        <input
-          type="text"
-          id="characterRace"
-          class="named"
-          v-model="store.characterPayload.race"
-          :placeholder="$t('人族')"
-          @mousedown.stop
-          @click.stop
-          @select.stop
-        />
-      </div>
-
       <!-- Gender Selection -->
       <div class="preview-item gender-item">
         <h3>{{ $t('性别') }}</h3>
@@ -370,12 +355,12 @@ const validateAge = () => {
 }
 
 /* 名字输入 */
-.name-item, .race-item {
+.name-item {
   grid-column: span 2;
 }
 
 @media (min-width: 769px) {
-  .name-item, .race-item {
+  .name-item {
     grid-column: 1 / -1;
   }
 }

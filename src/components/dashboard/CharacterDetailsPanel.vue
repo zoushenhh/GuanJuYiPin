@@ -42,7 +42,6 @@
                   <div v-if="baseInfo.性别" class="tag-badge gender" :class="baseInfo.性别 === '男' ? 'male' : 'female'">
                     {{ baseInfo.性别 === '男' ? '♂' : '♀' }} {{ t(baseInfo.性别) }}
                   </div>
-                  <span class="meta-chip">{{ t(baseInfo.种族 || '人族') }}</span>
                   <span class="meta-chip">{{ currentAge }} {{ t('岁') }}</span>
                   <button type="button" class="meta-chip link-chip" @click="showOriginDetails(baseInfo.出生)">
                     {{ getOriginDisplay(baseInfo.出生) }}
@@ -57,15 +56,15 @@
                 <div class="icon-box realm"><Mountain :size="18" /></div>
                 <div class="stat-info">
                   <span class="label">{{ t('官品') }}</span>
-                  <span class="value highlight">{{ formatRealmDisplay(playerStatus?.境界) || t('凡人') }}</span>
+                  <span class="value highlight">{{ formatRealmDisplay(playerStatus?.境界) || '-' }}</span>
                 </div>
               </div>
 
-              <div class="stat-mini-card" v-if="hasSpiritRoot">
+              <div class="stat-mini-card" v-if="baseInfo?.才能">
                 <div class="icon-box spirit"><Sparkles :size="18" /></div>
                 <div class="stat-info">
                   <span class="label">{{ t('才能') }}</span>
-                  <span class="value" :class="getSpiritRootClass(baseInfo.才能 || baseInfo.灵根)">{{ formatSpiritRoot(baseInfo.才能 || baseInfo.灵根) }}</span>
+                  <span class="value" :class="getSpiritRootClass(baseInfo.才能)">{{ formatSpiritRoot(baseInfo.才能) }}</span>
                 </div>
               </div>
 
@@ -160,12 +159,12 @@
 
                 <div class="talent-layout">
                   <!-- 才能卡片 -->
-                  <div class="spirit-root-banner clickable" @click="showSpiritRootModal = true" :class="baseInfo ? getSpiritRootClass(baseInfo.才能 || baseInfo.灵根) : 'spirit-common'">
+                  <div class="spirit-root-banner clickable" @click="showSpiritRootModal = true" :class="baseInfo ? getSpiritRootClass(baseInfo.才能) : 'spirit-common'">
                     <div class="banner-content">
                        <span class="root-type">{{ t('才能') }}</span>
                        <div class="root-main">
-                         <span class="root-name">{{ getSpiritRootDisplay(baseInfo.才能 || baseInfo.灵根) }}</span>
-                         <span class="root-grade badge">{{ t(getSpiritRootGrade(baseInfo.才能 || baseInfo.灵根) || '平凡') }}</span>
+                         <span class="root-name">{{ getSpiritRootDisplay(baseInfo.才能) }}</span>
+                         <span class="root-grade badge">{{ t(getSpiritRootGrade(baseInfo.才能) || '平凡') }}</span>
                        </div>
                        <span class="tap-hint">{{ t('查看详情') }}</span>
                     </div>
@@ -377,13 +376,13 @@
                   </div>
                 </section>
 
-                <section class="info-card glass-panel" v-if="playerSectInfo">
-                   <div class="card-header"><Mountain :size="20" class="header-icon"/> <h3>{{ playerSectInfo.衙门名称 }}</h3></div>
+                <section class="info-card glass-panel" v-if="playerLocation">
+                   <div class="card-header"><MapPin :size="20" class="header-icon"/> <h3>{{ playerLocation.name || playerLocation.名称 }}</h3></div>
                    <div class="sect-grid">
-                     <div class="kv"><span class="k">{{ t('职位') }}</span><span class="v">{{ playerSectInfo.职位 }}</span></div>
-                     <div class="kv"><span class="k">{{ t('关系') }}</span><span class="v">{{ playerSectInfo.关系 }}</span></div>
-                     <div class="kv"><span class="k">{{ t('贡献') }}</span><span class="v">{{ playerSectInfo.贡献 }}</span></div>
-                     <div class="kv"><span class="k">{{ t('声望') }}</span><span class="v highlight">{{ playerSectInfo.声望 }}</span></div>
+                     <div class="kv"><span class="k">{{ t('类型') }}</span><span class="v">{{ t(playerLocation.type || playerLocation.类型 || '-') }}</span></div>
+                     <div class="kv" v-if="playerLocation.population"><span class="k">{{ t('人口') }}</span><span class="v">{{ playerLocation.population }}</span></div>
+                     <div class="kv" v-if="playerLocation.governance"><span class="k">{{ t('治理') }}</span><span class="v">{{ playerLocation.governance }}</span></div>
+                     <div class="kv" v-if="playerLocation.controlled_by"><span class="k">{{ t('管辖') }}</span><span class="v highlight">{{ playerLocation.controlled_by }}</span></div>
                    </div>
                 </section>
              </div>
@@ -448,18 +447,18 @@
                <!-- ... 内容插槽, 这里使用简化的示例，实际项目中保留原v-if逻辑 ... -->
                <button class="close-float" @click="closeModals"><X /></button>
 
-              <!-- 才能详情示例 -->
+              <!-- 才能详情 -->
                <div v-if="showSpiritRootModal && baseInfo" class="modal-inner">
-                  <h2 class="modal-title">{{ getSpiritRootDisplay(baseInfo.才能 || baseInfo.灵根) }}</h2>
+                  <h2 class="modal-title">{{ getSpiritRootDisplay(baseInfo.才能) }}</h2>
                   <div class="modal-body-scroller custom-scrollbar">
                      <div class="detail-grid">
-                        <div class="d-item"><label>{{ t('品级') }}</label> <span>{{ t(getSpiritRootGrade(baseInfo.才能 || baseInfo.灵根)) }}</span></div>
+                        <div class="d-item"><label>{{ t('品级') }}</label> <span>{{ t(getSpiritRootGrade(baseInfo.才能)) }}</span></div>
                         <div class="d-item"><label>{{ t('施政加成') }}</label> <span class="highlight">{{ getSpiritRootCultivationSpeed(baseInfo) }}</span></div>
                      </div>
-                     <div v-if="getSpiritRootElements(baseInfo.才能 || baseInfo.灵根).length" class="tags-row">
-                       <span v-for="el in getSpiritRootElements(baseInfo.才能 || baseInfo.灵根)" :key="el" class="tag-pill">{{ el }}</span>
+                     <div v-if="getSpiritRootElements(baseInfo.才能).length" class="tags-row">
+                       <span v-for="el in getSpiritRootElements(baseInfo.才能)" :key="el" class="tag-pill">{{ el }}</span>
                      </div>
-                   <div class="d-desc-box">{{ getSpiritRootDescription(baseInfo.才能 || baseInfo.灵根) }}</div>
+                   <div class="d-desc-box">{{ getSpiritRootDescription(baseInfo.才能) }}</div>
                   </div>
                </div>
 
@@ -577,7 +576,6 @@ const saveData = computed(() => gameStateStore.toSaveData());
 const baseInfo = computed(() => gameStateStore.character);
 const playerStatus = computed(() => gameStateStore.attributes);
 const playerLocation = computed(() => gameStateStore.location);
-const playerSectInfo = computed(() => gameStateStore.sectMemberInfo);
 const daoData = computed(() => gameStateStore.thousandDao);
 const bodyStats = computed(() => gameStateStore.body || null);
 const gameTime = computed(() => gameStateStore.gameTime);

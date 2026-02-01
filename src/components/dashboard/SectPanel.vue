@@ -2,15 +2,15 @@
   <div class="sect-panel">
     <div class="panel-content">
       <div class="sect-container">
-        <!-- 左侧：衙门列表 -->
+        <!-- 左侧：城镇列表 -->
         <div class="sect-list">
           <div class="list-header">
-            <h3 class="panel-title">势力衙门</h3>
+            <h3 class="panel-title">势力城镇</h3>
             <div class="search-bar">
               <Search :size="16" />
               <input
                 v-model="searchQuery"
-                placeholder="搜索衙门..."
+                placeholder="搜索城镇..."
                 class="search-input"
               />
             </div>
@@ -19,11 +19,11 @@
           <div class="list-content">
             <div v-if="isLoading" class="loading-state">
               <Loader2 :size="32" class="animate-spin" />
-              <p>{{ t('正在读取衙门信息...') }}</p>
+              <p>{{ t('正在读取城镇信息...') }}</p>
             </div>
             <div v-else-if="filteredSects.length === 0" class="empty-state">
               <Building :size="48" class="empty-icon" />
-              <p class="empty-text">{{ t('暂无衙门信息') }}</p>
+              <p class="empty-text">{{ t('暂无城镇信息') }}</p>
               <p class="empty-hint">{{ t('世界信息将由AI根据游戏进程生成') }}</p>
               <div class="empty-actions">
                 <button class="empty-action-btn primary" @click="goInitWorld">去初始化世界（世界地图）</button>
@@ -58,7 +58,7 @@
           </div>
         </div>
 
-        <!-- 右侧：衙门详情 -->
+        <!-- 右侧：城镇详情 -->
         <div class="sect-detail">
             <div v-if="selectedSect" class="detail-content">
               <!-- 详情头部 -->
@@ -81,7 +81,7 @@
                   <div class="detail-actions">
                     <button class="danger-btn" @click.stop="deleteFaction(selectedSect)">
                       <Trash2 :size="14" />
-                      <span>删除势力</span>
+                      <span>删除城镇</span>
                     </button>
                   </div>
                 </div>
@@ -93,18 +93,18 @@
               <div class="detail-section" v-if="selectedSect.成员数量">
                 <h5 class="section-title">
                   <Users :size="16" />
-                  <span>吏员统计</span>
+                  <span>人口统计</span>
                 </h5>
                 <div class="member-stats">
                   <!-- 总体统计 -->
                   <div class="total-members">
-                    <span class="total-label">总人数</span>
+                    <span class="total-label">总人口</span>
                     <span class="total-value">{{ selectedSect.成员数量?.总数 || selectedSect.成员数量?.total || 0 }}人</span>
                   </div>
 
                   <!-- 境界分布 -->
                   <div class="realm-distribution" v-if="selectedSect.成员数量?.按境界 || selectedSect.成员数量?.byRealm">
-                    <h6 class="distribution-title">职位分布</h6>
+                    <h6 class="distribution-title">阶层分布</h6>
                     <div class="realm-stats">
                       <div
                         v-for="(count, realm) in (selectedSect.成员数量?.按境界 || selectedSect.成员数量?.byRealm)"
@@ -143,11 +143,11 @@
                 </h5>
                 <div class="info-grid">
                   <div class="info-item">
-                    <span class="info-label">衙门类型</span>
+                    <span class="info-label">城镇类型</span>
                     <span class="info-value">{{ selectedSect.类型 }}</span>
                   </div>
                   <div class="info-item">
-                    <span class="info-label">衙门等级</span>
+                    <span class="info-label">城镇等级</span>
                     <span class="info-value">{{ selectedSect.等级 }}</span>
                   </div>
                   <div class="info-item">
@@ -161,9 +161,9 @@
 
                 </div>
 
-                <!-- 衙门领导层 -->
+                <!-- 城镇领导层 -->
                 <div v-if="selectedLeadership" class="leadership-info">
-                  <h6 class="leadership-title">衙门领导</h6>
+                  <h6 class="leadership-title">城镇领导</h6>
 
                   <div class="leader-grid">
                     <div class="leader-item primary-leader">
@@ -197,13 +197,13 @@
                 </div>
 
                 <div class="sect-description">
-                  <h6 class="desc-title">衙门描述</h6>
+                  <h6 class="desc-title">城镇描述</h6>
                   <p class="desc-text">{{ selectedSect.描述 }}</p>
                 </div>
 
-                <!-- 衙门特色 -->
+                <!-- 城镇特色 -->
                 <div class="sect-specialties" v-if="getSectSpecialties(selectedSect).length > 0">
-                  <h6 class="specialties-title">衙门特色</h6>
+                  <h6 class="specialties-title">城镇特色</h6>
                   <div class="specialties-tags">
                     <span
                       v-for="specialty in getSectSpecialties(selectedSect)"
@@ -282,7 +282,7 @@
               <div class="detail-section" v-if="selectedSect.可否加入">
                 <h5 class="section-title">
                   <UserPlus :size="16" />
-                  <span>入职条件</span>
+                  <span>迁入条件</span>
                 </h5>
                 <div class="join-requirements">
                   <div v-if="selectedSect.加入条件?.length" class="requirements-list">
@@ -296,13 +296,13 @@
                     </div>
                   </div>
                   <div v-else class="no-requirements">
-                    <p>暂无特殊入职条件</p>
+                    <p>暂无特殊迁入条件</p>
                   </div>
                 </div>
 
                 <!-- 加入好处 -->
                 <div v-if="selectedSect.加入好处?.length" class="join-benefits">
-                  <h6 class="benefits-title">入职好处</h6>
+                  <h6 class="benefits-title">迁入好处</h6>
                   <div class="benefits-list">
                     <div
                       v-for="benefit in selectedSect.加入好处"
@@ -319,7 +319,7 @@
                 <div class="join-actions">
                   <button class="join-btn" @click="requestJoinSect(selectedSect)">
                     <UserPlus :size="16" />
-                    <span>申请入职</span>
+                    <span>申请迁入</span>
                   </button>
                 </div>
               </div>
@@ -329,8 +329,8 @@
 
           <div v-else class="no-selection">
             <Building :size="64" class="placeholder-icon" />
-            <p class="placeholder-text">选择一个衙门查看详细信息</p>
-            <p class="placeholder-hint">尘世间的衙门势力等你探索</p>
+            <p class="placeholder-text">选择一个城镇查看详细信息</p>
+            <p class="placeholder-hint">尘世间的城镇等你探索</p>
           </div>
         </div>
       </div>

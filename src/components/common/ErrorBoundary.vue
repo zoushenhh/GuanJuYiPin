@@ -2,7 +2,7 @@
   <div v-if="hasError" class="error-boundary">
     <div class="error-container">
       <div class="error-icon">⚠️</div>
-      <h2>{{ $t('道法受阻') }}</h2>
+      <h2>{{ $t('官途受阻') }}</h2>
       <p class="error-message">{{ errorMessage }}</p>
       <div class="error-details" v-if="showDetails">
         <pre>{{ errorDetails }}</pre>

@@ -29,7 +29,6 @@ export type AttributeKey = 'root_bone' | 'spirituality' | 'comprehension' | 'for
 export interface CharacterCreationPayload {
   character_name: string;
   gender: string;
-  race: string;
   world_id: number | '';
   talent_tier_id: number | '';
   current_age: number;
@@ -98,7 +97,6 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   const characterPayload = ref<CharacterCreationPayload>({
     gender: '男',
     character_name: '无名者',
-    race: '人族',
     world_id: '',
     talent_tier_id: '',
     current_age: 16,
@@ -253,12 +251,10 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
       const next = { ...characterPayload.value };
       const name = typeof charCfg.character_name === 'string' ? charCfg.character_name.trim() : null;
       const gender = typeof charCfg.gender === 'string' ? charCfg.gender.trim() : null;
-      const race = typeof charCfg.race === 'string' ? charCfg.race.trim() : null;
       const currentAge = clampInt(charCfg.current_age, 1, 3000);
 
       if (name) next.character_name = name;
       if (gender) next.gender = gender;
-      if (race) next.race = race;
       if (currentAge !== null) next.current_age = currentAge;
 
       characterPayload.value = next;
@@ -385,7 +381,6 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
     return {
       gender: '男',
       character_name: character_name,
-      race: '人族',
       world_id: '',
       talent_tier_id: '',
       current_age: 16,

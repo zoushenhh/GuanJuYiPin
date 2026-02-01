@@ -57,10 +57,6 @@
                 <Moon :size="16" />
                 <span>{{ t('深研') }}</span>
               </button>
-              <button class="action-btn" @click="showCultivationDialog" :title="t('深研')">
-                <Clock :size="16" />
-                <span>{{ t('深研') }}</span>
-              </button>
               <button v-if="canBreakthrough" class="action-btn warning" @click="attemptBreakthrough" :title="t('晋升')">
                 <TrendingUp :size="16" />
                 <span>{{ t('晋升') }}</span>
@@ -223,21 +219,12 @@
         </div>
       </div>
     </div>
-
-    <DeepAdministrationModal
-      :visible="showDialog"
-      :technique="techniqueForModal"
-      :current-progress="getCultivationProgress()"
-      @close="closeDialog"
-      @confirm="handleCultivationConfirm"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { BookOpen, Clock, Moon, ScrollText, Search, Sparkles, TrendingUp, X, Zap } from 'lucide-vue-next';
-import DeepAdministrationModal from '@/components/common/DeepAdministrationModal.vue';
 import { useI18n } from '@/i18n';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useGameStateStore } from '@/stores/gameStateStore';
@@ -251,7 +238,6 @@ const characterStore = useCharacterStore();
 const uiStore = useUIStore();
 
 const activeTab = ref<'cultivation' | 'mastered' | 'library'>('cultivation');
-const showDialog = ref(false);
 
 const techniqueQuery = ref('');
 const masteredQuery = ref('');
@@ -409,8 +395,6 @@ const attemptBreakthrough = async () => {
   uiStore.showToast(`尝试晋升《${cultivationSkills.value.名称}》`, { type: 'warning' });
 };
 
-const techniqueForModal = computed((): TechniqueItem | null => cultivationSkills.value);
-
 const formatProgress = (progress?: number): string => Math.min(100, Math.max(0, progress || 0)).toFixed(1);
 
 const getQualityTextClass = (item: TechniqueItem): string => `text-quality-${item?.品质?.quality || '凡'}`;
@@ -475,30 +459,6 @@ const unequipSkill = async () => {
     },
     onCancel: () => {},
   });
-};
-
-const showCultivationDialog = () => {
-  if (cultivationSkills.value) showDialog.value = true;
-};
-
-const closeDialog = () => {
-  showDialog.value = false;
-};
-
-const handleCultivationConfirm = async (totalDays: number) => {
-  showDialog.value = false;
-  if (!cultivationSkills.value) return;
-  try {
-    const { useActionQueueStore } = await import('@/stores/actionQueueStore');
-    useActionQueueStore().addAction({
-      type: 'cultivate',
-      itemName: cultivationSkills.value.名称,
-      itemType: t('方略'),
-      description: `对《${cultivationSkills.value.名称}》进行${totalDays}天的深度从政`,
-    });
-  } catch (error) {
-    console.error('[SkillsPanel] Add deep cultivation action failed:', error);
-  }
 };
 
 const checkAndUnlockSkills = () => {

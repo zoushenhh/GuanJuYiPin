@@ -9,14 +9,14 @@
           <div class="sect-title-text">
             <div class="sect-name">
               <span v-if="activeSectName">{{ activeSectName }}</span>
-              <span v-else>衙门</span>
+              <span v-else>城镇</span>
               <span v-if="activeSectName && playerRole" class="role-pill" :class="rolePillClass">{{ playerRole }}</span>
               <span v-else-if="!activeSectName" class="role-pill none">未加入</span>
             </div>
             <div class="sect-subtitle">
-              <span v-if="activeSectName && isSectLeader" class="sub-strong">可管理衙门事务</span>
-              <span v-else-if="activeSectName">衙门事务与发展</span>
-              <span v-else>先在「衙门概览」选择势力，或创建/加入自己的衙门</span>
+              <span v-if="activeSectName && isSectLeader" class="sub-strong">可管理城镇事务</span>
+              <span v-else-if="activeSectName">城镇事务与发展</span>
+              <span v-else>先在「城镇概览」选择势力，或创建/加入自己的城镇</span>
             </div>
           </div>
         </div>
@@ -37,7 +37,7 @@
         </div>
       </div>
 
-      <div class="sect-tabs" role="tablist" aria-label="衙门功能导航">
+      <div class="sect-tabs" role="tablist" aria-label="城镇功能导航">
         <template v-for="(group, groupIndex) in tabGroups" :key="group.group">
           <div class="tab-group-label" aria-hidden="true">{{ group.group }}</div>
           <button

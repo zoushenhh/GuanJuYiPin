@@ -1086,13 +1086,6 @@ export async function initializeCharacter(
   console.log('[初始化流程] ===== initializeCharacter 入口 =====');
   console.log('[初始化流程] 分步生成模式:', splitResponseGeneration);
 
-  // [Roo] 补丁：修复从创角store到基础信息的种族字段映射问题
-  const creationStore = useCharacterCreationStore();
-  if (!baseInfo.种族 && creationStore.characterPayload.race) {
-    console.log(`[初始化流程] 补丁：从 store 同步种族信息: ${creationStore.characterPayload.race}`);
-    (baseInfo as any).种族 = creationStore.characterPayload.race;
-  }
-
   console.log('[初始化流程] 接收到的 baseInfo.先天六司:', baseInfo.先天六司);
   try {
     // 步骤 1: 准备初始数据
