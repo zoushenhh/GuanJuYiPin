@@ -3,7 +3,6 @@
  * 支持装备/使用物品的直接操作和撤回恢复功能
  */
 
-import { useCharacterStore } from '@/stores/characterStore';
 import { useGameStateStore } from '@/stores/gameStateStore';
 import { useActionQueueStore } from '@/stores/actionQueueStore';
 import type { Item, SaveData, CultivationTechniqueReference } from '@/types/game';

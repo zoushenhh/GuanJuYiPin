@@ -1,4 +1,4 @@
-import type { SaveData, GovernmentWarReport, GovernmentWarSideState, GovernmentWarStageName, GovernmentWarState, SectWarSideState, SectWarState, WorldFaction } from '@/types/game';
+import type { SaveData, GovernmentWarReport, GovernmentWarSideState, GovernmentWarStageName, GovernmentWarState, WorldFaction } from '@/types/game';
 
 export type GovernmentConflictPowerBreakdownItem = {
   label: string;

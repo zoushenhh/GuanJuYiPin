@@ -131,22 +131,8 @@ const filteredOrigins = computed(() => {
   return availableOrigins;
 });
 
-// 先天属性选项 - 出身影响的是先天属性（县令六司）
-const _attributeOptions = [
-  { value: '政务', label: '政务' },
-  { value: '经济', label: '经济' },
-  { value: '军事', label: '军事' },
-  { value: '民生', label: '民生' },
-  { value: '威望', label: '威望' },
-  { value: '文化', label: '文化' }
-] as const
-
 // 调整数值选项
 const _modifierOptions = [
-  { value: '-3', label: '-3' },
-  { value: '-2', label: '-2' },
-  { value: '-1', label: '-1' },
-  { value: '0', label: '0' },
   { value: '1', label: '+1' },
   { value: '2', label: '+2' },
   { value: '3', label: '+3' },
@@ -457,22 +443,6 @@ function handleSelectRandom() {
 }
 
 const isRandomSelected = computed(() => store.characterPayload.origin_id === null);
-
-const _selectedDisplayName = computed(() => {
- if (isRandomSelected.value) return '随机出身'
- return store.selectedOrigin?.name || ''
-});
-
-const _selectedDescription = computed(() => {
- if (isRandomSelected.value)
-   return '天道无常，造化弄人。选择此项，你的出身将完全随机生成。是生于帝王之家，或为山野遗孤，皆在天道一念之间。'
- return store.selectedOrigin?.description || '身世如谜，过往一片空白。'
-});
-
-const _selectedCost = computed(() => {
- if (isRandomSelected.value) return 0
- return store.selectedOrigin?.talent_cost || 0
-});
 
 // New computed properties for hover display
 const activeDisplayName = computed(() => {

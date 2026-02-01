@@ -303,7 +303,7 @@ export const useCharacterCreationStore = defineStore('characterCreation', () => 
   const selectedAbilities = computed(() => creationData.value.abilities.filter(a => characterPayload.value.selected_talent_ids.includes(a.id)));
 
   const bonusTalentPoints = computed(() => {
-    let points = 0;
+    const points = 0;
     // 未来可扩展：特殊天赋增加额外功勋点
     return points;
   });

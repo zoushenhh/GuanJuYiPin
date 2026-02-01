@@ -507,7 +507,7 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { useGameStateStore } from '@/stores/gameStateStore';
 import BodyStatsPanel from '@/components/dashboard/components/BodyStatsPanel.vue';
 import { calculateFinalAttributes } from '@/utils/attributeCalculation';
-import { calculateAgeFromBirthdate, type GameTime as TermGameTime } from '@/utils/termCalculator';
+import { calculateAgeFromBirthdate } from '@/utils/termCalculator';
 import { formatRealmWithStage } from '@/utils/realmUtils';
 import { isTavernEnv } from '@/utils/tavern';
 import type { DaoData, InnateAttributes, Inventory, Item, ItemQuality, MasteredSkill, NpcProfile, SaveData, TechniqueItem } from '@/types/game';

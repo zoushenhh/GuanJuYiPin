@@ -14,7 +14,6 @@ import * as storage from '@/utils/indexedDBManager';
 import { getTavernHelper, clearAllCharacterData, isTavernEnv } from '@/utils/tavern';
 import { ensureSaveDataHasTavernNsfw } from '@/utils/nsfw';
 import { initializeCharacter } from '@/services/characterInitialization';
-import { validateGameData } from '@/utils/dataValidation';
 import { getAIDataRepairSystemPrompt } from '@/utils/prompts/tasks/dataRepairPrompts';
 import { updateTermFromGameTime, updateNpcTermFromGameTime } from '@/utils/termCalculator'; // <-- 导入任期计算工具
 import { updateMasteredSkills } from '@/utils/masteredSkillsCalculator'; // <-- 导入掌握技能计算工具
@@ -24,7 +23,7 @@ import { validateSaveDataV3 } from '@/utils/saveValidationV3';
 import { useGameStateStore } from '@/stores/gameStateStore';
 import SaveMigrationModal from '@/components/dashboard/components/SaveMigrationModal.vue';
 import type { World} from '@/types';
-import type { LocalStorageRoot, CharacterProfile, CharacterBaseInfo, SaveSlot, SaveData, StateChangeLog, Realm, NpcProfile, Item } from '@/types/game';
+import type { LocalStorageRoot, CharacterProfile, CharacterBaseInfo, SaveSlot, SaveData, StateChangeLog, Realm, NpcProfile } from '@/types/game';
 
 // 假设的创角数据包，实际应从创角流程获取
 interface CreationPayload {

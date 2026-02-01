@@ -12,7 +12,7 @@ import { useGameStateStore } from '@/stores/gameStateStore';
 import { useCharacterStore } from '@/stores/characterStore'; // 导入角色商店
 import { useUIStore } from '@/stores/uiStore';
 import type { GM_Response } from '@/types/AIGameMaster';
-import type { CharacterProfile, StateChangeLog, SaveData, GameTime, StateChange, GameMessage, StatusEffect, EventSystem, GameEvent } from '@/types/game';
+import type { CharacterProfile, StateChangeLog, SaveData, GameTime, StateChange, StatusEffect, EventSystem, GameEvent } from '@/types/game';
 import { updateMasteredSkills } from './masteredSkillsCalculator';
 import {  assembleSystemPrompt } from './prompts/promptAssembler';
 import { getPrompt } from '@/services/defaultPrompts';

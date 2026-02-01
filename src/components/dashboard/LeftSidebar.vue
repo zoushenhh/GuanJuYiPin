@@ -251,7 +251,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Package, User, Users, BookOpen, Zap, Brain, Map, Globe, Save, Settings, LogOut, Compass, Home, Bell, ChevronRight, Database, Clock, FileText, Plug, LayoutGrid, Heart } from 'lucide-vue-next';
+import { Package, User, Users, BookOpen, Zap, Brain, Map, Save, Settings, LogOut, Home, Bell, ChevronRight, Database, Clock, FileText, Plug, LayoutGrid, Heart } from 'lucide-vue-next';
 import { useCharacterStore } from '@/stores/characterStore';
 import { toast } from '@/utils/toast';
 import { useUIStore } from '@/stores/uiStore';

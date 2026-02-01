@@ -13,16 +13,10 @@ import type {
   CaseClue,
   CaseParticipant,
   CaseRecord,
-  CaseType,
-  CaseDifficulty,
-  CaseStatus,
-  VerdictOption,
   VerdictResult,
   JudgementAbility,
   JudgementAbilityInput,
   JudgementSkillLevel,
-  ClueType,
-  ClueReliability,
 } from '@/types/legal';
 
 export const useLegalStore = defineStore('legal', {

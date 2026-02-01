@@ -2,7 +2,7 @@
  * 提示词存储服务 - 使用IndexedDB
  */
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { getSystemPrompts, PROMPT_CATEGORIES, type PromptDefinition } from './defaultPrompts';
+import { getSystemPrompts, PROMPT_CATEGORIES } from './defaultPrompts';
 
 interface PromptsDB extends DBSchema {
   prompts: {

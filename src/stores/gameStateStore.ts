@@ -23,7 +23,6 @@ import type {
   SectSystemV2,
   StatusEffect,
 } from '@/types/game';
-import { calculateFinalAttributes } from '@/utils/attributeCalculation';
 import { isTavernEnv } from '@/utils/tavern';
 import { ensureSystemConfigHasNsfw } from '@/utils/nsfw';
 import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';

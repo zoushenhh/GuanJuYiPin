@@ -265,7 +265,7 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { toast } from '@/utils/toast';
 import { detectPlayerGovernmentLeadership, isLeaderPosition } from '@/utils/governmentLeadershipUtils';
 import type { SectWarState, WorldFaction, WorldInfo } from '@/types/game';
-import { buildGovernmentConflictMemoryLine, computeGovernmentConflictSide, concludeGovernmentConflict, resolveGovernmentConflictStage, type GovernmentConflictComputedSide } from '@/utils/governmentConflictSimulation';
+import { buildGovernmentConflictMemoryLine, computeGovernmentConflictSide, concludeGovernmentConflict, resolveGovernmentConflictStage } from '@/utils/governmentConflictSimulation';
 import { generateWithRawPrompt } from '@/utils/tavernCore';
 import { parseJsonSmart } from '@/utils/jsonExtract';
 import { aiService } from '@/services/aiService';

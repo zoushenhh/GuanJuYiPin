@@ -4,7 +4,7 @@
  */
 
 import type { StateChangeLog, StateChange, Item } from '@/types/game';
-import { get, isObject, isArray } from 'lodash';
+import { isObject, isArray } from 'lodash';
 
 // --- 核心数据结构 ---
 

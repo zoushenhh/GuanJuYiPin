@@ -59,7 +59,7 @@ const loadVideo = async (originalUrl: string) => {
       videoRef.value.src = objectURL;
     }
     videoRef.value.load();
-  } catch (_error) {
+  } catch {
     // 如果发生错误（很可能是CORS错误），则直接使用原始URL
     if (!videoRef.value) return
     videoRef.value.src = originalUrl;

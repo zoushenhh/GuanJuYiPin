@@ -147,7 +147,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
-import { promptStorage, type PromptItem, type PromptsByCategory } from '@/services/promptStorage';
+import { promptStorage, type PromptsByCategory } from '@/services/promptStorage';
 import { toast } from '@/utils/toast';
 import { createDadBundle, unwrapDadBundle } from '@/utils/dadBundle';
 import { useGameStateStore } from '@/stores/gameStateStore';

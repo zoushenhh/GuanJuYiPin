@@ -18,11 +18,6 @@
  * - 官品晋升 -> 职级晋升
  */
 
-import type {
-  AdministrationSpeedFactors,
-  AdministrationSpeedResult,
-} from '@/types/game';
-
 /** 行政效率计算结果 */
 export interface AdministrationEfficiencyResult {
   基础效率: number;

@@ -147,7 +147,7 @@ import { useCharacterStore } from '@/stores/characterStore';
 import { useGameStateStore } from '@/stores/gameStateStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useRouter, useRoute } from 'vue-router';
-import { X, Package, User, Brain, Users, BookOpen, Zap, Settings, Save, Map, Scroll, Bell, Home, Box, Users2, Database, RefreshCw, FlaskConical, Trash2, BarChart3, Coins, FileText, Plug, Globe, Hammer, Building2, Swords, ClipboardList } from 'lucide-vue-next';
+import { X, Package, User, Brain, Users, BookOpen, Zap, Settings, Save, Map, Scroll, Bell, Home, Box, Users2, Database, RefreshCw, FlaskConical, Trash2, BarChart3, Coins, FileText, Plug, Building2, Swords, ClipboardList } from 'lucide-vue-next';
 import { panelBus, type PanelAction } from '@/utils/panelBus';
 import { detectSectMigration } from '@/utils/sectMigration';
 import TopBar from '@/components/dashboard/TopBar.vue'

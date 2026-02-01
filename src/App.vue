@@ -219,7 +219,7 @@
 import { ref, onMounted, onUnmounted, computed, watchEffect, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import $ from 'jquery'; // 导入 jQuery
-import { BookOpen, X, Maximize2, Minimize2, Moon, Sun, Settings, Store, Globe, UserCircle, Heart, ArrowRight, Plug, FileText } from 'lucide-vue-next'; // 导入图标
+import { BookOpen, X, Maximize2, Minimize2, Moon, Sun, Settings, Globe, Heart, ArrowRight, Plug, FileText } from 'lucide-vue-next'; // 导入图标
 import ToastContainer from './components/common/ToastContainer.vue';
 import GlobalLoadingOverlay from './components/common/GlobalLoadingOverlay.vue';
 import RetryConfirmDialog from './components/common/RetryConfirmDialog.vue';
@@ -242,7 +242,6 @@ import type { CharacterBaseInfo } from '@/types/game';
 import type { CharacterCreationPayload, Talent } from '@/types';
 
 // --- 响应式状态定义 ---
-const isLoggedIn = ref(false);
 type ThemeMode = 'light' | 'dark';
 const normalizeTheme = (value: string | null): ThemeMode => {
   if (value === 'light' || value === 'dark') return value;

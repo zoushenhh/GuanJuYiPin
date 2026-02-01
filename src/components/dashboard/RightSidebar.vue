@@ -247,7 +247,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { User, Sparkles, Heart, Droplet, Brain, Clock, Star, Zap, MapPin, Users, Shield, Coins, Wheat } from 'lucide-vue-next';
+import { User, Sparkles, Heart, Droplet, Brain, Clock, Star, Zap, MapPin } from 'lucide-vue-next';
 import { LOCAL_ABILITIES } from '@/data/creationData';
 import DetailModal from '@/components/common/DetailModal.vue';
 import StatusDetailCard from './components/StatusDetailCard.vue';

@@ -348,7 +348,7 @@ import type { WorldFaction, SectMemberInfo, WorldInfo } from '@/types/game';
 import {
   Building, Users, Heart, UserPlus, CheckCircle,
   Gift, Search, Loader2,
-  ChevronRight, Map, LogOut, Trash2
+  ChevronRight, Map, Trash2
 } from 'lucide-vue-next';
 import { toast } from '@/utils/toast';
 import { validateAndFixSectDataList } from '@/utils/worldGeneration/sectDataValidator';

@@ -224,7 +224,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { BookOpen, Clock, Moon, ScrollText, Search, Sparkles, TrendingUp, X, Zap } from 'lucide-vue-next';
+import { BookOpen, Moon, ScrollText, Search, Sparkles, TrendingUp, X, Zap } from 'lucide-vue-next';
 import { useI18n } from '@/i18n';
 import { useCharacterStore } from '@/stores/characterStore';
 import { useGameStateStore } from '@/stores/gameStateStore';
