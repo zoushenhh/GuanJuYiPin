@@ -623,14 +623,12 @@ const getMainResources = (sect: WorldFaction): string => {
     return sectAsAny.resources.slice(0, 3).join('、');
   }
 
-  // 根据宗门类型推测资源
+  // 根据衙门类型推测资源（官场主题）
   const type = sect.类型 || '';
-  if (type.includes('剑')) return '神铁、剑谱、磨剑石';
-  if (type.includes('丹')) return '灵药、丹炉、药圃';
-  if (type.includes('符') || type.includes('阵')) return '符纸、阵法、法器';
-  if (type.includes('魔') || type.includes('邪')) return '魔石、煞气、秘法';
-  if (type.includes('商')) return '银两、珍宝、情报';
+  if (type.includes('衙门')) return '银两、粮草、公文';
+  if (type.includes('商会')) return '银两、珍宝、情报';
   if (type.includes('世家')) return '家学、人脉、底蕴';
+  if (type.includes('派')) return '人脉、影响力、政治资源';
 
   return '银两、方略、政务资源';
 };

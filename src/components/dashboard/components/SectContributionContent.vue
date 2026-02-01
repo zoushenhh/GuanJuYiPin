@@ -255,7 +255,7 @@ async function exchangeItem(item: ExchangeItem) {
       ...(mappedType === '方略'
         ? {
             方略效果: item.description || '',
-            方略技能: [{ 技能名称: `${item.name}·入门`, 技能描述: '基础运转之法。', 熟练度要求: 0, 消耗: '灵气5%' }],
+            方略技能: [{ 技能名称: `${item.name}·入门`, 技能描述: '基础运转之法。', 熟练度要求: 0, 消耗: '政治资本5%' }],
             施政进度: 0,
             已解锁技能: [],
             已装备: false,

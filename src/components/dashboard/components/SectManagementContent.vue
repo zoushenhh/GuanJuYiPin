@@ -44,18 +44,18 @@
 
         <div class="card">
           <div class="card-title">府库</div>
-          <div class="row"><span class="k">存银</span><span class="v">{{ safeNum(management.府库?.灵石) }}</span></div>
-          <div class="row"><span class="k">材料</span><span class="v">{{ safeNum(management.府库?.灵材) }}</span></div>
-          <div class="row"><span class="k">药品</span><span class="v">{{ safeNum(management.府库?.丹药) }}</span></div>
-          <div class="row"><span class="k">器材</span><span class="v">{{ safeNum(management.府库?.阵材) }}</span></div>
+          <div class="row"><span class="k">存银</span><span class="v">{{ safeNum(management.府库?.银两 || management.府库?.灵石) }}</span></div>
+          <div class="row"><span class="k">材料</span><span class="v">{{ safeNum(management.府库?.材料 || management.府库?.灵材) }}</span></div>
+          <div class="row"><span class="k">药材</span><span class="v">{{ safeNum(management.府库?.药材 || management.府库?.丹药) }}</span></div>
+          <div class="row"><span class="k">器材</span><span class="v">{{ safeNum(management.府库?.器材 || management.府库?.阵材) }}</span></div>
         </div>
 
         <div class="card">
           <div class="card-title">设施等级</div>
-          <div class="row"><span class="k">演武场</span><span class="v">{{ safeNum(management.设施?.练功房) }}</span></div>
-          <div class="row"><span class="k">文书阁</span><span class="v">{{ safeNum(management.设施?.藏经阁) }}</span></div>
-          <div class="row"><span class="k">炼药房</span><span class="v">{{ safeNum(management.设施?.炼丹房) }}</span></div>
-          <div class="row"><span class="k">城防工事</span><span class="v">{{ safeNum(management.设施?.护山大阵) }}</span></div>
+          <div class="row"><span class="k">演武场</span><span class="v">{{ safeNum(management.设施?.演武场 || management.设施?.练功房) }}</span></div>
+          <div class="row"><span class="k">文书阁</span><span class="v">{{ safeNum(management.设施?.文书阁 || management.设施?.藏经阁) }}</span></div>
+          <div class="row"><span class="k">药房</span><span class="v">{{ safeNum(management.设施?.药房 || management.设施?.炼丹房) }}</span></div>
+          <div class="row"><span class="k">城防工事</span><span class="v">{{ safeNum(management.设施?.城防工事 || management.设施?.护山大阵) }}</span></div>
         </div>
       </div>
 

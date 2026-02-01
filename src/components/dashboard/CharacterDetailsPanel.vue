@@ -623,8 +623,8 @@ const vitalsData = computed(() => {
   const s = playerStatus.value;
   return [
     { label: t('健康'), current: s.气血?.当前 || 0, max: s.气血?.上限 || 100, color: 'red-bar' },
-    { label: t('威望'), current: s.灵气?.当前 || 0, max: s.灵气?.上限 || 100, color: 'blue-bar' },
-    { label: t('智慧'), current: s.神识?.当前 || 0, max: s.神识?.上限 || 100, color: 'gold-bar' },
+    { label: t('政治资本'), current: s.威望?.当前 || 0, max: s.威望?.上限 || 100, color: 'blue-bar' },
+    { label: t('智慧'), current: s.智慧?.当前 || 0, max: s.智慧?.上限 || 100, color: 'gold-bar' },
     { label: t('寿命'), current: currentAge.value || 0, max: s.寿命?.上限 || 100, color: 'purple-bar' },
   ];
 });
@@ -1868,7 +1868,7 @@ const closeModals = () => {
   color: var(--accent-gold);
 }
 
-/* ========== 天赋灵根 ========== */
+/* ========== 天赋才能 ========== */
 .talent-layout {
   display: flex;
   flex-direction: column;

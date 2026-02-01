@@ -315,18 +315,18 @@
                               >
                             </div>
                             <div class="stat">
-                              <span class="label">威望</span>
+                              <span class="label">政治资本</span>
                               <span class="value"
-                                >{{ normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.灵气?.当前 ?? 0 }}/{{
-                                  normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.灵气?.上限 ?? 0
+                                >{{ normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.威望?.当前 ?? 0 }}/{{
+                                  normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.威望?.上限 ?? 0
                                 }}</span
                               >
                             </div>
                             <div class="stat">
                               <span class="label">智慧</span>
                               <span class="value"
-                                >{{ normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.神识?.当前 ?? 0 }}/{{
-                                  normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.神识?.上限 ?? 0
+                                >{{ normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.智慧?.当前 ?? 0 }}/{{
+                                  normalizeSaveDataV3(slot.存档数据)?.角色?.属性?.智慧?.上限 ?? 0
                                 }}</span
                               >
                             </div>

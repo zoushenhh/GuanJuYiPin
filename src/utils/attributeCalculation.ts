@@ -18,7 +18,17 @@ const CHINESE_TO_ENGLISH_MAP: Record<string, string> = {
  * 计算装备提供的后天六司加成（县令主题：装备提供的属性加成）
  */
 export function calculateEquipmentBonuses(equipment: Equipment, inventory: SaveData['背包']): InnateAttributes {
+  const defaultAttrs: InnateAttributes = {
+    精力: 0,
+    灵性: 0,
+    悟性: 0,
+    气运: 0,
+    魅力: 0,
+    心性: 0
+  };
+
   const bonuses: InnateAttributes = {
+    ...defaultAttrs,
     精力: 0,
     灵性: 0,
     悟性: 0,
@@ -49,7 +59,8 @@ export function calculateEquipmentBonuses(equipment: Equipment, inventory: SaveD
             const numericValue = Number(value);
             if (!isNaN(numericValue)) {
               console.log(`[装备加成计算] 添加属性加成: ${attr} +${numericValue} (原始值: ${value})`);
-              (bonuses as InnateAttributes)[attr as keyof InnateAttributes] += numericValue;
+              const currentValue = (bonuses as any)[attr] ?? 0;
+              (bonuses as any)[attr] = currentValue + numericValue;
             } else {
               console.warn(`[装备加成计算] 属性 ${attr} 的值 "${value}" 不是一个有效的数字，已忽略。物品: ${item.名称}`);
             }
@@ -73,7 +84,17 @@ export function calculateEquipmentBonuses(equipment: Equipment, inventory: SaveD
  * 从角色存档数据中计算才干提供的后天六司加成
  */
 export function calculateTalentBonusesFromCharacter(saveData: SaveData): InnateAttributes {
+  const defaultAttrs: InnateAttributes = {
+    精力: 0,
+    灵性: 0,
+    悟性: 0,
+    气运: 0,
+    魅力: 0,
+    心性: 0
+  };
+
   const bonuses: InnateAttributes = {
+    ...defaultAttrs,
     精力: 0,
     灵性: 0,
     悟性: 0,
@@ -129,7 +150,9 @@ export function calculateTalentBonusesFromCharacter(saveData: SaveData): InnateA
 
       // 累加到总bonuses中
       Object.keys(bonuses).forEach(attr => {
-        bonuses[attr as keyof InnateAttributes] += singleTalentBonuses[attr as keyof InnateAttributes];
+        const currentBonus = (bonuses as any)[attr] ?? 0;
+        const talentBonus = (singleTalentBonuses as any)[attr] ?? 0;
+        (bonuses as any)[attr] = currentBonus + talentBonus;
       });
     }
   });
@@ -141,7 +164,17 @@ export function calculateTalentBonusesFromCharacter(saveData: SaveData): InnateA
  * 计算才干提供的后天六司加成
  */
 export function calculateTalentBonuses(talents: Ability[]): InnateAttributes {
+  const defaultAttrs: InnateAttributes = {
+    精力: 0,
+    灵性: 0,
+    悟性: 0,
+    气运: 0,
+    魅力: 0,
+    心性: 0
+  };
+
   const bonuses: InnateAttributes = {
+    ...defaultAttrs,
     精力: 0,
     灵性: 0,
     悟性: 0,
@@ -169,7 +202,8 @@ export function calculateTalentBonuses(talents: Ability[]): InnateAttributes {
           if (target === '敏捷') chineseAttr = '灵性'; // 敏捷映射到灵性
 
           if (chineseAttr && chineseAttr in bonuses) {
-            (bonuses as InnateAttributes)[chineseAttr as keyof InnateAttributes] += value;
+            const currentValue = (bonuses as any)[chineseAttr] ?? 0;
+            (bonuses as any)[chineseAttr] = currentValue + value;
           }
         }
 
@@ -192,7 +226,8 @@ export function calculateTalentBonuses(talents: Ability[]): InnateAttributes {
 
           const chineseAttr = englishToChinese[target as string] as keyof InnateAttributes;
           if (chineseAttr && chineseAttr in bonuses) {
-            bonuses[chineseAttr] += value;
+            const currentValue = (bonuses as any)[chineseAttr] ?? 0;
+            (bonuses as any)[chineseAttr] = currentValue + value;
           }
         }
       });
@@ -206,7 +241,24 @@ export function calculateTalentBonuses(talents: Ability[]): InnateAttributes {
  * 计算已装备治国方略提供的属性加成
  */
 export function calculateTechniqueBonuses(saveData: SaveData): InnateAttributes {
-  const bonuses: InnateAttributes = { 精力: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 };
+  const defaultAttrs: InnateAttributes = {
+    精力: 0,
+    灵性: 0,
+    悟性: 0,
+    气运: 0,
+    魅力: 0,
+    心性: 0
+  };
+
+  const bonuses: InnateAttributes = {
+    ...defaultAttrs,
+    精力: 0,
+    灵性: 0,
+    悟性: 0,
+    气运: 0,
+    魅力: 0,
+    心性: 0
+  };
 
   const itemsMap = (saveData as any)?.角色?.背包?.物品 ?? (saveData as any)?.背包?.物品;
   if (!itemsMap) {
@@ -243,15 +295,25 @@ export function calculateFinalAttributes(
   最终六司: InnateAttributes
 } {
   // 🔥 [BUG修复] 数据迁移：将旧存档中的 '根骨' 映射到 '精力'
+  const defaultAttrs: InnateAttributes = {
+    精力: 0,
+    灵性: 0,
+    悟性: 0,
+    气运: 0,
+    魅力: 0,
+    心性: 0
+  };
+
   const normalizeAttributes = (attrs: any): InnateAttributes => {
-    if (!attrs) return { 精力: 0, 灵性: 0, 悟性: 0, 气运: 0, 魅力: 0, 心性: 0 };
+    if (!attrs) return { ...defaultAttrs };
     return {
-      精力: attrs.精力 ?? attrs.根骨 ?? 0,
-      灵性: attrs.灵性 ?? 0,
-      悟性: attrs.悟性 ?? 0,
-      气运: attrs.气运 ?? 0,
-      魅力: attrs.魅力 ?? 0,
-      心性: attrs.心性 ?? 0,
+      ...defaultAttrs,
+      精力: attrs.精力 ?? attrs.根骨 ?? defaultAttrs.精力,
+      灵性: attrs.灵性 ?? defaultAttrs.灵性,
+      悟性: attrs.悟性 ?? defaultAttrs.悟性,
+      气运: attrs.气运 ?? defaultAttrs.气运,
+      魅力: attrs.魅力 ?? defaultAttrs.魅力,
+      心性: attrs.心性 ?? defaultAttrs.心性,
     };
   };
 
@@ -272,22 +334,22 @@ export function calculateFinalAttributes(
 
   // 4. 合并所有后天加成
   const totalAcquiredAttributes: InnateAttributes = {
-    精力: storedAcquiredAttributes.精力 + equipmentBonuses.精力 + talentBonuses.精力,
-    灵性: storedAcquiredAttributes.灵性 + equipmentBonuses.灵性 + talentBonuses.灵性,
-    悟性: storedAcquiredAttributes.悟性 + equipmentBonuses.悟性 + talentBonuses.悟性,
-    气运: storedAcquiredAttributes.气运 + equipmentBonuses.气运 + talentBonuses.气运,
-    魅力: storedAcquiredAttributes.魅力 + equipmentBonuses.魅力 + talentBonuses.魅力,
-    心性: storedAcquiredAttributes.心性 + equipmentBonuses.心性 + talentBonuses.心性,
+    精力: (storedAcquiredAttributes.精力 ?? 0) + (equipmentBonuses.精力 ?? 0) + (talentBonuses.精力 ?? 0),
+    灵性: (storedAcquiredAttributes.灵性 ?? 0) + (equipmentBonuses.灵性 ?? 0) + (talentBonuses.灵性 ?? 0),
+    悟性: (storedAcquiredAttributes.悟性 ?? 0) + (equipmentBonuses.悟性 ?? 0) + (talentBonuses.悟性 ?? 0),
+    气运: (storedAcquiredAttributes.气运 ?? 0) + (equipmentBonuses.气运 ?? 0) + (talentBonuses.气运 ?? 0),
+    魅力: (storedAcquiredAttributes.魅力 ?? 0) + (equipmentBonuses.魅力 ?? 0) + (talentBonuses.魅力 ?? 0),
+    心性: (storedAcquiredAttributes.心性 ?? 0) + (equipmentBonuses.心性 ?? 0) + (talentBonuses.心性 ?? 0),
   };
 
   // 5. 计算最终属性（先天 + 后天）
   const finalAttributes: InnateAttributes = {
-    精力: normalizedInnate.精力 + totalAcquiredAttributes.精力,
-    灵性: normalizedInnate.灵性 + totalAcquiredAttributes.灵性,
-    悟性: normalizedInnate.悟性 + totalAcquiredAttributes.悟性,
-    气运: normalizedInnate.气运 + totalAcquiredAttributes.气运,
-    魅力: normalizedInnate.魅力 + totalAcquiredAttributes.魅力,
-    心性: normalizedInnate.心性 + totalAcquiredAttributes.心性,
+    精力: (normalizedInnate.精力 ?? 0) + (totalAcquiredAttributes.精力 ?? 0),
+    灵性: (normalizedInnate.灵性 ?? 0) + (totalAcquiredAttributes.灵性 ?? 0),
+    悟性: (normalizedInnate.悟性 ?? 0) + (totalAcquiredAttributes.悟性 ?? 0),
+    气运: (normalizedInnate.气运 ?? 0) + (totalAcquiredAttributes.气运 ?? 0),
+    魅力: (normalizedInnate.魅力 ?? 0) + (totalAcquiredAttributes.魅力 ?? 0),
+    心性: (normalizedInnate.心性 ?? 0) + (totalAcquiredAttributes.心性 ?? 0),
   };
 
   return {

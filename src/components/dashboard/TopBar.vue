@@ -90,7 +90,7 @@ const currentLocation = computed(() => {
 
 const spiritDensity = computed(() => {
   try {
-    return gameStateStore.location?.民心支持度 || gameStateStore.location?.灵气浓度 || 0
+    return gameStateStore.location?.民心支持度 ?? 0
   } catch (e) {
     return 0
   }

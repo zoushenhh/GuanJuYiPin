@@ -1368,10 +1368,6 @@ const currencyCards = computed<CurrencyCard[]>(() => {
   const wallet: Record<string, any> = inv?.货币 && typeof inv.货币 === 'object' ? inv.货币 : {}
 
   const order = [
-    '灵石_下品',
-    '灵石_中品',
-    '灵石_上品',
-    '灵石_极品',
     '铜币',
     '银两',
     '金锭',
@@ -1395,10 +1391,6 @@ const currencyCards = computed<CurrencyCard[]>(() => {
     const fee = 0.02
     const baseRatio = 100
     const map: Record<string, { up?: string; down?: string }> = {
-      灵石_下品: { up: '灵石_中品' },
-      灵石_中品: { up: '灵石_上品', down: '灵石_下品' },
-      灵石_上品: { up: '灵石_极品', down: '灵石_中品' },
-      灵石_极品: { down: '灵石_上品' },
       铜钱: { up: '碎银' },
       碎银: { up: '纹银', down: '铜钱' },
       纹银: { up: '元宝', down: '碎银' },
@@ -1482,7 +1474,7 @@ const confirmDeleteCurrency = (currencyId: string) => {
   showCustomConfirm.value = true
 }
 
-// 灵石兑换功能（动态汇率）
+// 货币兑换功能（动态汇率）
 const handleExchange = async (fromCurrencyId: string, direction: 'up' | 'down') => {
   const inv = ensureCurrencyWalletWritable()
   if (!inv) return
@@ -2241,7 +2233,7 @@ const refreshFromTavern = async () => {
   color: white;
 }
 
-/* 灵石品质样式 - 颜色递增 */
+/* 货币品质样式 - 颜色递增 */
 .grade-common {
   background: linear-gradient(135deg, #9ca3af, #6b7280);
   border-color: #9ca3af;
@@ -2482,7 +2474,7 @@ const refreshFromTavern = async () => {
   transition: color 0.3s ease;
 }
 
-/* 灵石图标颜色 */
+/* 货币图标颜色 */
 .icon-grade-common {
   color: #9ca3af;
 }

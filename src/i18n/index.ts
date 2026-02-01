@@ -937,7 +937,7 @@ const autoTranslateMap: Record<string, string> = {
   '提升官品：官品越高，判定基础加成越大（九品+5，八品+12...）': 'Raise Rank: Higher rank gives greater base bonus (9th Grade +5, 8th Grade +12...)',
   '锻炼后天：后天六司可提升，但权重仅20%': 'Train Acquired: Can be improved, but only 20% weight',
   '学习方略：高品质方略和技能熟练度提供显著加成': 'Learn Strategies: High-quality strategies and proficiency provide significant bonuses',
-  '装备法器：合适的装备能大幅提升判定值': 'Equip Artifacts: Proper equipment greatly increases judgement value',
+  '装备法器：合适的装备能大幅提升判定值': 'Equip Official Seal: Proper equipment greatly increases judgement value',
   '状态效果：buff增强判定，注意避免debuff': 'Status Effects: Buffs enhance judgement, avoid debuffs',
   '官品压制：高官品对低官品有明显优势，但不是绝对': 'Rank Advantage: Higher rank has advantage, but not absolute',
   '造成伤害': 'Damage Dealt',

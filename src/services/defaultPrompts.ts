@@ -7,7 +7,9 @@
  * 3. 生成类提示词 - 世界/NPC/任务等生成
  * 4. 角色初始化提示词 - 创建角色时使用
  *
- * 县令模拟器 - AI驱动的宋代县令模拟游戏
+ * 县令模拟器 - AI驱动的明代内阁制政治模拟游戏
+ * 游戏定位：从九品县令到封疆大吏的官场生涯
+ * 核心机制：朝廷诏令、财政困境、政治表现、派系斗争
  */
 import { getSaveDataStructureForEnv } from '@/utils/prompts/definitions/dataDefinitions';
 import { getCharacterInitializationPromptForEnv } from '@/utils/prompts/tasks/characterInitializationPrompts';
@@ -24,6 +26,13 @@ import {
   JUDGMENT_TRACEABILITY_RULES,
   SEASONAL_SYSTEM_RULES,
   FAILURE_CONSEQUENCE_RULES,
+  // 朝廷与政治系统规则（明代内阁制）
+  IMPERIAL_COURT_MING_RULES,
+  FISCAL_DILEMMA_RULES,
+  POLITICAL_PERFORMANCE_MING_RULES,
+  CULTIVATION_TO_MING_MAPPING,
+  MULTI_REGION_RULES,
+  FACTION_AND_GUILD_RULES,
   // 保留的通用规则
   COMMAND_PATH_CONSTRUCTION_RULES,
   STRATEGY_SYSTEM_RULES,
@@ -87,8 +96,15 @@ export const PROMPT_CATEGORIES = {
 // 合并核心输出规则
 const CORE_OUTPUT_RULES = [JSON_OUTPUT_RULES, RESPONSE_FORMAT_RULES, DATA_STRUCTURE_STRICTNESS, NARRATIVE_PURITY_RULES].join('\n\n');
 
-// 合并业务规则（县令模拟器核心规则）
+// 合并业务规则（县令模拟器核心规则 + 明代朝廷系统）
 const BUSINESS_RULES = [
+  // 明代朝廷与政治系统
+  IMPERIAL_COURT_MING_RULES,
+  FISCAL_DILEMMA_RULES,
+  POLITICAL_PERFORMANCE_MING_RULES,
+  CULTIVATION_TO_MING_MAPPING,
+  MULTI_REGION_RULES,
+  FACTION_AND_GUILD_RULES,
   // 核心系统规则
   COUNTY_DEVELOPMENT_RULES,
   GOVERNMENT_JUDGMENT_RULES,
@@ -138,7 +154,7 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
       name: '2. 核心规则',
       content: BUSINESS_RULES,
       category: 'coreRequest',
-      description: '县治发展、政务判定、NPC规则',
+      description: '明代朝廷、财政困境、政务判定、NPC规则',
       order: 2,
       weight: 9
     },
@@ -460,21 +476,22 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
     // ==================== 动态生成提示词 ====================
     npcGeneration: {
       name: 'NPC生成',
-      content: `生成县令模拟器世界NPC（宋代官场背景）。
+      content: `生成县令模拟器世界NPC（明代官场背景）。
 核心：世界不以玩家为中心，NPC有独立生活；严禁参考玩家官品生成"镜像NPC"或"量身对手"。
 
 ## 角色类型（根据场景选择）
-- 官场类：上级官员（刺史/州府）、同僚（同县/邻县县令）、下属（县丞/主簿/衙役）
+- 官场类：朝廷官员（内阁/六部/都察院）、地方官员（巡抚/知府/知县）、下属（县丞/主簿/衙役）
 - 民间类：乡绅富户、商人贾贩、文人学士、普通百姓
 - 特殊类：江湖人士、游方郎中、僧道术士
 
 ## 生成要求
-- 姓名符合宋代命名习惯（避免现代感）
+- 姓名符合明代命名习惯（避免现代感）
 - 身份决定行为和说话方式
-- 官员有官品（从九品至正四品）
+- 官员有官品（从九品至正一品）
 - 性格多样化（正直/圆滑/贪婪/清廉/谨慎/豪放等）
+- 可能有派系背景（严党/清流/浙党等）
 
-输出JSON：{姓名,性别,年龄,身份,官品?(如有),性格,外貌,背景,说话风格,当前行为,个人目标,与玩家关系,初始好感度:50}`,
+输出JSON：{姓名,性别,年龄,身份,官品?(如有),性格,外貌,背景,说话风格,当前行为,个人目标,与玩家关系,初始好感度:50,派系?(如有)}`,
       category: 'generation',
       description: '动态生成NPC',
       order: 1,
@@ -482,13 +499,13 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
     },
     eventGeneration: {
       name: '事件生成',
-      content: `生成县令模拟器世界"刚刚发生"的世界事件（宋代官场背景，用于影响玩家与世界演变）。
+      content: `生成县令模拟器世界"刚刚发生"的世界事件（明代官场背景，用于影响玩家与世界演变）。
 
 ## 事件类型
 - 治理类：民生问题（灾荒/瘟疫/盗贼/流民）、财政危机、治安动荡
-- 官场类：上级考核、同僚争斗、朝廷异动、州府命令
+- 官场类：朝廷考核、同僚争斗、朝廷异动、廷寄/邸报
 - 人情类：乡绅关系、百姓请愿、同窗故旧
-- 特殊类：异象天兆、文物出土、商贸往来
+- 特殊类：祥瑞天兆、文物出土、商贸往来
 
 ## 生成要求
 - 必须让玩家受到影响（政务/财政/民心/治安/仕途至少一项）
@@ -604,28 +621,28 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
       name: '文本优化',
       content: `# 文本优化助手（县令模拟器专用）
 
-你是一个专业的中文文学编辑，负责丰富和润色宋代官场小说文本。
+你是一个专业的中文文学编辑，负责丰富和润色明代官场小说文本。
 
 ## 核心要求
 **必须使用中文输出！禁止输出任何英文内容！**
 
 ## 时代背景
-- 朝代：北宋时期
-- 场景：县衙、官府、民间
-- 人物：县令、师爷、衙役、乡绅、百姓
-- 主题：施政、判案、民生、官场
+- 朝代：明代（参考《大明王朝1566》）
+- 场景：县衙、内阁、六部、民间
+- 人物：县令、内阁首辅、六部尚书、师爷、衙役、乡绅、百姓
+- 主题：施政、判案、民生、官场、党争
 
 ## 优化原则
 1. **保持原意**：不改变故事情节、人物行为、对话内容、判定结果
 2. **丰富细节**：增加环境描写、动作细节、心理活动，让场景更生动
-3. **提升文采**：使用更优美、更具画面感的宋代官场风格表达
+3. **提升文采**：使用更优美、更具画面感的明代官场风格表达
 4. **扩充内容**：在不改变原意的前提下，适当扩充描写，让文本更丰满
-5. **官场氛围**：强化县令治理、衙门威仪、百姓民生的元素
+5. **官场氛围**：强化内阁票拟、司礼监批红、六部执掌、都察院监察的元素
 
 ## 优化重点
-- **动作描写**：增加细节，更加生动形象（如：批阅公文、升堂断案、巡视县治）
-- **环境描写**：增加意境和氛围（如：县衙威严、街市繁华、乡村田园）
-- **对话**：保持人物性格，使用符合身份的语言风格（官员/师爷/百姓）
+- **动作描写**：增加细节，更加生动形象（如：批阅奏疏、票拟诏令、升堂断案、巡视县治）
+- **环境描写**：增加意境和氛围（如：紫禁城威严、县衙庄重、街市繁华、乡村田园）
+- **对话**：保持人物性格，使用符合身份的语言风格（内阁/六部/县令/师爷/百姓）
 - **心理描写**：更加细腻深入，展现治理者的思虑和决断
 - **感官体验**：增加视觉、听觉、触觉等感官描写
 
@@ -634,16 +651,16 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
 【政务术语替换】
 - 使用"施政/治国"代替"修炼"
 - 使用"方略/政策"代替"功法"
-- 使用"官品/晋升"代替"境界/突破"
+- 使用"官品/升迁"代替"境界/突破"
 - 使用"银两/库银"代替"灵石"
-- 使用"衙门/县衙"代替"宗门"
-- 使用"民心/威望"代替"灵气"
-- 使用"政绩/功绩"代替"功德"
-- 使用"县令/大人"代替"掌门"
-- 使用"下属/官员"代替"弟子"
+- 使用"衙门/内阁/六部"代替"宗门"
+- 使用"政治资本"代替"灵力"
+- 使用"京察/大计"代替"渡劫"
+- 使用"县令/大人/首辅"代替"掌门"
+- 使用"门生/幕僚"代替"弟子"
 
 【游戏机制类术语替换】
-- 使用"朝廷/天道/吏部/卷宗"代替"系统"
+- 使用"朝廷/内阁/吏部/卷宗"代替"系统"
 - 使用"旬/候/施政周期"代替"回合"
 - 使用"裁决/考成/定夺"代替"判定"
 - 使用"祥瑞/助力/顺势"代替"buff"
@@ -662,7 +679,7 @@ export function getSystemPrompts(): Record<string, PromptDefinition> {
 - ❌ 禁止使用修仙/武道术语（如"灵气""境界""功法""宗门"等）
 
 ## 输出格式
-直接输出优化后的纯中文文本，不要任何额外内容。优化后的文本应该比原文更丰富、更生动、更有画面感，符合宋代官场的历史氛围。`,
+直接输出优化后的纯中文文本，不要任何额外内容。优化后的文本应该比原文更丰富、更生动、更有画面感，符合明代官场的历史氛围。`,
       category: 'summary',
       description: '丰富润色AI生成的文本',
       order: 3,

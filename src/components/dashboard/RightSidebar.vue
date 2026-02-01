@@ -33,12 +33,12 @@
             <div class="vital-info">
               <span class="vital-name">
                 <Sparkles :size="12" class="vital-icon mana" />
-                <span>{{ t('威望') }}</span>
+                <span>{{ t('政治资本') }}</span>
               </span>
-              <span class="vital-text">{{ playerStatus?.灵气?.当前 }} / {{ playerStatus?.灵气?.上限 }}</span>
+              <span class="vital-text">{{ playerStatus?.威望?.当前 ?? 0 }} / {{ playerStatus?.威望?.上限 ?? 100 }}</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill mana" :style="{ width: getVitalPercent('灵气') + '%' }"></div>
+              <div class="progress-fill mana" :style="{ width: getVitalPercent('威望') + '%' }"></div>
             </div>
           </div>
 
@@ -46,12 +46,12 @@
             <div class="vital-info">
               <span class="vital-name">
                 <Brain :size="12" class="vital-icon spirit" />
-                <span>{{ t('神识') }}</span>
+                <span>{{ t('智慧') }}</span>
               </span>
-              <span class="vital-text">{{ playerStatus?.神识?.当前 }} / {{ playerStatus?.神识?.上限 }}</span>
+              <span class="vital-text">{{ playerStatus?.智慧?.当前 ?? 0 }} / {{ playerStatus?.智慧?.上限 ?? 100 }}</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill spirit" :style="{ width: getVitalPercent('神识') + '%' }"></div>
+              <div class="progress-fill spirit" :style="{ width: getVitalPercent('智慧') + '%' }"></div>
             </div>
           </div>
 
@@ -118,6 +118,54 @@
         </div>
       </div>
 
+      <!-- 地区状态 -->
+      <div class="collapsible-section county-section">
+        <div class="section-header" @click="countyCollapsed = !countyCollapsed">
+          <h3 class="section-title">
+            <MapPin :size="14" class="section-icon" />
+            <span>{{ t('地区状态') }}</span>
+          </h3>
+          <button class="collapse-toggle" :class="{ 'collapsed': countyCollapsed }">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 10l4-4H4l4 4z"/>
+            </svg>
+          </button>
+        </div>
+        <div v-show="!countyCollapsed" class="county-stats">
+          <div class="county-grid">
+            <!-- 民心 -->
+            <div class="county-stat-item">
+              <span class="county-stat-label">{{ t('民心') }}</span>
+              <span class="county-stat-value">{{ Math.round(locationSpirit) }}%</span>
+            </div>
+            <!-- 繁荣度 -->
+            <div class="county-stat-item">
+              <span class="county-stat-label">{{ t('繁荣度') }}</span>
+              <span class="county-stat-value">{{ countyState.value?.发展活力 || 50 }}</span>
+            </div>
+            <!-- 治安 -->
+            <div class="county-stat-item">
+              <span class="county-stat-label">{{ t('治安') }}</span>
+              <span class="county-stat-value">{{ t('良好') }}</span>
+            </div>
+            <!-- 库银 -->
+            <div class="county-stat-item">
+              <span class="county-stat-label">{{ t('库银') }}</span>
+              <span class="county-stat-value">{{ formatCountySilver() }}</span>
+            </div>
+            <!-- 人口 -->
+            <div class="county-stat-item">
+              <span class="county-stat-label">{{ t('人口') }}</span>
+              <span class="county-stat-value">{{ formatCountyPopulation() }}</span>
+            </div>
+            <!-- 城市等级 -->
+            <div class="county-stat-item">
+              <span class="county-stat-label">{{ t('城市等级') }}</span>
+              <span class="county-stat-value">{{ cityLevel.value?.名称 || t('未知') }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- 天赋能力 -->
       <div class="collapsible-section talents-section">
@@ -199,7 +247,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { User, Sparkles, Heart, Droplet, Brain, Clock, Star, Zap } from 'lucide-vue-next';
+import { User, Sparkles, Heart, Droplet, Brain, Clock, Star, Zap, MapPin, Users, Shield, Coins, Wheat } from 'lucide-vue-next';
 import { LOCAL_ABILITIES } from '@/data/creationData';
 import DetailModal from '@/components/common/DetailModal.vue';
 import StatusDetailCard from './components/StatusDetailCard.vue';
@@ -246,6 +294,22 @@ const currentAge = computed(() => {
 // 收缩状态
 const talentsCollapsed = ref(false);
 const statusCollapsed = ref(false);
+const countyCollapsed = ref(false);
+
+// 地区状态数据
+const countyState = computed(() => {
+  const data = gameStateStore.getCurrentSaveData() as any;
+  return data?.角色?.位置 || null;
+});
+
+const cityLevel = computed(() => {
+  return playerStatus.value?.城市等级 || null;
+});
+
+// 从位置获取民心支持度（兼容旧字段）
+const locationSpirit = computed(() => {
+  return countyState.value?.民心支持度 ?? 0;
+});
 
 // 模态框状态（通过 uiStore 管理，不再需要本地状态）
 
@@ -299,7 +363,7 @@ const getRealmProgressClass = (): string => {
 };
 
 // 计算生命体征百分比
-const getVitalPercent = (type: '气血' | '灵气' | '神识') => {
+const getVitalPercent = (type: '气血' | '威望' | '智慧') => {
   if (!gameStateStore.attributes) return 0;
   const vital = (gameStateStore.attributes as any)[type];
   if (!vital?.当前 || !vital?.上限) return 0;
@@ -324,7 +388,7 @@ const getTalentData = (talent: string): any => {
     }
   }
 
-  // 向后兼容：从三千大道系统中查找
+  // 向后兼容：从治国方略系统中查找
   const daoDataValue = gameStateStore.thousandDao;
   const daoProgress = daoDataValue?.方略列表?.[talent];
   return daoProgress;
@@ -428,6 +492,57 @@ const getReputationClass = (): string => {
   if (repValue >= 100) return 'reputation-minor';
 
   return 'reputation-neutral';
+};
+
+// 地区数值格式化函数
+const formatCountySilver = (): string => {
+  // 从衙门经营数据获取库银，如果没有则使用角色背包银两
+  const sectName = characterInfo.value?.衙门 || '';
+  if (sectName) {
+    const sectData = (gameStateStore as any).sectSystem?.宗门经营?.[sectName];
+    if (sectData?.府库?.银两) {
+      return formatLargeNumber(sectData.府库.银两);
+    }
+  }
+  // 降级到角色背包
+  const inventory = gameStateStore.inventory;
+  const silver = (inventory as any)?.银两;
+  if (silver) {
+    const total = (silver.小额 || 0) + (silver.中额 || 0) * 10 + (silver.大额 || 0) * 100 + (silver.巨额 || 0) * 1000;
+    return formatLargeNumber(total);
+  }
+  return '0';
+};
+
+const formatCountyPopulation = (): string => {
+  // 基于城市等级和发展活力估算人口
+  const level = cityLevel.value?.名称 || '集镇';
+  const vitality = countyState.value?.发展活力 || 50;
+
+  const basePopulation: Record<string, number> = {
+    '荒村': 500,
+    '集镇': 3000,
+    '县城': 10000,
+    '府城': 50000,
+    '州城': 150000,
+    '都城': 500000,
+    '皇城': 1000000,
+    '京畿': 2000000,
+    '天下': 5000000
+  };
+
+  const base = basePopulation[level] || 3000;
+  const multiplier = 0.5 + (vitality / 100);
+  const population = Math.round(base * multiplier);
+
+  return formatLargeNumber(population);
+};
+
+const formatLargeNumber = (num: number): string => {
+  if (num >= 10000000) return (num / 10000000).toFixed(1) + '千万';
+  if (num >= 10000) return (num / 10000).toFixed(1) + '万';
+  if (num >= 1000) return (num / 1000).toFixed(1) + '千';
+  return num.toString();
 };
 </script>
 
@@ -939,6 +1054,45 @@ const getReputationClass = (): string => {
   font-size: 0.95rem;
   font-weight: 500;
   margin-bottom: 0.25rem;
+}
+
+/* 地区状态面板样式 */
+.county-stats {
+  padding: 0 12px 12px;
+}
+
+.county-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.county-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: rgba(var(--color-surface-rgb), 0.6);
+  border: 1px solid rgba(var(--color-border-rgb), 0.3);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.county-stat-item:hover {
+  background: rgba(var(--color-surface-rgb), 0.8);
+  border-color: rgba(var(--color-primary-rgb), 0.3);
+}
+
+.county-stat-label {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.county-stat-value {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 

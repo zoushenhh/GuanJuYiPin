@@ -218,20 +218,20 @@
                       </div>
                       <div class="npc-vital-row">
                         <div class="npc-vital-meta">
-                          <span class="npc-vital-name">灵气</span>
-                          <span class="npc-vital-nums">{{ formatNpcStatPair(selectedPerson, '灵气') }}</span>
+                          <span class="npc-vital-name">威望</span>
+                          <span class="npc-vital-nums">{{ formatNpcStatPair(selectedPerson, '威望') }}</span>
                         </div>
                         <div class="npc-vital-track">
-                          <div class="npc-vital-bar blue-bar" :style="{ width: getNpcStatPercentage(selectedPerson, '灵气') + '%' }"></div>
+                          <div class="npc-vital-bar blue-bar" :style="{ width: getNpcStatPercentage(selectedPerson, '威望') + '%' }"></div>
                         </div>
                       </div>
                       <div class="npc-vital-row">
                         <div class="npc-vital-meta">
-                          <span class="npc-vital-name">神识</span>
-                          <span class="npc-vital-nums">{{ formatNpcStatPair(selectedPerson, '神识') }}</span>
+                          <span class="npc-vital-name">智慧</span>
+                          <span class="npc-vital-nums">{{ formatNpcStatPair(selectedPerson, '智慧') }}</span>
                         </div>
                         <div class="npc-vital-track">
-                          <div class="npc-vital-bar gold-bar" :style="{ width: getNpcStatPercentage(selectedPerson, '神识') + '%' }"></div>
+                          <div class="npc-vital-bar gold-bar" :style="{ width: getNpcStatPercentage(selectedPerson, '智慧') + '%' }"></div>
                         </div>
                       </div>
                       <div class="npc-vital-row">
@@ -1631,7 +1631,7 @@ const toFiniteNumber = (value: unknown): number | null => {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 };
 
-type NpcCoreStatKey = '气血' | '灵气' | '神识';
+type NpcCoreStatKey = '气血' | '威望' | '智慧';
 
 const getNpcStatPair = (npc: NpcProfile, key: NpcCoreStatKey): { current: number | null; max: number | null } => {
   const raw = (npc as any)?.属性?.[key] ?? (npc as any)?.[key];
@@ -1661,7 +1661,7 @@ const hasNpcCoreStats = (npc: NpcProfile): boolean => {
     const pair = getNpcStatPair(npc, key);
     return pair.current !== null || pair.max !== null;
   };
-  return hasPair('气血') || hasPair('灵气') || hasPair('神识') || getNpcLifespanMax(npc) !== null;
+  return hasPair('气血') || hasPair('威望') || hasPair('智慧') || getNpcLifespanMax(npc) !== null;
 };
 
 // 获取NPC最近三条记忆
