@@ -1,6 +1,6 @@
 <template>
   <div class="talent-tier-selection">
-    <div v-if="store.isLoading" class="loading-state">{{ $t('测算县令天资...') }}</div>
+    <div v-if="store.isLoading" class="loading-state">{{ $t('分析地域特征...') }}</div>
     <div v-else-if="store.error" class="error-state">{{ $t('推演失败') }}：{{ store.error }}</div>
 
     <div v-else class="tier-layout">
@@ -13,7 +13,7 @@
             @click="isCustomModalVisible = true"
             class="action-item shimmer-on-hover"
           >
-            <span class="action-name">{{ $t('自定义天资') }}</span>
+            <span class="action-name">{{ $t('自定义地域') }}</span>
           </button>
           <button @click="handleAIGenerate" class="action-item shimmer-on-hover">
             <span class="action-name">{{ $t('智能推演') }}</span>
@@ -57,13 +57,13 @@
           </div>
           <div class="points-display">{{ $t('官品点') }}: {{ activeTier.total_points }}</div>
         </div>
-        <div v-else class="placeholder">{{ $t('请选择你的天资等级，这将决定你的起点。') }}</div>
+        <div v-else class="placeholder">{{ $t('请选择你的出身地域，这将决定你的官品点数量。') }}</div>
       </div>
     </div>
 
     <CustomCreationModal
       :visible="isCustomModalVisible"
-      :title="$t('自定义天资')"
+      :title="$t('自定义地域')"
       :fields="customTierFields"
       :validationFn="validateCustomTier"
       @close="isCustomModalVisible = false"
@@ -73,7 +73,7 @@
     <!-- 编辑模态框 -->
     <CustomCreationModal
       :visible="isEditModalVisible"
-      :title="$t('编辑天资')"
+      :title="$t('编辑地域')"
       :fields="customTierFields"
       :validationFn="validateCustomTier"
       :initialData="editInitialData"
@@ -120,21 +120,21 @@ const editingTier = ref<TalentTier | null>(null)
 
 const filteredTalentTiers = computed(() => {
   const allTiers = store.creationData.backgrounds || [];
-  console.log("【天资选择】所有天资数据:", allTiers);
-  console.log("【天资选择】数据明细:", allTiers.map(t => ({ name: t.name, source: t.source, id: t.id })));
+  console.log("【地域选择】所有地域数据:", allTiers);
+  console.log("【地域选择】数据明细:", allTiers.map(t => ({ name: t.name, source: t.source, id: t.id })));
 
   // 单机模式：显示本地和云端数据
   const availableTiers = allTiers.filter(tier =>
     tier.source === 'local' || tier.source === 'cloud'
   );
-  console.log("【天资选择】可用天资列表:", availableTiers);
+  console.log("【地域选择】可用地域列表:", availableTiers);
   return availableTiers.sort((a, b) => a.total_points - b.total_points);
 });
 
 // 根据 types/index.ts 中的 TalentTier 接口定义字段
 const customTierFields = [
-  { key: 'name', label: '天资名称', type: 'text', placeholder: '例如：凡人' },
-  { key: 'description', label: '天资描述', type: 'textarea', placeholder: '描述此天资的特点...' },
+  { key: 'name', label: '地域名称', type: 'text', placeholder: '例如：凡人' },
+  { key: 'description', label: '地域描述', type: 'textarea', placeholder: '描述此地域的特点...' },
   { key: 'total_points', label: '官品点', type: 'number', placeholder: '例如：20' },
   { key: 'rarity', label: '稀有度', type: 'number', placeholder: '1-10，数值越高越稀有' },
   { key: 'color', label: '辉光颜色', type: 'color', placeholder: '例如：#808080' },
@@ -142,7 +142,7 @@ const customTierFields = [
 
 function validateCustomTier(data: Partial<CustomTierData>) {
     const errors: Record<string, string> = {};
-    if (!data.name?.trim()) errors.name = '天资名称不可为空';
+    if (!data.name?.trim()) errors.name = '地域名称不可为空';
     const points = Number(data.total_points);
     if (isNaN(points) || points < 0) errors.total_points = '官品点必须是非负数';
     const rarity = Number(data.rarity);
@@ -168,10 +168,10 @@ async function handleCustomSubmit(data: CustomTierData) {
     // await saveGameData(store.creationData); // NOTE: 持久化由Pinia插件自动处理
     handleSelectTalentTier(newTier);
     isCustomModalVisible.value = false;
-    toast.success(`自定义天资 "${newTier.name}" 已保存！`);
+    toast.success(`自定义地域 "${newTier.name}" 已保存！`);
   } catch (e) {
-    console.error('保存自定义天资失败:', e);
-    toast.error('保存自定义天资失败！');
+    console.error('保存自定义地域失败:', e);
+    toast.error('保存自定义地域失败！');
   }
 }
 
@@ -195,28 +195,28 @@ async function handleAIPromptSubmit(userPrompt: string) {
       return;
     }
 
-    console.log('【智能推演-天资】完整响应:', aiResponse);
+    console.log('【智能推演-地域】完整响应:', aiResponse);
 
     // 解析AI返回的JSON
     let parsedTier: any;
     try {
       parsedTier = parseJsonFromText(aiResponse);
     } catch (parseError) {
-      console.error('【智能推演-天资】JSON解析失败:', parseError);
+      console.error('【智能推演-地域】JSON解析失败:', parseError);
       toast.error('智能推演结果格式错误，无法解析', { id: toastId });
       return;
     }
 
     // 验证必需字段
     if (!parsedTier.name && !parsedTier.名称) {
-      toast.error('智能推演结果缺少天资名称', { id: toastId });
+      toast.error('智能推演结果缺少地域名称', { id: toastId });
       return;
     }
 
-    // 创建天资对象
+    // 创建地域对象
     const newTier: TalentTier = {
       id: Date.now(),
-      name: parsedTier.name || parsedTier.名称 || '未命名天资',
+      name: parsedTier.name || parsedTier.名称 || '未命名地域',
       description: parsedTier.description || parsedTier.描述 || parsedTier.说明 || '',
       total_points: parsedTier.total_points || parsedTier.总点数 || parsedTier.点数 || 10,
       color: parsedTier.color || parsedTier.颜色 || '#808080',
@@ -224,15 +224,15 @@ async function handleAIPromptSubmit(userPrompt: string) {
       source: 'local'
     };
 
-    // 保存并选择天资
+    // 保存并选择地域
     store.addTalentTier(newTier);
     handleSelectTalentTier(newTier);
     isAIPromptModalVisible.value = false;
 
-    toast.success(`智能推演完成！天资 "${newTier.name}" 已生成`, { id: toastId });
+    toast.success(`智能推演完成！地域 "${newTier.name}" 已生成`, { id: toastId });
 
   } catch (e: any) {
-    console.error('【智能推演-天资】失败:', e);
+    console.error('【智能推演-地域】失败:', e);
     toast.error(`智能推演失败: ${e.message}`, { id: toastId });
   }
 }
@@ -254,12 +254,12 @@ function openEditModal(tier: TalentTier) {
 
 // 删除功能
 async function handleDeleteTalentTier(id: number) {
-  console.log(`🔥 点击删除按钮，准备删除天资 ID: ${id}`);
+  console.log(`🔥 点击删除按钮，准备删除地域 ID: ${id}`);
   try {
     await store.removeTalentTier(id);
-    console.log(`【天资选择】成功删除天资 ID: ${id}`);
+    console.log(`【地域选择】成功删除地域 ID: ${id}`);
   } catch (error) {
-    console.error(`【天资选择】删除天资失败 ID: ${id}`, error);
+    console.error(`【地域选择】删除地域失败 ID: ${id}`, error);
   }
 }
 
@@ -280,13 +280,13 @@ async function handleEditSubmit(data: CustomTierData) {
     if (success) {
       isEditModalVisible.value = false;
       editingTier.value = null;
-      toast.success(`天资 "${updateData.name}" 已更新！`);
+      toast.success(`地域 "${updateData.name}" 已更新！`);
     } else {
-      toast.error('更新天资失败！');
+      toast.error('更新地域失败！');
     }
   } catch (e) {
-    console.error('更新天资失败:', e);
-    toast.error('更新天资失败！');
+    console.error('更新地域失败:', e);
+    toast.error('更新地域失败！');
   }
 }
 
@@ -385,7 +385,7 @@ const editInitialData = computed(() => {
 .tiers-list-container::-webkit-scrollbar-thumb { background: rgba(147, 197, 253, 0.3); border-radius: 3px; }
 .tiers-list-container::-webkit-scrollbar-thumb:hover { background: rgba(147, 197, 253, 0.5); }
 
-/* ========== 选项卡样式（带天资辉光） ========== */
+/* ========== 选项卡样式（带地域辉光） ========== */
 .tier-item {
   display: flex;
   justify-content: space-between;

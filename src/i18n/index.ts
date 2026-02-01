@@ -131,11 +131,11 @@ const autoTranslateMap: Record<string, string> = {
 
   // === 角色创建 ===
   '角色创建': 'Character Creation', '创建新角色': 'Create Character', '角色名称': 'Name', '请输入角色名称': 'Enter name',
-  '地界选择': 'Region', '出身选择': 'Background', '天资选择': 'Aptitude', '后天选择': 'Post-Heaven', '能力选择': 'Abilities', '属性分配': 'Attributes',
+  '朝代选择': 'Dynasty', '地域选择': 'Region', '天资选择': 'Aptitude', '后天选择': 'Post-Heaven', '能力选择': 'Abilities', '属性分配': 'Attributes',
   '角色预览': 'Preview', '单机模式': 'Offline', '返回仕途': 'Back to Menu', '开启仕途': 'Begin',
   '剩余官品点': 'Points',
   '初入仕途': 'Begin Governance', '📂 加载预设': '📂 Load Preset', '🗑️ 清除自定义': '🗑️ Clear Custom',
-  '选择地界': 'Select Region', '选择出身': 'Select Background', '选择天资': 'Select Aptitude', '选择后天': 'Select Post-Heaven',
+  '选择朝代': 'Select Dynasty', '选择地域': 'Select Region', '选择天资': 'Select Aptitude', '选择后天': 'Select Post-Heaven',
   '选择能力': 'Select Abilities', '分配属性': 'Allocate Attributes', '预览确认': 'Preview Character',
 
   // === 世界选择 ===
@@ -159,14 +159,14 @@ const autoTranslateMap: Record<string, string> = {
   '编辑此项': 'Edit', '删除此项': 'Delete', '编辑世界': 'Edit World', '世界 "{0}" 已更新！': 'World "{0}" updated!',
   '更新世界失败！': 'Update failed!',
 
-  // === 出身选择 ===
-  '推演背景，测算出身...': 'Loading backgrounds...', '推演混沌': 'Error', '自定义出身': 'Custom Background',
-  '出身名称': 'Background Name', '出身描述': 'Description', '官品点': 'Points', '辉光颜色': 'Glow Color',
-  '例如：凡人': 'e.g.: Commoner', '描述此出身的特点...': 'Describe this background...', '例如：10': 'e.g.: 10',
-  '例如：#808080': 'e.g.: #808080', '出身名称不可为空': 'Background name required', '官品点必须是非负数': 'Points must be non-negative',
-  '自定义出身 "{0}" 已保存！': 'Background "{0}" saved!', '保存自定义出身失败！': 'Save failed!',
-  'AI推演完成！出身 "{0}" 已生成': 'Background "{0}" generated!', '请选择你的出身等级，这将决定你的能力初始上限。': 'Select your background tier',
-  '编辑出身': 'Edit Background', '出身 "{0}" 已更新！': 'Background "{0}" updated!', '更新出身失败！': 'Update failed!',
+  // === 地域选择 ===
+  '推演背景，测算地域...': 'Loading regions...', '推演混沌': 'Error', '自定义地域': 'Custom Region',
+  '地域名称': 'Region Name', '地域描述': 'Description', '官品点': 'Points', '辉光颜色': 'Glow Color',
+  '例如：江南水乡': 'e.g.: Jiangnan', '描述此地域的特点...': 'Describe this region...', '例如：10': 'e.g.: 10',
+  '例如：#808080': 'e.g.: #808080', '地域名称不可为空': 'Region name required', '官品点必须是非负数': 'Points must be non-negative',
+  '自定义地域 "{0}" 已保存！': 'Region "{0}" saved!', '保存自定义地域失败！': 'Save failed!',
+  'AI推演完成！地域 "{0}" 已生成': 'Region "{0}" generated!', '请选择你的出身地域，这将决定你的官品点数量。': 'Select your region',
+  '编辑地域': 'Edit Region', '地域 "{0}" 已更新！': 'Region "{0}" updated!', '更新地域失败！': 'Update failed!',
 
   // === 天资选择 ===
   '追溯过往，探寻天资...': 'Loading aptitudes...', '因果不明': 'Error', '自定义天资': 'Custom Aptitude',
@@ -174,7 +174,7 @@ const autoTranslateMap: Record<string, string> = {
   '例如：山野遗孤': 'e.g.: Orphan', '描述此天资的背景故事和特点...': 'Describe this aptitude...',
   '天资名称不可为空': 'Aptitude name required', '天资描述不可为空': 'Description required',
   '自定义天资 "{0}" 已保存！': 'Aptitude "{0}" saved!', '保存自定义天资失败！': 'Save failed!',
-  '请先选择一方地界，方可推演天资。': 'Select region first', 'AI推演完成！天资 "{0}" 已生成': 'Aptitude "{0}" generated!',
+  '请先选择一个朝代，方可推演天资。': 'Select dynasty first', 'AI推演完成！天资 "{0}" 已生成': 'Aptitude "{0}" generated!',
   '命运无常，造化弄人。选择此项，你的天资将完全随机生成。是生于帝王之家，或为山野遗孤，皆在命运一念之间。': 'Random aptitude description',
   '身世如谜，过往一片空白。': 'Unknown aptitude', '消耗官品点: {0}': 'Cost: {0} pts', '请选择一处天资，或听天由命。': 'Select an aptitude',
   '官品点不足，无法选择此天资。': 'Insufficient points', '编辑天资': 'Edit Aptitude', '天资 "{0}" 已更新！': 'Aptitude "{0}" updated!',
