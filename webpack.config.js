@@ -4,7 +4,7 @@ import fs from 'fs'
 import { VueLoaderPlugin } from 'vue-loader'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import HtmlInlineScriptPlugin from 'html-inline-script-webpack-plugin'
-import TavernLiveReloadPlugin from './webpack/TavernLiveReloadPlugin.js'
+// import TavernLiveReloadPlugin from './webpack/TavernLiveReloadPlugin.js'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
