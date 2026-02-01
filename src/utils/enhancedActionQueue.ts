@@ -518,7 +518,7 @@ export class EnhancedActionQueueManager {
           : `开始学习《${item.名称}》方略`
       });
       
-      // toast.success(`开始修炼《${item.名称}》`); // 弹窗逻辑已移至Store
+      // toast.success(`开始学习方略《${item.名称}》`); // 弹窗逻辑已移至Store
       return true;
       
     } catch (error) {
@@ -567,7 +567,7 @@ export class EnhancedActionQueueManager {
 
       const inventoryItem = inventoryItems[techniqueId];
 
-      // 清空修炼槽位，设置修炼状态为false（设置为null）
+      // 清空施政槽位，设置修炼状态为false（设置为null）
       cultivationState.修炼功法 = null;
 
       // 清除方略的已装备和施政中标记 - 使用响应式替换
@@ -608,12 +608,12 @@ export class EnhancedActionQueueManager {
         description: `停止学习《${item.名称}》方略`
       });
       
-      // toast.success(`已停止修炼《${item.名称}》`); // 弹窗逻辑已移至Store
+      // toast.success(`已停止学习《${item.名称}》`); // 弹窗逻辑已移至Store
       return true;
       
     } catch (error) {
-      console.error('停止修炼失败:', error);
-      toast.error('停止修炼失败');
+      console.error('停止学习方略失败:', error);
+      toast.error('停止学习方略失败');
       return false;
     }
   }
@@ -841,7 +841,7 @@ export class EnhancedActionQueueManager {
     // 获取背包物品对象
     const inventoryItems = this.ensureRoleBackpack(saveData).物品;
     if (!inventoryItems || typeof inventoryItems !== 'object') {
-      console.error('背包数据异常，无法撤回修炼');
+      console.error('背包数据异常，无法撤回学习方略');
       return;
     }
 
@@ -863,7 +863,7 @@ export class EnhancedActionQueueManager {
         };
       }
     } else {
-      // 清空修炼槽位
+      // 清空施政槽位
       cultivation.修炼功法 = null;
     }
 

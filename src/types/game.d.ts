@@ -104,6 +104,11 @@ export interface ProcessedResponse {
 }
 
 // --- 天道系统相关类型 ---
+/**
+ * @deprecated 使用 GovernanceCalculation 替代
+ * 旧术语：天道计算（修仙游戏中的天道系统）
+ * 新术语：施政计算（县令游戏中的施政系统）
+ */
 export interface HeavenlyCalculation {
   天道值: number;
   修正因子: number;
@@ -111,7 +116,20 @@ export interface HeavenlyCalculation {
   [key: string]: any;
 }
 
+/** 施政计算（县令主题） */
+export interface GovernanceCalculation {
+  施政值: number;
+  修正因子: number;
+  基础计算: any;
+  [key: string]: any;
+}
+
 // 简化的核心属性类型（仅用于天道系统内部计算）
+/**
+ * @deprecated 使用 MagistrateCoreAttributes 替代
+ * 旧术语：核心属性（修仙游戏中的角色属性）
+ * 新术语：县令核心属性（县令游戏中的官员属性）
+ */
 export interface CoreAttributes {
   攻击力: number;
   防御力: number;
@@ -121,20 +139,57 @@ export interface CoreAttributes {
   境界加成: number;
 }
 
+/** 县令核心属性（县令主题） */
+export interface MagistrateCoreAttributes {
+  决策力: number;
+  防御力: number;
+  洞察力: number;  // 原灵识
+  敏捷: number;
+  气运: number;
+  官品加成: number;  // 原境界加成
+}
+
 // 简化的死亡状态类型（仅用于天道系统内部判定）
+/**
+ * @deprecated 使用 TermState 替代
+ * 旧术语：死亡状态（修仙游戏中的生死状态）
+ * 新术语：任期状态（县令游戏中的任职状态）
+ */
 export interface DeathState {
   已死亡: boolean;
   死亡时间?: string;
   死亡原因?: string;
 }
 
+/** 任期状态（县令主题） */
+export interface TermState {
+  已离任: boolean;  // 原已死亡
+  离任时间?: string;  // 原死亡时间
+  离任原因?: string;  // 原死亡原因
+}
+
 // 简化的天道系统类型（仅用于内部计算，不存储到 PlayerStatus）
+/**
+ * @deprecated 使用 GovernanceSystem 替代
+ * 旧术语：天道系统（修仙游戏中的天道系统）
+ * 新术语：施政系统（县令游戏中的施政系统）
+ */
 export interface HeavenlySystem {
   版本: string;
   角色名称: string;
   境界等级: number;
   核心属性: CoreAttributes;
   死亡状态: DeathState;
+  更新时间: string;
+}
+
+/** 施政系统（县令主题） */
+export interface GovernanceSystem {
+  版本: string;
+  角色名称: string;
+  官品等级: number;  // 原境界等级
+  核心属性: MagistrateCoreAttributes;  // 原CoreAttributes
+  任期状态: TermState;  // 原DeathState
   更新时间: string;
 }
 
@@ -166,13 +221,29 @@ export interface ItemQuality {
 
 // --- 先天六司 ---
 
+/** 县令主题的先天六司（主字段） */
 export interface InnateAttributes {
-  断案: number;   // 原精力/根骨 - 影响断案能力
-  治理: number;   // 原灵性 - 影响政务处理能力
-  用人: number;   // 原悟性 - 影响识人用人能力
-  威望: number;   // 原气运 - 影响机缘、晋升
-  民心: number;   // 原魅力 - 影响百姓支持度
-  清廉: number;   // 原心性 - 影响廉洁从政
+  // 县令主题字段（推荐使用）
+  断案?: number;   // 原精力/根骨 - 影响断案能力
+  治理?: number;   // 原灵性 - 影响政务处理能力
+  用人?: number;   // 原悟性 - 影响识人用人能力
+  威望?: number;   // 原气运 - 影响机缘、晋升
+  民心?: number;   // 原魅力 - 影响百姓支持度
+  清廉?: number;   // 原心性 - 影响廉洁从政
+
+  // 向后兼容：修仙主题字段（已废弃，请使用县令主题字段）
+  /** @deprecated 使用 断案 替代 */
+  精力?: number;
+  /** @deprecated 使用 治理 替代 */
+  灵性?: number;
+  /** @deprecated 使用 用人 替代 */
+  悟性?: number;
+  /** @deprecated 使用 威望 替代 */
+  气运?: number;
+  /** @deprecated 使用 民心 替代 */
+  魅力?: number;
+  /** @deprecated 使用 清廉 替代 */
+  心性?: number;
 }
 
 /** 英文键名的先天六司，用于组件传参（向后兼容） */
@@ -787,12 +858,26 @@ export interface StatusEffect {
 
 // --- 角色实时状态 ---
 
-/** 官品/境界（县令主题：官品；修仙主题：境界） */
+/**
+ * @deprecated 使用 OfficialRank 替代
+ * 旧术语：境界（修仙游戏中的修行境界）
+ * 新术语：官品（县令游戏中的官员等级）
+ * 接口名保留为Realm是为了向后兼容旧存档
+ */
 export interface Realm {
   名称: string;        // 官品名称/境界名称，如"九品"、"练气"
   阶段: string;        // 官品阶段/境界阶段，如"初期"、"中期"、"后期"、"圆满"
   当前进度: number;    // 当前施政进度/当前修炼进度
   下一级所需: number;  // 晋升到下一阶段所需进度/突破到下一阶段所需进度
+  晋升描述: string;    // 晋升到下一阶段的描述
+}
+
+/** 官品（县令主题：主要类型） */
+export interface OfficialRank {
+  名称: string;        // 官品名称，如"九品"
+  阶段: string;        // 官品阶段，如"初期"、"中期"、"后期"、"圆满"
+  当前进度: number;    // 当前施政进度
+  下一级所需: number;  // 晋升到下一阶段所需进度
   晋升描述: string;    // 晋升到下一阶段的描述
 }
 /** 官品子阶段类型/境界子阶段类型 */
@@ -912,6 +997,11 @@ export interface CharacterStatusForDisplay {
 // --- 世界数据类型定义 ---
 
 /** 世界大陆信息 */
+/**
+ * @deprecated 使用 MagistrateContinent 替代
+ * 旧术语：世界大陆（修仙游戏中的修仙大陆）
+ * 新术语：世界政区（县令游戏中的行政区域）
+ */
 export interface WorldContinent {
   名称: string;
   name?: string; // 兼容英文名
@@ -925,7 +1015,25 @@ export interface WorldContinent {
   factions?: (string | number)[]; // 兼容英文名
 }
 
-/** 世界势力信息 - 统一的宗门/势力数据结构 */
+/** 世界政区信息（县令主题） */
+export interface MagistrateContinent {
+  名称: string;
+  name?: string; // 兼容英文名
+  描述: string;
+  地理特征?: string[];
+  政治环境?: string;  // 原修真环境
+  气候?: string;
+  天然屏障?: string[];
+  大洲边界?: { x: number; y: number }[];
+  主要衙门?: (string | number)[];  // 原主要势力
+  governments?: (string | number)[]; // 兼容英文名
+}
+
+/**
+ * @deprecated 使用 WorldGovernment 替代
+ * 旧术语：世界势力（修仙游戏中的宗门势力）
+ * 新术语：世界衙门（县令游戏中的政府衙门）
+ */
 export interface WorldFaction {
   id?: string | number; // 增加可选的id字段
   名称: string;
@@ -964,6 +1072,56 @@ export interface WorldFaction {
 
   // 势力范围详情
   势力范围详情?: {
+    控制区域?: string[]; // 替代 势力范围 字符串数组
+    影响范围?: string;
+    战略价值?: number; // 1-10
+  };
+
+  // 加入相关
+  可否加入?: boolean;
+  加入条件?: string[];
+  加入好处?: string[];
+}
+
+/** 世界衙门信息（县令主题） */
+export interface WorldGovernment {
+  id?: string | number; // 增加可选的id字段
+  名称: string;
+  类型: '正统衙门' | '清流衙门' | '贪腐衙门' | '中立衙门' | '商会' | '世家' | '散修联盟' | string;
+  等级: '超级' | '一流' | '二流' | '三流' | string;
+  所在政区?: string;  // 原所在大洲
+  位置?: string | { x: number; y: number }; // 支持字符串描述或坐标
+  管辖范围?: string[] | { x: number; y: number }[];  // 原势力范围
+  描述: string;
+  特色: string | string[]; // 支持字符串或字符串数组
+  与玩家关系?: '敌对' | '中立' | '友好' | '盟友' | string;
+  声望值?: number;
+
+  // 衙门系统扩展字段 - 只对衙门类型势力有效
+  特色列表?: string[]; // 衙门特色列表，替代 特色 字符串
+
+  // 衙门成员统计
+  成员数量?: SectMemberCount;
+
+  // 衙门领导层 - 新增必需字段
+  领导层?: {
+    县令: string;  // 原宗主
+    官职等级: string;  // 原宗主修为，如"七品"、"六品"等
+    副县令?: string;  // 原副宗主
+    师爷?: string;  // 原圣女
+    书吏?: string;  // 原圣子
+    太书吏?: string;  // 原太上长老
+    太书吏等级?: string;  // 原太上长老修为
+    长老数量?: number; // 衙门长老数量
+    最高官职: string;  // 衙门内最高官职（原最强修为）
+    综合战力?: number; // 1-100的综合战力评估
+    核心吏员数?: number;  // 原核心弟子数
+    内门吏员数?: number;  // 原内门弟子数
+    外门吏员数?: number;  // 原外门弟子数
+  };
+
+  // 管辖范围详情
+  管辖范围详情?: {  // 原势力范围详情
     控制区域?: string[]; // 替代 势力范围 字符串数组
     影响范围?: string;
     战略价值?: number; // 1-10

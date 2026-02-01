@@ -293,7 +293,7 @@ const daoCategories = [
   { key: 'nature', label: '自然', icon: Sun },
   { key: 'concept', label: '法则', icon: Scale },
   { key: 'combat', label: '战斗', icon: Sword },
-  { key: 'cultivation', label: '修行', icon: Flame },
+  { key: 'cultivation', label: '施政', icon: Flame },
 ];
 
 // 排序选项
@@ -470,10 +470,10 @@ const cultivateDao = (daoName: string) => {
   actionQueueStore.addAction({
     type: 'comprehend',
     itemName: daoName,
-    itemType: '大道',
-    description: `感悟《${daoName}》`
+    itemType: '理念',
+    description: `学习《${daoName}》`
   });
-  toast.success(`开始感悟《${daoName}》`);
+  toast.success(`开始学习《${daoName}》`);
 };
 
 // 深度研究
@@ -481,10 +481,10 @@ const meditateDao = (daoName: string) => {
   actionQueueStore.addAction({
     type: 'meditate',
     itemName: daoName,
-    itemType: '参悟',
+    itemType: '研究',
     description: `深度研究《${daoName}》`
   });
-  toast.info(`进入《${daoName}》参悟状态`);
+  toast.info(`进入《${daoName}》研究状态`);
 };
 
 // 尝试升阶
@@ -492,8 +492,8 @@ const attemptDaoBreakthrough = (daoName: string) => {
   actionQueueStore.addAction({
     type: 'dao_breakthrough',
     itemName: daoName,
-    itemType: '突破',
-    description: `尝试升阶《${daoName}》境界`
+    itemType: '升阶',
+    description: `尝试升阶《${daoName}》阶段`
   });
   toast.warning(`尝试升阶《${daoName}》`);
 };
@@ -502,11 +502,11 @@ const attemptDaoBreakthrough = (daoName: string) => {
 const openDaoExplore = () => {
   actionQueueStore.addAction({
     type: 'explore',
-    itemName: '大道',
+    itemName: '理念',
     itemType: '探索',
-    description: '探索未知大道，寻求新的感悟'
+    description: '探索未知理念，寻求新的感悟'
   });
-  toast.info('开始探索新的大道...');
+  toast.info('开始探索新的理念...');
 };
 
 // 冥想感悟
@@ -514,10 +514,10 @@ const startMeditation = () => {
   actionQueueStore.addAction({
     type: 'meditate',
     itemName: '天地',
-    itemType: '冥想',
-    description: '静心冥想，感悟天地法则'
+    itemType: '思考',
+    description: '静心思考，感悟治国法则'
   });
-  toast.info('进入冥想状态...');
+  toast.info('进入思考状态...');
 };
 
 // 从方略领悟
@@ -525,10 +525,10 @@ const comprehendFromSkill = () => {
   actionQueueStore.addAction({
     type: 'comprehend',
     itemName: '方略',
-    itemType: '领悟',
-    description: '从已推行的方略中领悟理念'
+    itemType: '学习',
+    description: '从已推行的方略中学习理念'
   });
-  toast.info('尝试从方略中领悟理念...');
+  toast.info('尝试从方略中学习理念...');
 };
 
 // 观天地悟道
@@ -536,10 +536,10 @@ const comprehendFromNature = () => {
   actionQueueStore.addAction({
     type: 'comprehend',
     itemName: '天地',
-    itemType: '悟道',
+    itemType: '研究',
     description: '观察民情社稷，感悟治国法则'
   });
-  toast.info('开始观天地悟道...');
+  toast.info('开始观察社稷...');
 };
 </script>
 

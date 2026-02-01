@@ -189,7 +189,7 @@
                         ><span class="info-value">{{ getNpcAge(selectedPerson) }}</span>
                       </div>
                       <div class="info-item-row">
-                        <span class="info-label">灵根</span
+                        <span class="info-label">天赋</span>
                         ><span class="info-value">{{ getNpcSpiritRoot(selectedPerson) }}</span>
                       </div>
                       <div class="info-item-row" v-if="selectedPerson.当前位置">
@@ -1612,9 +1612,9 @@ const getNpcRealm = (npc: NpcProfile): string => {
   return '未知';
 };
 
-// 获取NPC灵根信息
+// 获取NPC天赋信息
 const getNpcSpiritRoot = (npc: NpcProfile): string => {
-  return formatSpiritRoot(npc.灵根);
+  return formatSpiritRoot(npc.灵根 || npc.天赋);
 };
 
 // 获取NPC出生信息
@@ -1684,7 +1684,7 @@ const getNpcRecentMemories = (npc: NpcProfile): string[] => {
   return [];
 };
 
-// 格式化灵根显示
+// 格式化天赋显示
 const formatSpiritRootTier = (tier: unknown): string => {
   if (!tier) return '';
   if (typeof tier === 'string') return tier;
@@ -1708,7 +1708,7 @@ const formatSpiritRootTier = (tier: unknown): string => {
   return '';
 };
 
-// 格式化灵根显示
+// 格式化天赋显示
 const formatSpiritRoot = (spiritRoot: string | SpiritRoot | { 名称?: string; 品级?: string; 描述?: string } | undefined): string => {
   if (!spiritRoot) return '未知';
   if (typeof spiritRoot === 'string') return spiritRoot;
@@ -2185,7 +2185,7 @@ ${memoriesText}
           { role: 'system', content: `【输出格式】：\n\`\`\`json\n{"text": "总结内容"}\n\`\`\`` },
 
           // 5. 总结要求
-          { role: 'system', content: `【总结要求】：\n- 第一人称"我"（${npcName}的视角）\n- 150-250字\n- 连贯的现代修仙小说叙述风格\n- 仅输出JSON，不要thinking/commands/options` },
+          { role: 'system', content: `【总结要求】：\n- 第一人称"我"（${npcName}的视角）\n- 150-250字\n- 连贯的古风官场小说叙述风格\n- 仅输出JSON，不要thinking/commands/options` },
 
           // 6. 必须保留
           { role: 'system', content: `【必须保留】：\n- 原文中的人名（特别是玩家名字）\n- 原文中的地名\n- 原文中的事件\n- 原文中的物品交换\n- 原文中的情感变化` },
@@ -2233,7 +2233,7 @@ ${saveDataJson}
 【总结要求】：
 - 第一人称"我"（${npcName}的视角）
 - 150-250字
-- 连贯的现代修仙小说叙述风格
+- 连贯的古风官场小说叙述风格
 - 仅输出JSON，不要thinking/commands/options
 
 【必须保留】：
@@ -2480,7 +2480,7 @@ const exportToWorldBook = async () => {
       entryContent += `- 出生日期：${birthDate.年}年${birthDate.月}月${birthDate.日}日\n`;
     }
     entryContent += `- 境界：${getNpcRealm(npc)}\n`;
-    entryContent += `- 灵根：${getNpcSpiritRoot(npc)}\n`;
+    entryContent += `- 天赋：${getNpcSpiritRoot(npc)}\n`;
     if (npc.势力归属) entryContent += `- 势力：${npc.势力归属}\n`;
     if (npc.出生) entryContent += `- 出生地：${getNpcOrigin(npc.出生)}\n`;
     if (npc.当前位置?.描述) entryContent += `- 当前位置：${npc.当前位置.描述}\n`;

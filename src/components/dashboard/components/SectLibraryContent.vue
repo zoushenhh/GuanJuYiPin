@@ -129,11 +129,11 @@ const playerPositionLevel = computed(() => positionLevels[playerPosition.value] 
 const canGenerate = computed(() => !!playerSectInfo.value?.宗门名称 && !!gameStateStore.sectSystem);
 const hasTechniques = computed(() => getAvailableTechniques().length > 0);
 
-// 获取背包中的功法
+// 获取背包中的方略
 const ownedTechniqueIds = computed(() => {
   const items = gameStateStore.inventory?.物品 || {};
   return Object.values(items)
-    .filter((item: any) => item.类型 === '功法')
+    .filter((item: any) => item.类型 === '方略')
     .map((item: any) => item.物品ID);
 });
 
@@ -197,7 +197,7 @@ const extractQualityTier = (quality: string) => {
   return match ? match[0] : '凡';
 };
 
-// 获取可用功法列表（来自宗门系统）
+// 获取可用方略列表（来自宗门系统）
 function getAvailableTechniques(): LibraryTechnique[] {
   const sectName = playerSectInfo.value?.宗门名称;
   if (!sectName) return [];
@@ -207,7 +207,7 @@ function getAvailableTechniques(): LibraryTechnique[] {
 
   return rawTechniques.map((raw: any, index: number) => {
     const id = raw?.id || raw?.物品ID || `sect_tech_${index}`;
-    const name = raw?.name || raw?.名称 || '未知功法';
+    const name = raw?.name || raw?.名称 || '未知方略';
     const quality = raw?.quality || raw?.品质 || '凡品';
     const qualityTier = raw?.qualityTier || extractQualityTier(String(quality));
     const cost = Number(raw?.cost ?? raw?.价格 ?? 0);
@@ -292,13 +292,13 @@ function learnTechnique(tech: { id: string; name: string; cost: number }) {
     items[tech.id] = {
       物品ID: tech.id,
       名称: tech.name,
-      类型: '功法',
+      类型: '方略',
       品质: { quality: '凡品', grade: 0 },
       数量: 1,
       描述: `档案库所得之方略：${tech.name}。`,
-      功法效果: '',
-      功法技能: [{ 技能名称: `${tech.name}·入门`, 技能描述: '基础运转之法。', 熟练度要求: 0, 消耗: '灵气5%' }],
-      修炼进度: 0,
+      方略效果: '',
+      方略技能: [{ 技能名称: `${tech.name}·入门`, 技能描述: '基础运转之法。', 熟练度要求: 0, 消耗: '灵气5%' }],
+      施政进度: 0,
       已解锁技能: [],
       已装备: false,
     };
@@ -380,7 +380,7 @@ async function generateLibraryContent() {
   "cost": number（贡献点）,
   "description": "string（20-80字）"
 }
-可选字段："功法效果" "境界要求" "职位要求" "剩余数量"
+可选字段："方略效果" "境界要求" "职位要求" "剩余数量"
 
 ## 约束
 - 生成 16-30 条方略，至少覆盖 4 个品阶

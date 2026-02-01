@@ -157,8 +157,8 @@ function handleOverlayClick() {
 function getItemIcon(type?: string): string {
   const iconMap: Record<string, string> = {
     '装备': '⚔️',
-    '功法': '📜',
-    '丹药': '💊',
+    '方略': '📜',
+    '药品': '💊',
     '材料': '💎',
     '其他': '📦'
   };

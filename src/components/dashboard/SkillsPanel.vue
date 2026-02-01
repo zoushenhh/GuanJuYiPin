@@ -53,9 +53,9 @@
                 <Zap :size="16" />
                 <span>{{ t('从政') }}</span>
               </button>
-              <button class="action-btn" @click="startCultivation('secluded')" :title="t('闭关')">
+              <button class="action-btn" @click="startCultivation('secluded')" :title="t('深研')">
                 <Moon :size="16" />
-                <span>{{ t('闭关') }}</span>
+                <span>{{ t('深研') }}</span>
               </button>
               <button class="action-btn" @click="showCultivationDialog" :title="t('深研')">
                 <Clock :size="16" />
@@ -92,7 +92,7 @@
             <span class="stat-value success">{{ allLearnedSkills.length }}/{{ sortedSkills.length }}</span>
           </div>
           <div v-if="canBreakthrough" class="stat-item highlight">
-            <span class="stat-label">{{ t('突破率') }}</span>
+            <span class="stat-label">{{ t('晋升率') }}</span>
             <span class="stat-value warning">{{ breakthroughChance }}%</span>
           </div>
         </div>
@@ -176,17 +176,17 @@
       </div>
     </div>
 
-    <!-- 功法库 -->
+    <!-- 方略库 -->
     <div v-else class="tab-content">
       <!-- 搜索栏 -->
       <div class="search-bar">
         <Search :size="16" />
-        <input v-model="techniqueQuery" type="text" :placeholder="t('搜索功法...')" />
+        <input v-model="techniqueQuery" type="text" :placeholder="t('搜索方略...')" />
       </div>
 
       <div v-if="filteredInventoryTechniques.length === 0" class="empty-state">
         <BookOpen :size="32" class="empty-icon" />
-        <p>{{ t('功法库为空或无匹配结果') }}</p>
+        <p>{{ t('方略库为空或无匹配结果') }}</p>
       </div>
 
       <div v-else class="library-grid">
@@ -206,7 +206,7 @@
           <p class="technique-desc">{{ technique.描述 || t('暂无描述') }}</p>
           <div class="technique-footer">
             <span class="quality-tag" :class="getQualityTextClass(technique)">{{ (technique.品质?.quality || '凡') }}品</span>
-            <span class="skill-count">{{ technique.功法技能?.length || 0 }} {{ t('技能') }}</span>
+            <span class="skill-count">{{ technique.方略技能?.length || 0 }} {{ t('技能') }}</span>
           </div>
           <div class="technique-actions">
             <button
@@ -268,7 +268,7 @@ const cultivationSkills = computed((): TechniqueItem | null => {
 
   const found = Object.values(inventory).find(item => {
     const type = (item as any)?.类型 || (item as any)?.type;
-    const isTechnique = type === '功法' || String(type || '').includes('功法');
+    const isTechnique = type === '方略' || String(type || '').includes('方略');
     const equipped = (item as any)?.已装备 === true || (item as any)?.施政中 === true;
     return isTechnique && equipped;
   });
@@ -280,7 +280,7 @@ const allTechniques = computed((): TechniqueItem[] => {
   if (!inventory) return [];
   return Object.values(inventory).filter((item): item is TechniqueItem => {
     const type = (item as any)?.类型 || (item as any)?.type;
-    return type === '功法' || String(type || '').includes('功法');
+    return type === '方略' || String(type || '').includes('方略');
   });
 });
 
@@ -293,16 +293,16 @@ const techniqueTotalCount = computed(() => {
 });
 
 const sortedSkills = computed(() => {
-  if (!cultivationSkills.value?.功法技能) return [];
-  return [...cultivationSkills.value.功法技能].sort((a, b) =>
+  if (!cultivationSkills.value?.方略技能) return [];
+  return [...cultivationSkills.value.方略技能].sort((a, b) =>
     (getTechniqueSkillUnlockAt(a)) - (getTechniqueSkillUnlockAt(b))
   );
 });
 
 const allLearnedSkills = computed(() => {
-  if (!cultivationSkills.value?.功法技能) return [];
+  if (!cultivationSkills.value?.方略技能) return [];
   const unlocked = cultivationSkills.value.已解锁技能 || [];
-  return cultivationSkills.value.功法技能.filter(s => unlocked.includes(s.技能名称));
+  return cultivationSkills.value.方略技能.filter(s => unlocked.includes(s.技能名称));
 });
 
 const getTechniqueSkillUnlockAt = (skill: TechniqueSkill): number => {
@@ -356,7 +356,7 @@ const cultivationSpeed = computed(() => {
   if (!technique) return '0';
   const baseSpeed = 1;
   const qualityBonus = getQualitySpeedBonus(technique.品质?.quality);
-  const effectBonus = technique.功法效果?.施政速度加成 || 1;
+  const effectBonus = technique.方略效果?.施政速度加成 || 1;
   return (baseSpeed * qualityBonus * effectBonus).toFixed(1);
 });
 
@@ -379,18 +379,18 @@ const startCultivation = async (type: 'normal' | 'secluded') => {
     actionQueue.addAction({
       type: 'cultivate',
       itemName: cultivationSkills.value.名称,
-      itemType: t('功法'),
-      description: `开始从政《${cultivationSkills.value.名称}》，提升功法熟练度`,
+      itemType: t('方略'),
+      description: `开始从政《${cultivationSkills.value.名称}》，提升方略熟练度`,
     });
     uiStore.showToast(`开始从政《${cultivationSkills.value.名称}》`, { type: 'success' });
   } else {
     actionQueue.addAction({
       type: 'secluded_cultivation',
       itemName: cultivationSkills.value.名称,
-      itemType: t('闭关'),
-      description: `进入闭关状态，专心从政《${cultivationSkills.value.名称}》，效率大幅提升`,
+      itemType: t('深研'),
+      description: `进入深研状态，专心从政《${cultivationSkills.value.名称}》，效率大幅提升`,
     });
-    uiStore.showToast(`进入闭关从政《${cultivationSkills.value.名称}》`, { type: 'info' });
+    uiStore.showToast(`进入深研从政《${cultivationSkills.value.名称}》`, { type: 'info' });
   }
 };
 
@@ -403,10 +403,10 @@ const attemptBreakthrough = async () => {
   actionQueue.addAction({
     type: 'breakthrough',
     itemName: cultivationSkills.value.名称,
-    itemType: t('突破'),
-    description: `尝试突破《${cultivationSkills.value.名称}》的当前官品，进入更高层次`,
+    itemType: t('晋升'),
+    description: `尝试晋升《${cultivationSkills.value.名称}》的当前官品，进入更高层次`,
   });
-  uiStore.showToast(`尝试突破《${cultivationSkills.value.名称}》`, { type: 'warning' });
+  uiStore.showToast(`尝试晋升《${cultivationSkills.value.名称}》`, { type: 'warning' });
 };
 
 const techniqueForModal = computed((): TechniqueItem | null => cultivationSkills.value);
@@ -437,7 +437,7 @@ const equipTechnique = async (technique: TechniqueItem) => {
 
   if (cultivationSkills.value) {
     uiStore.showRetryDialog({
-      title: t('切换功法'),
+      title: t('切换方略'),
       message: t('当前正在从政《{current}》，确定要切换到《{next}》吗？', {
         current: cultivationSkills.value.名称,
         next: technique.名称,
@@ -456,7 +456,7 @@ const unequipSkill = async () => {
   if (!cultivationSkills.value?.物品ID) return;
   const skillToUnequip = cultivationSkills.value;
   uiStore.showRetryDialog({
-    title: t('卸下功法'),
+    title: t('卸下方略'),
     message: t('确定要卸下《{name}》吗？', { name: skillToUnequip.名称 }),
     confirmText: t('确定卸下'),
     cancelText: t('取消'),
@@ -493,7 +493,7 @@ const handleCultivationConfirm = async (totalDays: number) => {
     useActionQueueStore().addAction({
       type: 'cultivate',
       itemName: cultivationSkills.value.名称,
-      itemType: t('功法'),
+      itemType: t('方略'),
       description: `对《${cultivationSkills.value.名称}》进行${totalDays}天的深度从政`,
     });
   } catch (error) {
@@ -504,14 +504,14 @@ const handleCultivationConfirm = async (totalDays: number) => {
 const checkAndUnlockSkills = () => {
   if (!cultivationSkills.value) return;
   const technique = cultivationSkills.value;
-  if (!technique.功法技能 || !Array.isArray(technique.功法技能)) return;
+  if (!technique.方略技能 || !Array.isArray(technique.方略技能)) return;
 
   const currentProgress = technique.施政进度 || 0;
   const newUnlocked: string[] = [];
 
   const existingUnlocked = technique.已解锁技能 || [];
 
-  technique.功法技能.forEach(skill => {
+  technique.方略技能.forEach(skill => {
     const unlockThreshold = skill.熟练度要求 || 0;
     if (currentProgress >= unlockThreshold && !existingUnlocked.includes(skill.技能名称)) {
       newUnlocked.push(skill.技能名称);
@@ -797,7 +797,7 @@ const filteredInventoryTechniques = computed(() => {
   transition: width 0.3s;
 }
 
-/* 功法技能区域 */
+/* 方略技能区域 */
 .skills-section {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -1067,7 +1067,7 @@ const filteredInventoryTechniques = computed(() => {
 .bg-quality-黄 { background: rgba(234, 179, 8, 0.15); color: #eab308; }
 .bg-quality-凡 { background: rgba(var(--color-primary-rgb), 0.1); }
 
-/* 功法库网格 */
+/* 方略库网格 */
 .library-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

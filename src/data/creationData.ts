@@ -2,7 +2,7 @@
 import type { Region, Background, Aptitude, PostHeaven, Ability } from '@/types';
 
 // =======================================================================
-//                           本地地界数据 (原世界数据)
+//                           本地地界数据
 // =======================================================================
 export const LOCAL_REGIONS: Omit<Region, 'source'>[] = [
   {
@@ -111,7 +111,7 @@ export const LOCAL_APTITUDES: Omit<Aptitude, 'source'>[] = [
 ];
 
 // =======================================================================
-//                           本地后天数据 (原才能/灵根数据)
+//                           本地后天数据 (原才能/天赋数据)
 // =======================================================================
 export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
   // 上品后天 - 基础六项
@@ -382,7 +382,7 @@ export const LOCAL_POST_HEAVENS: Omit<PostHeaven, 'source'>[] = [
     id: 24,
     name: '天命之才',
     tier: '神品',
-    description: '最为稀有的传说才能，触及天道机缘。升迁艰难但一旦有成，可逆转局势，掌控因果。',
+    description: '最为稀有的传说才能，触及国运机缘。升迁艰难但一旦有成，可逆转局势，掌控时势。',
     cultivation_speed: '0.8x(前期) -> 3.2x(后期)',
     special_effects: ['天命政事精通', '时来运转', '因果推演', '机会把握'],
     base_multiplier: 3.2,
@@ -637,8 +637,8 @@ export const LOCAL_ABILITIES: Omit<Ability, 'source'>[] = [
   },
   {
     id: 21,
-    name: '天道眷顾',
-    description: '受天道眷顾，升迁时成功率更高，遭遇政敌时威力减弱。',
+    name: '天命眷顾',
+    description: '受天命眷顾，升迁时成功率更高，遭遇政敌时威力减弱。',
     talent_cost: 10,
     rarity: 5,
     effects: [

@@ -194,7 +194,7 @@
             <h3>核心功能</h3>
             <div class="help-features">
               <span>🎲 智能判定</span>
-              <span>🌟 三千大道</span>
+              <span>🌟 百家治国</span>
               <span>📖 动态剧情</span>
               <span>💾 多存档</span>
               <span>⚔️ 深度RPG</span>
@@ -344,19 +344,19 @@ const handleCreationComplete = async (rawPayload: CharacterCreationPayload) => {
         await characterStore.commitMetadataToStorage();
       }
       // 从酒馆获取当前活跃的Persona名字
-      let personaName: string = '无名道友';
+      let personaName: string = '无名同僚';
       try {
         const helper = getTavernHelper();
         if (helper) {
           const vars = await helper.getVariables({ type: 'global' });
           // 尝试获取当前Persona的名字
           const name = vars['persona.name'] || vars['name'] || rawPayload.characterName;
-          personaName = (typeof name === 'string' ? name : rawPayload.characterName) || '无名道友';
+          personaName = (typeof name === 'string' ? name : rawPayload.characterName) || '无名同僚';
           console.log('[创角完成] 从酒馆Personas获取名字:', personaName);
         }
       } catch (error) {
         console.warn('[创角完成] 无法从酒馆获取Persona名字，使用用户输入:', error);
-        personaName = rawPayload.characterName || '无名道友';
+        personaName = rawPayload.characterName || '无名同僚';
       }
 
       const convertedAttributes = rawPayload.baseAttributes ? {
@@ -378,7 +378,7 @@ const handleCreationComplete = async (rawPayload: CharacterCreationPayload) => {
         世界: rawPayload.world || { name: '未知世界' } as any,
         天资: rawPayload.talentTier || { name: '凡品' } as any,
         出生: rawPayload.origin || '随机出身',
-        灵根: rawPayload.spiritRoot || '随机灵根',
+        才能: rawPayload.spiritRoot || '随机才能',
         天赋: (rawPayload.talents?.map((t: Talent) => ({
           id: t.id,
           name: t.name,
@@ -420,7 +420,7 @@ const handleCreationComplete = async (rawPayload: CharacterCreationPayload) => {
       await characterStore.commitMetadataToStorage();
 
       await new Promise(resolve => setTimeout(resolve, 500));
-      toast.success(`【${createdBaseInfo.名字}】已成功踏入修行之路！`);
+      toast.success(`【${createdBaseInfo.名字}】已成功步入仕途！`);
 
       // 跳转到游戏主界面路由
       await router.push('/game');

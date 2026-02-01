@@ -65,19 +65,34 @@ export interface WorldLocation {
 
 /**
  * Represents the type of a location
+ *
+ * @deprecated 'sect' 使用 'government' 替代
+ * @deprecated 'secret_realm' 使用 'special_area' 替代
+ * @deprecated 'sect_headquarters' 使用 'government_headquarters' 替代
+ * @deprecated 'sect_power' 使用 'government_power' 替代
+ *
+ * 术语映射：
+ * - sect (宗门) -> government (衙门/政府)
+ * - secret_realm (秘境) -> special_area (特殊区域)
+ * - sect_headquarters (宗门总部) -> government_headquarters (衙门总部)
+ * - sect_power (宗门势力) -> government_power (政府势力)
  */
 export type LocationType =
   | 'city'
-  | 'sect'
-  | 'secret_realm'
+  | 'sect'                // @deprecated 使用 'government' 替代
+  | 'government'          // 县令主题：衙门/政府
+  | 'secret_realm'        // @deprecated 使用 'special_area' 替代
+  | 'special_area'        // 县令主题：特殊区域
   | 'village'
   | 'market'
   | 'major_city'
-  | 'sect_headquarters'
+  | 'sect_headquarters'   // @deprecated 使用 'government_headquarters' 替代
+  | 'government_headquarters'  // 县令主题：衙门总部
   | 'trade_center'
   // Added from WorldMapPanel
   | 'natural_landmark'
-  | 'sect_power'
+  | 'sect_power'          // @deprecated 使用 'government_power' 替代
+  | 'government_power'    // 县令主题：政府势力
   | 'city_town'
   | 'blessed_land'
   | 'treasure_land'

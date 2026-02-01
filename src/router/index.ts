@@ -40,8 +40,8 @@ import MemoryCenterPanel from '../components/dashboard/MemoryCenterPanel.vue';
 import CharacterDetailsPanel from '../components/dashboard/CharacterDetailsPanel.vue';
 import InventoryPanel from '../components/dashboard/InventoryPanel.vue';
 import RelationshipNetworkPanel from '../components/dashboard/RelationshipNetworkPanel.vue';
-import SkillsPanel from '../components/dashboard/SkillsPanel.vue'; // 方略面板
-import GovernanceStrategiesPanel from '../components/dashboard/GovernanceStrategiesPanel.vue'; // 新的治国方略面板
+import SkillsPanel from '../components/dashboard/SkillsPanel.vue'; // 方略技能面板
+import GovernanceStrategiesPanel from '../components/dashboard/GovernanceStrategiesPanel.vue'; // 治国方略面板
 import SettingsPanel from '../components/dashboard/SettingsPanel.vue';
 import SavePanel from '../components/dashboard/SavePanel.vue';
 import WorldMapRoute from '../components/dashboard/WorldMapRoute.vue';
@@ -108,7 +108,7 @@ const routes = [
       {
         path: 'techniques',
         name: 'Techniques',
-        component: SkillsPanel, // 方略面板
+        component: SkillsPanel, // 方略技能面板
       },
       {
         path: 'thousand-dao',

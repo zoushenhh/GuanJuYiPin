@@ -174,7 +174,7 @@
             <BoxSelect :size="48" />
             <p v-if="selectedCategory === 'all'">{{ t('空空如也') }}</p>
             <p v-else-if="selectedCategory === '装备'">{{ t('暂无装备') }}</p>
-            <p v-else-if="selectedCategory === '功法'">{{ t('暂无方略') }}</p>
+            <p v-else-if="selectedCategory === '方略'">{{ t('暂无方略') }}</p>
             <p v-else-if="selectedCategory === '其他'">{{ t('暂无其他物品') }}</p>
             <p v-else>{{ t('暂无{0}').replace('{0}', t(selectedCategory)) }}</p>
             <span v-if="selectedCategory !== 'all'" class="filter-tip"> {{ t('可以试试搜索其他分类') }} </span>
@@ -243,25 +243,25 @@
             <div class="details-body">
               <p class="details-description">{{ selectedItem.描述 }}</p>
 
-              <!-- 功法特有属性 -->
-              <template v-if="selectedItem.类型 === '功法'">
-                <!-- 功法效果 -->
-                <div v-if="selectedItem.功法效果" class="details-attributes">
-                  <h4>{{ t('功法效果:') }}</h4>
+              <!-- 典籍特有属性 -->
+              <template v-if="selectedItem.类型 === '典籍'">
+                <!-- 典籍效果 -->
+                <div v-if="selectedItem.方略效果" class="details-attributes">
+                  <h4>{{ t('典籍效果:') }}</h4>
                   <div class="attribute-text">
-                    {{ typeof selectedItem.功法效果 === 'string' ? selectedItem.功法效果 : JSON.stringify(selectedItem.功法效果) }}
+                    {{ typeof selectedItem.方略效果 === 'string' ? selectedItem.方略效果 : JSON.stringify(selectedItem.方略效果) }}
                   </div>
                 </div>
 
-                <!-- 功法技能 -->
+                <!-- 典籍技能 -->
                 <div
-                  v-if="selectedItem.功法技能 && Array.isArray(selectedItem.功法技能) && selectedItem.功法技能.length > 0"
+                  v-if="selectedItem.方略技能 && Array.isArray(selectedItem.方略技能) && selectedItem.方略技能.length > 0"
                   class="details-attributes"
                 >
-                  <h4>{{ t('功法技能:') }}</h4>
+                  <h4>{{ t('典籍技能:') }}</h4>
                   <div class="technique-skills">
                     <div
-                      v-for="(skill, index) in selectedItem.功法技能"
+                      v-for="(skill, index) in selectedItem.方略技能"
                       :key="index"
                       class="skill-item"
                     >
@@ -734,7 +734,7 @@ const itemList = computed<Item[]>(() => {
       const item = val as Partial<Item>
 
       // 🔍 调试：检查品质数据是否缺失
-      if (!item.品质 && (item.类型 === '功法' || item.类型 === '装备')) {
+      if (!item.品质 && (item.类型 === '方略' || item.类型 === '装备')) {
         console.warn(t('[背包面板-警告] 物品缺少品质数据:'), {
           物品ID: item.物品ID,
           名称: item.名称,
@@ -747,7 +747,7 @@ const itemList = computed<Item[]>(() => {
         ...item,
         物品ID: String(item.物品ID || ''),
         名称: String(item.名称 || ''),
-        类型: String(item.类型 || '其他') as '装备' | '功法' | '丹药' | '材料' | '其他',
+        类型: String(item.类型 || '其他') as '装备' | '典籍' | '药品' | '材料' | '其他',
         品质: item.品质 || { quality: '凡', grade: 1 },
         描述: String(item.描述 || ''),
         数量: Number(item.数量 || 1),
@@ -757,8 +757,8 @@ const itemList = computed<Item[]>(() => {
 })
 
 const itemCategories = computed(() => {
-  // 五个分类：装备、功法、丹药、材料、其他
-  return ['装备', '功法', '丹药', '材料', '其他']
+  // 五个分类：装备、典籍、药品、材料、其他
+  return ['装备', '典籍', '药品', '材料', '其他']
 })
 
 // 品质排序映射，兼容 "*阶" 与简写
@@ -782,8 +782,8 @@ const qualityOrder: { [key: string]: number } = {
 const filteredItems = computed(() => {
   let items = [...itemList.value]
 
-  // 标准化物品类型和品质：允许装备、功法、丹药、材料、其他五种类型，并确保品质格式正确
-  const validTypes = ['装备', '功法', '丹药', '材料', '其他']
+  // 标准化物品类型和品质：允许装备、方略、药品、材料、其他五种类型，并确保品质格式正确
+  const validTypes = ['装备', '方略', '药品', '材料', '其他']
   items = items.map((item) => {
     // 标准化类型：不在有效类型列表中的归为"其他"
     const normalizedType = validTypes.includes(item.类型) ? item.类型 : '其他'
@@ -863,7 +863,7 @@ const formatItemAttributes = (attributes: Record<string, unknown>): string => {
   return parts.length ? parts.join('、') : '无特殊属性'
 }
 
-// 格式化功法属性加成显示
+// 格式化方略属性加成显示
 const formatAttributeBonus = (attributeBonus: Record<string, unknown>): string => {
   if (!attributeBonus || typeof attributeBonus !== 'object') {
     return '无属性加成'
@@ -881,8 +881,8 @@ const formatAttributeBonus = (attributeBonus: Record<string, unknown>): string =
 const getItemTypeIcon = (type: string): string => {
   const typeIcons: Record<string, string> = {
     装备: '⚔️',
-    功法: '📜',
-    丹药: '💊',
+    方略: '📜',
+    药品: '💊',
     材料: '💎',
     其他: '📦',
   }
@@ -997,11 +997,11 @@ const updateItemInInventory = async (item: Item) => {
   }
 }
 
-// 切换修炼状态
+// 切换研习状态
 const toggleCultivate = async (item: Item) => {
   if (cultivateBusy.value) return
-  if (item.类型 !== '功法') {
-    toast.error(t('只有功法才能修炼'))
+  if (item.类型 !== '典籍') {
+    toast.error(t('只有典籍才能研习'))
     return
   }
   cultivateBusy.value = true
@@ -1031,8 +1031,8 @@ const useItem = async (item: Item) => {
     quantityModalActionLabel.value = t('使用数量')
     quantityModalType.value = 'use'
     quantityModalConfirmText.value = t('确定使用')
-    // 丹药、材料、其他类型都可能有使用效果
-    const consumableTypes = ['丹药', '材料', '其他']
+    // 药品、材料、其他类型都可能有使用效果
+    const consumableTypes = ['药品', '材料', '其他']
     quantityModalDescription.value = (consumableTypes.includes(item.类型) && '使用效果' in item ? (item as ConsumableItem).使用效果 : '') || t('暂无特殊效果')
     quantityModalCallback.value = (quantity: number) => useItemWithQuantity(item, quantity)
     showQuantityModal.value = true
@@ -1045,8 +1045,8 @@ const useItem = async (item: Item) => {
 
 const useItemWithQuantity = async (item: Item, quantity: number) => {
   try {
-    // 丹药、材料、其他类型可以直接使用
-    const consumableTypes = ['丹药', '材料', '其他']
+    // 药品、材料、其他类型可以直接使用
+    const consumableTypes = ['药品', '材料', '其他']
     if (!consumableTypes.includes(item.类型)) {
       toast.error(t('该物品无法直接使用'))
       return
@@ -1180,11 +1180,11 @@ const isEquipped = (item: Item | null): boolean => {
   return currentItemState.已装备 === true
 }
 
-// 检查功法是否正在修炼 - 以 角色.修炼.修炼功法 为准
+// 检查方略是否正在施政 - 以 角色.修炼.施政方略 为准
 const isCultivating = (item: Item | null): boolean => {
   if (!item || !item.物品ID) return false
 
-  const cultivatingId = (gameStateStore.cultivation as any)?.修炼功法?.物品ID
+  const cultivatingId = (gameStateStore.cultivation as any)?.施政方略?.物品ID
   return cultivatingId === item.物品ID
 }
 
@@ -1345,7 +1345,7 @@ const totalValueInBase = computed(() => {
 const currentMarketLabel = computed(() => {
   const loc = marketLocationKey.value
   if (!loc) return ''
-  const m = getMarketMultiplier('灵石_下品')
+  const m = getMarketMultiplier('银两_铜钱')
   if (m === 1) return `当前地区：${loc}（汇率平稳）`
   return `当前地区：${loc}（汇率波动系数：${m.toFixed(3)}）`
 })
@@ -1399,9 +1399,10 @@ const currencyCards = computed<CurrencyCard[]>(() => {
       灵石_中品: { up: '灵石_上品', down: '灵石_下品' },
       灵石_上品: { up: '灵石_极品', down: '灵石_中品' },
       灵石_极品: { down: '灵石_上品' },
-      铜币: { up: '银两' },
-      银两: { up: '金锭', down: '铜币' },
-      金锭: { down: '银两' },
+      铜钱: { up: '碎银' },
+      碎银: { up: '纹银', down: '铜钱' },
+      纹银: { up: '元宝', down: '碎银' },
+      元宝: { down: '纹银' },
     }
     const pair = map[id]
     if (!pair) return {}
@@ -1444,7 +1445,7 @@ const currencyCards = computed<CurrencyCard[]>(() => {
     const subLabel = `≈ ${formatNumber(approx)} ${baseCurrencyLabel.value}`
 
     const colorClass =
-      id.startsWith('灵石_') ? (id === '灵石_极品' ? 'grade-legend' : id === '灵石_上品' ? 'grade-epic' : id === '灵石_中品' ? 'grade-rare' : 'grade-common') : 'grade-money'
+      id.startsWith('银两_') ? (id === '银两_元宝' ? 'grade-legend' : id === '银两_纹银' ? 'grade-epic' : id === '银两_碎银' ? 'grade-rare' : 'grade-common') : 'grade-money'
 
     const canDelete = true
 
@@ -2664,7 +2665,7 @@ const refreshFromTavern = async () => {
   word-break: break-all;
 }
 
-/* 功法效果样式 */
+/* 典籍效果样式 */
 .skill-effects {
   display: flex;
   flex-direction: column;
@@ -2704,7 +2705,7 @@ const refreshFromTavern = async () => {
   font-weight: 500;
 }
 
-/* 功法技能样式 */
+/* 典籍技能样式 */
 .technique-skills {
   display: flex;
   flex-direction: column;

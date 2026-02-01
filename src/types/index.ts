@@ -165,18 +165,35 @@ export interface Origin {
  * 术语映射：
  * - SpiritRoot (灵根) -> PostHeavenAbility (后天才能)
  * - cultivation_speed (修炼速度) -> governing_speed (施政速度)
+ * - tier (品阶) -> talent_level (才能等级)
+ * - special_effects (特殊效果) -> special_abilities (特殊能力)
+ * - base_multiplier (基础倍率) -> efficiency_multiplier (效率倍率)
+ * - talent_cost (天资消耗) -> ability_cost (才能消耗)
  *
- * 注意：字段名cultivation_speed保留是为了兼容性，新代码应理解为"施政速度"
+ * 注意：
+ * - 字段名cultivation_speed保留是为了兼容性，新代码应理解为"施政速度"
+ * - 字段名tier保留是为了兼容性，新代码应理解为"才能等级"
+ * - 字段名special_effects保留是为了兼容性，新代码应理解为"特殊能力"
+ * - 字段名base_multiplier保留是为了兼容性，新代码应理解为"效率倍率"
+ * - 字段名talent_cost保留是为了兼容性，新代码应理解为"才能消耗"
+ *
+ * 实际用途：
+ * - 县令主题：后天才能（如理财、刑名、礼制等专业技能）
+ * - 修仙主题：灵根（如金木水火土五行灵根）
  */
 export interface SpiritRoot {
   id: number;
   name: string;
+  /** @deprecated 县令主题：才能等级；修仙主题：品阶 */
   tier?: string | null;
   description?: string | null;
   /** @deprecated 字段名保留是为了兼容性，实际含义为"施政速度"（原修炼速度） */
   cultivation_speed?: string;
+  /** @deprecated 县令主题：特殊能力；修仙主题：特殊效果 */
   special_effects?: string[];
+  /** @deprecated 县令主题：效率倍率；修仙主题：基础倍率 */
   base_multiplier: number;
+  /** @deprecated 县令主题：才能消耗；修仙主题：天资消耗 */
   talent_cost: number;
   rarity?: number;
   source?: 'local' | 'custom' | 'cloud';

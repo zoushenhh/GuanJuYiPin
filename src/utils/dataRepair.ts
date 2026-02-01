@@ -380,9 +380,9 @@ export function repairSaveData(saveData: SaveData | null | undefined): SaveData 
     if (!Array.isArray(repaired.系统.历史.叙事)) repaired.系统.历史.叙事 = [];
 
     // --- 角色子模块最小化补全 ---
-    if (!repaired.角色.大道 || typeof repaired.角色.大道 !== 'object') repaired.角色.大道 = { 方略列表: {} };
-    if (!repaired.角色.方略 || typeof repaired.角色.方略 !== 'object') repaired.角色.方略 = { 当前方略ID: null, 方略进度: {}, 方略套装: { 主修: null, 辅修: [] } };
     if (!repaired.角色.施政 || typeof repaired.角色.施政 !== 'object') repaired.角色.施政 = { 施政方略: null, 施政状态: { 模式: '未施政' } };
+    if (!repaired.角色.方略 || typeof repaired.角色.方略 !== 'object') repaired.角色.方略 = { 当前方略ID: null, 方略进度: {}, 方略套装: { 主修: null, 辅修: [] } };
+    if (!repaired.角色.大道 || typeof repaired.角色.大道 !== 'object') repaired.角色.大道 = { 方略列表: {} };
     if (!repaired.角色.技能 || typeof repaired.角色.技能 !== 'object') repaired.角色.技能 = { 掌握技能: [], 装备栏: [], 冷却: {} };
 
     // --- 社交.事件 ---
@@ -486,14 +486,14 @@ function getDefaultBreakthroughDescription(realmName?: string, stage?: string): 
       '初期': '天人合一，与天地共鸣，冲击三品中期',
       '中期': '领悟天道，掌控天地之力，冲击三品后期',
       '后期': '天地认可，法则加身，冲击三品圆满',
-      '圆满': '与道合真，天劫将至，准备二品',
+      '圆满': '政绩卓越，京察将至，准备二品',
       '': '感悟天地大道，与天地共鸣，提升三品境界'
     },
     '二品': {
       '初期': '大道圆满，法则入体，冲击二品中期',
       '中期': '天道认可，参悟仙道，冲击二品后期',
       '后期': '仙韵初现，准备一品，冲击二品圆满',
-      '圆满': '渡九九天劫，飞升仙界，超脱凡尘',
+      '圆满': '通过京察考核，升迁一品，名扬天下',
       '': '感悟仙道奥义，凝练仙体，准备一品'
     }
   };

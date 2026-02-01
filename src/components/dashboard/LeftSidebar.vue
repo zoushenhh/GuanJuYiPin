@@ -44,7 +44,7 @@
       <div class="function-section">
         <div class="section-title">{{ t('施政系统') }}</div>
         <div class="function-group">
-          <button class="function-btn cultivation" @click="handleTechniques">
+          <button class="function-btn governance" @click="handleTechniques">
             <div class="btn-icon">
               <BookOpen :size="18" />
             </div>
@@ -55,13 +55,13 @@
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
 
-          <button class="function-btn cultivation" @click="handleThousandDao">
+          <button class="function-btn governance" @click="handleThousandDao">
             <div class="btn-icon">
               <Zap :size="18" />
             </div>
             <div class="btn-content">
-              <span class="btn-text">{{ t('大道感悟') }}</span>
-              <span class="btn-desc">{{ t('领悟天地法则') }}</span>
+              <span class="btn-text">{{ t('治国方略') }}</span>
+              <span class="btn-desc">{{ t('百家治国理念') }}</span>
             </div>
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
@@ -840,13 +840,13 @@ const exitToMenu = async () => {
   background: rgba(16, 185, 129, 0.12);
 }
 
-/* 施政系统 - 金色 */
-.function-btn.cultivation .btn-icon {
+/* 治国系统 - 金色 */
+.function-btn.governance .btn-icon {
   background: rgba(245, 158, 11, 0.08);
   color: rgb(245, 158, 11);
 }
 
-.function-btn.cultivation:hover .btn-icon {
+.function-btn.governance:hover .btn-icon {
   background: rgba(245, 158, 11, 0.12);
 }
 

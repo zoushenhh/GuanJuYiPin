@@ -68,6 +68,10 @@ export interface TradeRoute {
 
 /**
  * Represents a continent in the world
+ *
+ * @deprecated 使用 MagistrateContinent 替代
+ * 旧术语：修仙大陆（修仙游戏中的大陆）
+ * 新术语：行政区域（县令游戏中的政区）
  */
 export interface CultivationContinent {
   id: string;
@@ -85,6 +89,25 @@ export interface CultivationContinent {
   天然屏障?: string[];
   特点?: string;
   主要势力?: string[];
+}
+
+/** 行政区域（县令主题） */
+export interface MagistrateContinent {
+  id: string;
+  name?: string;
+  名称?: string;
+  description?: string;
+  描述?: string;
+  continent_bounds?: { x: number; y: number }[];
+  大洲边界?: { x: number; y: number }[];
+  climate?: string;
+  气候?: string;
+  terrain_features?: string[];
+  地理特征?: string[];
+  natural_barriers?: string[];
+  天然屏障?: string[];
+  特点?: string;
+  主要衙门?: string[];  // 原主要势力
 }
 
 /**

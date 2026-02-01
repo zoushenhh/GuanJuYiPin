@@ -16,7 +16,7 @@
               {{ memory }}
             </div>
             <div v-if="recentMemories.length === 0" class="no-memory">
-              {{ t('脑海中一片清净，尚未留下修行痕迹...') }}
+              {{ t('脑海中一片清净，尚未留下施政痕迹...') }}
             </div>
           </div>
         </div>
@@ -33,7 +33,7 @@
             <span class="narrative-time">{{ formatCurrentTime() }}</span>
             <div class="streaming-indicator">
               <span class="streaming-dot"></span>
-              <span class="streaming-text">{{ streamingContent ? `${streamingCharCount} ${t('字')}` : t('天道感应中...') }}</span>
+              <span class="streaming-text">{{ streamingContent ? `${streamingCharCount} ${t('字')}` : t('系统生成中...') }}</span>
             </div>
             <!-- 重置按钮 - 右侧 -->
             <button
@@ -724,7 +724,7 @@ const generateSceneImage = async () => {
   try {
     // 构建提示词
     const location = gameStateStore.location?.描述 || '未知地点';
-    const basePrompt = `中国古风水墨画，修仙玄幻风格，高品质，细节丰富。当前地点：${location}。剧情描述：`;
+    const basePrompt = `中国古风水墨画，古代官场风格，高品质，细节丰富。当前地点：${location}。剧情描述：`;
     // 截取前500字作为提示词
     const prompt = basePrompt + text.substring(0, 500);
 
@@ -1456,7 +1456,7 @@ const sendMessage = async () => {
 
           if (retryResponse) {
             aiResponse = retryResponse;
-            // 注意：重试成功后不显示额外的toast，统一在最后显示"天道已回"
+            // 注意：重试成功后不显示额外的toast，统一在最后显示"系统已响应"
             console.log('[AI响应验证] 重试成功');
           } else {
             // 所有重试都失败了，中止处理

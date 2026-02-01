@@ -637,7 +637,7 @@ const getTypeCount = (type: string): number => {
 
 // 获取空状态文本
 const getEmptyText = (): string => {
-  if (activeFilter.value === 'all') return t('心如明镜，尚未记录任何修行感悟');
+  if (activeFilter.value === 'all') return t('心如明镜，尚未记录任何施政感悟');
   const type = memoryTypes.value.find(t => t.key === activeFilter.value);
   return t('暂无{type}记忆', { type: type?.name });
 };
@@ -1176,8 +1176,8 @@ const deleteMemory = async (memory: Memory) => {
  */
 const exportMemoriesAsNovel = () => {
   try {
-    const characterName = gameStateStore.character?.名字 || t('修仙者');
-    const worldName = gameStateStore.worldInfo?.世界名称 || t('修仙世界');
+    const characterName = gameStateStore.character?.名字 || t('县令');
+    const worldName = gameStateStore.worldInfo?.世界名称 || t('古代世界');
     const narrativeHistory = gameStateStore.narrativeHistory || [];
 
     if (narrativeHistory.length === 0) {
@@ -1218,7 +1218,7 @@ const exportMemoriesAsNovel = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${characterName}_修仙历程_${Date.now()}.txt`;
+    link.download = `${characterName}_为官历程_${Date.now()}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

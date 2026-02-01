@@ -4,7 +4,7 @@
  */
 
 // 官品等级映射 - 支持带"品"和阶段的格式
-// 注意：同一品级的不同阶段（初品、中品、后品、圆满、极境）都算同一等级
+// 注意：同一品级的不同阶段（初期、中期、后期、圆满、极境）都算同一等级
 const RANK_LEVELS: Record<string, number> = {
   // 九品（最低）
   '九品': 1, '九品初品': 1, '九品中品': 1, '九品后品': 1, '九品圆满': 1, '九品极境': 1,
@@ -61,8 +61,8 @@ export function validateAndFixGovernmentRealmData(governmentData: any): any {
     if (!governmentData.领导层) {
       governmentData.领导层 = {
         主官: '合欢老魔',
-        主官品级: governmentData.最强品级 || '化神品',
-        最强品级: governmentData.最强品级 || '化神品',
+        主官品级: governmentData.最强品级 || '五品',
+        最强品级: governmentData.最强品级 || '五品',
         圣女: '灰夫人(合欢圣女)'
       };
     } else if (!governmentData.领导层.圣女) {

@@ -168,23 +168,23 @@
                   <div class="leader-grid">
                     <div class="leader-item primary-leader">
                       <span class="leader-role">县令</span>
-                      <span class="leader-name">{{ selectedLeadership.宗主 }}</span>
-                      <span class="leader-realm" v-if="selectedLeadership.宗主修为">{{ selectedLeadership.宗主修为 }}</span>
+                      <span class="leader-name">{{ selectedLeadership.县令 }}</span>
+                      <span class="leader-realm" v-if="selectedLeadership.县令政绩">{{ selectedLeadership.县令政绩 }}</span>
                     </div>
-                    <div v-if="selectedLeadership.副宗主" class="leader-item">
+                    <div v-if="selectedLeadership.副县令" class="leader-item">
                       <span class="leader-role">副县令</span>
-                      <span class="leader-name">{{ selectedLeadership.副宗主 }}</span>
+                      <span class="leader-name">{{ selectedLeadership.副县令 }}</span>
                     </div>
-                    <div v-if="selectedLeadership.圣女" class="leader-item">
+                    <div v-if="selectedLeadership.幕僚长" class="leader-item">
                       <span class="leader-role">幕僚长</span>
-                      <span class="leader-name">{{ selectedLeadership.圣女 }}</span>
+                      <span class="leader-name">{{ selectedLeadership.幕僚长 }}</span>
                     </div>
                   </div>
 
                   <div class="sect-strength">
                     <div class="strength-item">
                       <span class="strength-label">最强修为</span>
-                      <span class="strength-value peak-power">{{ selectedLeadership.最强修为 || selectedLeadership.宗主修为 }}</span>
+                      <span class="strength-value peak-power">{{ selectedLeadership.最强政绩 || selectedLeadership.县令政绩 }}</span>
                     </div>
                     <div v-if="selectedLeadership?.综合战力" class="strength-item">
                       <span class="strength-label">战力</span>
@@ -501,10 +501,10 @@ const getPlayerActualPosition = computed(() => {
     const leadership = (sect as any)?.领导层 || (sect as any)?.leadership;
     if (!leadership) continue;
 
-    if (leadership.宗主 === name || leadership.掌门 === name) {
+    if (leadership.县令 === name || leadership.县令 === name) {
       return { sect, position: '县令' as const };
     }
-    if (leadership.副宗主 === name || leadership.副掌门 === name) {
+    if (leadership.副县令 === name || leadership.副县令 === name) {
       return { sect, position: '副县令' as const };
     }
   }
@@ -515,7 +515,7 @@ const getPlayerActualPosition = computed(() => {
 const isPlayerSectLeader = computed(() => {
   // 先检查 sectMemberInfo
   const position = playerSectInfo.value?.职位;
-  if (['县令', '长官', '副县令', '副长官', '宗主', '掌门', '副宗主', '副掌门'].includes(position || '')) {
+  if (['县令', '长官', '副县令', '副长官'].includes(position || '')) {
     return true;
   }
   // 再检查衙门领导层
@@ -630,7 +630,7 @@ const getMainResources = (sect: WorldFaction): string => {
   if (type.includes('符') || type.includes('阵')) return '符纸、阵法、法器';
   if (type.includes('魔') || type.includes('邪')) return '魔石、煞气、秘法';
   if (type.includes('商')) return '银两、珍宝、情报';
-  if (type.includes('世家')) return '传承、人脉、底蕴';
+  if (type.includes('世家')) return '家学、人脉、底蕴';
 
   return '银两、方略、政务资源';
 };
@@ -676,32 +676,32 @@ const getReputationValue = (reputation: unknown): number => {
 // 工具函数
 const getSectEmoji = (type: string): string => {
   const emojiMap: Record<string, string> = {
-    '正道宗门': '⛩️',
-    '修仙宗门': '⛩️',
-    '魔道宗门': '🏴',
-    '魔道势力': '🏴',
-    '中立宗门': '🏯',
-    '修仙世家': '🏘️',
+    '正道衙门': '⛩️',
+    '清流派': '⛩️',
+    '保守派': '🏴',
+    '革新派': '🏴',
+    '中立衙门': '🏯',
+    '官宦世家': '🏘️',
     '世家': '🏘️',
     '商会': '🏪',
     '商会组织': '🏪',
-    '散修联盟': '🤝'
+    '在野派': '🤝'
   };
   return emojiMap[type] || '🏛️';
 };
 
 const getSectTypeClass = (type: string): string => {
   const classMap: Record<string, string> = {
-    '正道宗门': 'righteous',
-    '修仙宗门': 'righteous',
-    '魔道宗门': 'demonic',
-    '魔道势力': 'demonic',
-    '中立宗门': 'neutral',
-    '修仙世家': 'family',
+    '正道衙门': 'righteous',
+    '清流派': 'righteous',
+    '保守派': 'demonic',
+    '革新派': 'demonic',
+    '中立衙门': 'neutral',
+    '官宦世家': 'family',
     '世家': 'family',
     '商会': 'merchant',
     '商会组织': 'merchant',
-    '散修联盟': 'alliance'
+    '在野派': 'alliance'
   };
   return classMap[type] || 'neutral';
 };

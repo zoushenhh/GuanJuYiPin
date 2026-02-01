@@ -160,12 +160,12 @@
 
                 <div class="talent-layout">
                   <!-- 才能卡片 -->
-                  <div class="spirit-root-banner clickable" @click="showSpiritRootModal = true" :class="baseInfo ? getSpiritRootClass(baseInfo.灵根) : 'spirit-common'">
+                  <div class="spirit-root-banner clickable" @click="showSpiritRootModal = true" :class="baseInfo ? getSpiritRootClass(baseInfo.才能 || baseInfo.灵根) : 'spirit-common'">
                     <div class="banner-content">
                        <span class="root-type">{{ t('才能') }}</span>
                        <div class="root-main">
-                         <span class="root-name">{{ getSpiritRootDisplay(baseInfo.灵根) }}</span>
-                         <span class="root-grade badge">{{ t(getSpiritRootGrade(baseInfo.灵根) || '凡品') }}</span>
+                         <span class="root-name">{{ getSpiritRootDisplay(baseInfo.才能 || baseInfo.灵根) }}</span>
+                         <span class="root-grade badge">{{ t(getSpiritRootGrade(baseInfo.才能 || baseInfo.灵根) || '平凡') }}</span>
                        </div>
                        <span class="tap-hint">{{ t('查看详情') }}</span>
                     </div>
@@ -233,7 +233,7 @@
           <!-- 2. 施政体系 -->
           <div v-else-if="activeTab === 'cultivation'" class="tab-pane">
             <div class="pane-grid">
-               <!-- 功法 -->
+               <!-- 方略 -->
                <section class="info-card glass-panel">
                   <div class="card-header">
                     <BookOpen :size="20" class="header-icon gold" />
@@ -272,10 +272,10 @@
                         <div v-if="hasTechniqueEffects" class="detail-section">
                           <div class="section-label">{{ t('方略效果') }}</div>
                           <div class="effects-box">
-                            <div class="effect-row" v-if="fullCultivationTechnique.功法效果?.施政速度加成">
+                            <div class="effect-row" v-if="fullCultivationTechnique.方略效果?.施政速度加成">
                               <Rocket :size="16" class="effect-icon" />
                               <span class="effect-label">{{ t('施政速度') }}</span>
-                              <span class="effect-value">+{{ (fullCultivationTechnique.功法效果.施政速度加成 * 100).toFixed(0) }}%</span>
+                              <span class="effect-value">+{{ (fullCultivationTechnique.方略效果.施政速度加成 * 100).toFixed(0) }}%</span>
                             </div>
                           </div>
                         </div>
@@ -448,18 +448,18 @@
                <!-- ... 内容插槽, 这里使用简化的示例，实际项目中保留原v-if逻辑 ... -->
                <button class="close-float" @click="closeModals"><X /></button>
 
-              <!-- 灵根详情示例 -->
+              <!-- 才能详情示例 -->
                <div v-if="showSpiritRootModal && baseInfo" class="modal-inner">
-                  <h2 class="modal-title">{{ getSpiritRootDisplay(baseInfo.灵根) }}</h2>
+                  <h2 class="modal-title">{{ getSpiritRootDisplay(baseInfo.才能 || baseInfo.灵根) }}</h2>
                   <div class="modal-body-scroller custom-scrollbar">
                      <div class="detail-grid">
-                        <div class="d-item"><label>{{ t('品级') }}</label> <span>{{ t(getSpiritRootGrade(baseInfo.灵根)) }}</span></div>
+                        <div class="d-item"><label>{{ t('品级') }}</label> <span>{{ t(getSpiritRootGrade(baseInfo.才能 || baseInfo.灵根)) }}</span></div>
                         <div class="d-item"><label>{{ t('施政加成') }}</label> <span class="highlight">{{ getSpiritRootCultivationSpeed(baseInfo) }}</span></div>
                      </div>
-                     <div v-if="getSpiritRootElements(baseInfo.灵根).length" class="tags-row">
-                       <span v-for="el in getSpiritRootElements(baseInfo.灵根)" :key="el" class="tag-pill">{{ el }}</span>
+                     <div v-if="getSpiritRootElements(baseInfo.才能 || baseInfo.灵根).length" class="tags-row">
+                       <span v-for="el in getSpiritRootElements(baseInfo.才能 || baseInfo.灵根)" :key="el" class="tag-pill">{{ el }}</span>
                      </div>
-                   <div class="d-desc-box">{{ getSpiritRootDescription(baseInfo.灵根) }}</div>
+                   <div class="d-desc-box">{{ getSpiritRootDescription(baseInfo.才能 || baseInfo.灵根) }}</div>
                   </div>
                </div>
 
@@ -631,9 +631,9 @@ const vitalsData = computed(() => {
 
 const buildInnateDefaults = (raw?: Partial<InnateAttributes> | null): InnateAttributes => {
   // Handle old存档 that use '根骨' instead of '精力'
-  const精力 = raw?.精力 ?? (raw as any)?.根骨 ?? 0;
+  const jingliVal = raw?.精力 ?? (raw as any)?.根骨 ?? 0;
   return {
-    精力: Number(精力 ?? 0),
+    精力: Number(jingliVal ?? 0),
     灵性: Number(raw?.灵性 ?? 0),
     悟性: Number(raw?.悟性 ?? 0),
     气运: Number(raw?.气运 ?? 0),
@@ -678,7 +678,7 @@ const fullCultivationTechnique = computed((): TechniqueItem | null => {
   if (refId && inv[refId]) return inv[refId] as TechniqueItem;
 
   const found = Object.values(inv).find((item) => {
-    if (item.类型 !== '功法') return false;
+    if (item.类型 !== '方略') return false;
     const technique = item as TechniqueItem;
     return item.已装备 === true || technique.修炼中 === true;
   });
@@ -686,7 +686,7 @@ const fullCultivationTechnique = computed((): TechniqueItem | null => {
 });
 
 const hasTechniqueEffects = computed(() => {
-  const effects = fullCultivationTechnique.value?.功法效果;
+  const effects = fullCultivationTechnique.value?.方略效果;
   return !!effects && typeof effects === 'object' && Object.keys(effects).length > 0;
 });
 
@@ -875,7 +875,7 @@ const formatRealmDisplay = (realm?: unknown): string => {
 };
 
 const hasSpiritRoot = computed(() => {
-  const root = baseInfo.value?.灵根 as unknown;
+  const root = baseInfo.value?.才能 || baseInfo.value?.灵根 as unknown;
   if (!root) return false;
   if (typeof root === 'string') return root.trim().length > 0 && root.trim() !== '未知灵根';
   if (typeof root === 'object') {
@@ -909,11 +909,11 @@ const getSpiritRootDisplay = (spiritRoot: SpiritRoot | string | undefined): stri
 };
 
 const getSpiritRootGrade = (spiritRoot: SpiritRoot | string | undefined): string => {
-  if (!spiritRoot) return '凡品';
+  if (!spiritRoot) return '平凡';
   if (typeof spiritRoot === 'object' && 'tier' in spiritRoot && spiritRoot.tier) return String(spiritRoot.tier);
   const rootObj = spiritRoot as unknown as Record<string, unknown>;
   if (typeof spiritRoot === 'object' && (rootObj.品级 || rootObj.品阶)) return String(rootObj.品级 ?? rootObj.品阶);
-  return '凡品';
+  return '平凡';
 };
 
 const getSpiritRootCultivationSpeed = (info: { 灵根?: unknown } | null): string => {
@@ -963,13 +963,13 @@ const getSpiritRootElements = (spiritRoot: SpiritRoot | string | undefined): str
 };
 
 const getSpiritRootDescription = (spiritRoot: SpiritRoot | string | undefined): string => {
-  if (!spiritRoot) return t('无根基，无法从政');
+  if (!spiritRoot) return t('无才能，难以从政');
   if (typeof spiritRoot === 'object' && 'description' in spiritRoot && spiritRoot.description) {
     return String(spiritRoot.description);
   }
   const rootObj = spiritRoot as unknown as Record<string, unknown>;
   if (typeof spiritRoot === 'object' && (rootObj.描述 || rootObj.description)) return String(rootObj.描述 ?? rootObj.description);
-  return t('此根基可用于从政');
+  return t('此才能可用于从政');
 };
 
 const getAnimalStageDisplay = (): string => {
@@ -2098,7 +2098,7 @@ const closeModals = () => {
   color: var(--accent-green);
 }
 
-/* ========== 功法卡片 ========== */
+/* ========== 方略卡片 ========== */
 .technique-container {
   display: flex;
   flex-direction: column;
@@ -2170,7 +2170,7 @@ const closeModals = () => {
   border-radius: 2px;
 }
 
-/* 功法详情面板 */
+/* 方略详情面板 */
 .technique-detail-panel {
   padding: 14px;
   background: var(--xiantu-bg-deep);

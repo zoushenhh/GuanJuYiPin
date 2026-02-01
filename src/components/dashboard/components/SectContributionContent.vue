@@ -109,8 +109,8 @@ const isGenerating = ref(false);
 // 兑换分类
 const exchangeTabs = [
   { key: 'all', label: '全部', icon: Package },
-  { key: '丹药', label: '丹药', icon: Pill },
-  { key: '功法', label: '功法', icon: BookOpen },
+  { key: '药品', label: '药品', icon: Pill },
+  { key: '方略', label: '方略', icon: BookOpen },
   { key: '装备', label: '装备', icon: Sword },
   { key: '材料', label: '材料', icon: Gem }
 ];
@@ -252,11 +252,11 @@ async function exchangeItem(item: ExchangeItem) {
       品质: { quality, grade: 0 },
       数量: 1,
       描述: item.description || `衙门兑换所得之物：${item.name}。`,
-      ...(mappedType === '功法'
+      ...(mappedType === '方略'
         ? {
-            功法效果: item.description || '',
-            功法技能: [{ 技能名称: `${item.name}·入门`, 技能描述: '基础运转之法。', 熟练度要求: 0, 消耗: '灵气5%' }],
-            修炼进度: 0,
+            方略效果: item.description || '',
+            方略技能: [{ 技能名称: `${item.name}·入门`, 技能描述: '基础运转之法。', 熟练度要求: 0, 消耗: '灵气5%' }],
+            施政进度: 0,
             已解锁技能: [],
             已装备: false,
           }
@@ -280,9 +280,9 @@ function ensureQualitySuffix(quality: string): string {
 
 function mapItemType(type: string): string {
   const t = String(type || '').trim();
-  if (['丹药', '功法', '装备', '材料', '其他'].includes(t)) return t;
-  if (t.includes('丹')) return '丹药';
-  if (t.includes('功')) return '功法';
+  if (['药品', '方略', '装备', '材料', '其他'].includes(t)) return t;
+  if (t.includes('丹') || t.includes('药')) return '药品';
+  if (t.includes('功') || t.includes('方')) return '方略';
   if (t.includes('装') || t.includes('器')) return '装备';
   if (t.includes('材')) return '材料';
   return '其他';
@@ -351,7 +351,7 @@ async function generateShopContent() {
   "id": "string（唯一）",
   "name": "string（物品名）",
   "icon": "string（1-2字符）",
-  "type": "丹药|功法|装备|材料|其他",
+  "type": "药品|方略|装备|材料|其他",
   "quality": "凡品|黄品|玄品|地品|天品|仙品|神品",
   "description": "string（20-80字）",
   "cost": number（贡献点）
