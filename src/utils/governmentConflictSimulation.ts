@@ -134,7 +134,7 @@ export function computeGovernmentConflictSide(saveData: SaveData, officeName: st
   const morale = clamp(60 + stabilityBonus * 3 + trainingBonus * 2, 35, 95);
 
   const side: GovernmentWarSideState = {
-    宗门名称: String(officeName || '').trim(),
+    衙门名称: String(officeName || '').trim(),
     战力: totalPower,
     外门: counts.outer,
     内门: counts.inner,

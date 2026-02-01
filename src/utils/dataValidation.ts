@@ -180,11 +180,8 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
       repairedNpc.外貌描述 = '相貌普通，气质平和。';
     }
 
-    try {
-      if (!repairedNpc.灵根) repairedNpc.灵根 = '五行杂才干';
-    } catch (e) {
-      repairedNpc.灵根 = '五行杂才干';
-    }
+    // 灵根字段已移除，无需修复
+    // (才能字段通过 CharacterBaseInfo.后天 处理)
 
     try {
       if (!repairedNpc.先天六司 || typeof repairedNpc.先天六司 !== 'object') {
@@ -282,10 +279,10 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
     // 4. 结构检查与修复 (背包) - 防御性处理
     try {
       if (typeof repairedNpc.背包 !== 'object' || repairedNpc.背包 === null) {
-        repairedNpc.背包 = { 灵石: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} };
+        repairedNpc.背包 = { 银两: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} };
       } else {
-        if (typeof repairedNpc.背包.灵石 !== 'object' || repairedNpc.背包.灵石 === null) {
-          repairedNpc.背包.灵石 = { 下品: 0, 中品: 0, 上品: 0, 极品: 0 };
+        if (typeof repairedNpc.背包.银两 !== 'object' || repairedNpc.背包.银两 === null) {
+          repairedNpc.背包.银两 = { 下品: 0, 中品: 0, 上品: 0, 极品: 0 };
         }
         if (typeof repairedNpc.背包.物品 !== 'object' || repairedNpc.背包.物品 === null) {
           repairedNpc.背包.物品 = {};
@@ -293,7 +290,7 @@ export function validateAndRepairNpcProfile(npcData: unknown, gameTime?: GameTim
       }
     } catch (e) {
       console.warn('[NPC校验] 背包字段修复失败，使用默认值:', e);
-      repairedNpc.背包 = { 灵石: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} };
+      repairedNpc.背包 = { 银两: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 }, 物品: {} };
     }
 
     // 5. 确保实时关注是布尔值

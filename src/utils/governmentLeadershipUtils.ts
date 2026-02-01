@@ -28,7 +28,7 @@ export function detectPlayerGovernmentLeadership(
     isLeader: false,
     isMaster: false,
     position: governmentMemberInfo?.职位 || '',
-    officeName: governmentMemberInfo?.宗门名称 || '',
+    officeName: governmentMemberInfo?.衙门名称 || '',
     office: null
   };
 
@@ -67,9 +67,9 @@ export function detectPlayerGovernmentLeadership(
       result.isLeader = true;
       result.isMaster = ['县令', '长官'].includes(pos);
       result.position = pos;
-      result.officeName = governmentMemberInfo.宗门名称;
+      result.officeName = governmentMemberInfo.衙门名称;
       // 找到对应政府
-      result.office = offices.find(s => s.名称 === governmentMemberInfo.宗门名称) || null;
+      result.office = offices.find(s => s.名称 === governmentMemberInfo.衙门名称) || null;
     }
   }
 

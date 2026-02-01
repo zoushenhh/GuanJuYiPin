@@ -700,7 +700,7 @@ function repairNpc(npc: NpcProfile): NpcProfile {
   // 修复背包
   if (!repaired.背包 || typeof repaired.背包 !== 'object') {
     repaired.背包 = {
-      灵石: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 },
+      银两: { 下品: 0, 中品: 0, 上品: 0, 极品: 0 },
       物品: {}
     };
   }

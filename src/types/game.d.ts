@@ -218,7 +218,7 @@ export interface InnateAttributes {
   民心?: number;   // 原魅力 - 影响百姓支持度
   清廉?: number;   // 原心性 - 影响廉洁从政
 
-  // 向后兼容：修仙主题字段（已废弃，请使用县令主题字段）
+  // 向后兼容：旧系统字段（已废弃，请使用县令主题字段）
   /** @deprecated 使用 断案 替代 */
   精力?: number;
   /** @deprecated 使用 治理 替代 */
@@ -236,28 +236,28 @@ export interface InnateAttributes {
 /** 英文键名的先天六司，用于组件传参（向后兼容） */
 
 export interface InnateAttributesEnglish {
-  root_bone: number;    // 断案（原精力/根骨）
-  spirituality: number; // 治理（原灵性）
-  comprehension: number; // 用人（原悟性）
-  fortune: number;      // 威望（原气运）
-  charm: number;        // 民心（原魅力）
-  temperament: number;  // 清廉（原心性）
+  root_bone: number;    // 断案
+  spirituality: number; // 治理
+  comprehension: number; // 用人
+  fortune: number;      // 威望
+  charm: number;        // 民心
+  temperament: number;  // 清廉
 }
 
 export type AttributeKey = keyof InnateAttributesEnglish;
 
 // --- 物品与背包 ---
 
-/** 装备增幅或方略属性加成 */
+/** 装备增幅 */
 export interface AttributeBonus {
-  气血上限?: number;
-  灵气上限?: number;
-  神识上限?: number;
+  健康上限?: number;
+  威望上限?: number;
+  智慧上限?: number;
   后天六司?: Partial<InnateAttributes>;
   [key: string]: any; // 允许其他动态属性
 }
 
-/** 方略技能（背包中方略物品的技能数组） */
+/** 方略技能（方略物品的技能数组） */
 export interface TechniqueSkill {
   技能名称: string;
   技能描述: string;
@@ -274,16 +274,16 @@ export interface TechniqueEffects {
 }
 
 // ============================================================================
-// 物品类型系统（县令主题：主要类型）
+// 物品类型系统（县令主题）
 // ============================================================================
 
 /**
- * 物品类型（县令主题：主要类型）
+ * 物品类型（县令主题）
  * 定义游戏中所有物品的分类
  *
  * - 装备：武器、防具、饰品等可装备物品
- * - 方略：治理方略、政策措施（县令主题，替代"功法"）
- * - 药品：丹药、草药等医疗用品（县令主题）
+ * - 方略：治理方略、政策措施
+ * - 药品：药品、草药等医疗用品
  * - 材料：炼制材料、资源
  * - 其他：杂物
  *
@@ -292,23 +292,23 @@ export interface TechniqueEffects {
  */
 export type ItemType =
   | '装备'    // 装备类物品
-  | '方略'    // 治理方略（县令主题：主要）
-  | '药品'    // 药品（县令主题：主要）
+  | '方略'    // 治理方略
+  | '药品'    // 药品
   | '材料'    // 材料
   | '其他';   // 其他物品
 
 /** 旧版物品类型（用于存档迁移和数据修复，向后兼容） */
 export type LegacyItemType =
   | '装备'      // 装备类物品
-  | '功法'      // 修仙主题：功法（已废弃，映射到'方略'）
+  | '功法'      // 旧系统：功法（已废弃，映射到'方略'）
   | '方略'      // 县令主题：治理方略
-  | '丹药'      // 修仙主题：丹药（已废弃，映射到'药品'）
+  | '丹药'      // 旧系统：丹药（已废弃，映射到'药品'）
   | '药品'      // 县令主题：药品
   | '材料'      // 材料类物品
   | '其他';     // 其他物品
 
 
-/** 基础物品接口（县令主题：主要类型） */
+/** 基础物品接口（县令主题） */
 export interface BaseItem {
   物品ID: string;
   名称: string;
@@ -329,7 +329,7 @@ export interface EquipmentItem extends BaseItem {
 }
 
 
-/** 治理方略类型物品（县令主题：主要类型） */
+/** 治理方略类型物品（县令主题） */
 export interface StrategyItem extends BaseItem {
   类型: '方略';
   方略效果?: TechniqueEffects;
@@ -339,32 +339,32 @@ export interface StrategyItem extends BaseItem {
   已解锁技能?: string[];
 }
 
-/** 消耗品/材料类型物品（县令主题：主要类型） */
+/** 消耗品/材料类型物品（县令主题） */
 export interface MedicineItem extends BaseItem {
   类型: '药品' | '材料' | '其他';
   使用效果?: string;
 }
 
 /**
- * 物品的联合类型（县令主题：主要类型）
+ * 物品的联合类型（县令主题）
  */
 export type Item = EquipmentItem | StrategyItem | MedicineItem;
 
 
-/** 施政方略引用（只存储引用，不存储完整数据） - 县令主题 */
+/** 施政方略引用（只存储引用，不存储完整数据） */
 export interface AdministrationStrategyReference {
   物品ID: string;    // 引用背包中的方略ID
   名称: string;      // 方略名称（用于快速显示）
 }
 
-/** 修仙主题：功法引用（向后兼容别名） */
+/** 旧系统：功法引用（向后兼容别名） */
 export type CultivationTechniqueReference = AdministrationStrategyReference;
 
 /** 掌握的技能（技能数据+进度合并） */
 export interface MasteredSkill {
   技能名称: string;
   技能描述: string;
-  来源: string; // 来源功法名称
+  来源: string; // 来源方略名称
   消耗?: string; // 消耗说明
 
   // 进度数据（与技能数据合并）
@@ -373,7 +373,7 @@ export interface MasteredSkill {
 }
 
 // ============================================================================
-// 货币系统（县令主题：主要类型）
+// 货币系统（县令主题）
 // ============================================================================
 
 /**
@@ -402,7 +402,7 @@ export interface Inventory extends AIMetadata {
    */
   货币?: Record<string, CurrencyAsset>;
   货币设置?: CurrencySettings;
-  物品: Record<string, Item>; // 物品现在是对象结构，key为物品ID，value为Item对象
+  物品: Record<string, Item>; // 物品是对象结构，key为物品ID，value为Item对象
 }
 
 export interface CurrencyAsset extends AIMetadata {
@@ -419,7 +419,7 @@ export interface CurrencySettings extends AIMetadata {
   基准币种?: string; // 默认：铜钱
 }
 
-/** 功法中的技能信息 */
+/** 方略中的技能信息 */
 export interface SkillInfo {
   name: string;
   description: string;
@@ -429,11 +429,11 @@ export interface SkillInfo {
 }
 
 // ============================================================================
-// 衙门/宗门类型系统（县令主题：主要类型）
+// 衙门/衙门类型系统（县令主题）
 // ============================================================================
 
 /**
- * 衙门类型（县令主题：主要类型）
+ * 衙门类型（县令主题）
  * 表示县令模拟器中的各类衙门和势力组织
  *
  * @example
@@ -446,24 +446,24 @@ export type GovernmentOfficeType =
   | '中立衙门'   // 中立衙门，不偏不倚
   | '商会'       // 商会组织
   | '世家'       // 地方世家势力
-  | '散修联盟';  // 散修联盟
+  | '行会';      // 行会组织
 
-/** 宗门类型（向后兼容别名） */
+/** 衙门类型（向后兼容别名） */
 export type SectType = GovernmentOfficeType;
 
 // ============================================================================
-// 职位系统（县令主题：主要类型）
+// 职位系统（县令主题）
 // ============================================================================
 
 /**
- * 衙门职位（县令主题：主要类型）
+ * 衙门职位（县令主题）
  * 表示县令模拟器中的各类官职
  *
  * @example
  * const position: GovernmentPosition = '县令';
  */
 export type GovernmentPosition =
-  | '散修'        // 无官职在身
+  | '平民'        // 无官职在身
   | '外门吏员'    // 基层吏员
   | '内门吏员'    // 中层吏员
   | '核心吏员'    // 核心吏员
@@ -474,11 +474,11 @@ export type GovernmentPosition =
   | '衙役';       // 衙役
 
 // ============================================================================
-// 官品/境界系统（县令主题：主要类型）
+// 官品/境界系统（县令主题）
 // ============================================================================
 
 /**
- * 官品等级（县令主题：主要类型）
+ * 官品等级（县令主题）
  * 官品从九品到一品，共九个等级。九品最低，一品最高。
  *
  * @example
@@ -492,27 +492,25 @@ export type RankLevel =
 // 关系类型（县令主题）
 // ============================================================================
 
-/** 衙门关系/宗门关系（县令主题：衙门关系） */
+/** 衙门关系 */
 export type SectRelationship = '仇敌' | '敌对' | '冷淡' | '中立' | '友好' | '盟友' | '附庸';
 
 /**
- * 衙门成员信息/宗门成员信息（县令主题：衙门成员信息）
+ * 衙门成员信息
  *
  * @deprecated 接口名保留为SectMemberInfo是为了向后兼容旧存档
- * 旧术语：宗门成员信息（旧数据结构）
+ * 旧术语：衙门成员信息（旧数据结构）
  * 新术语：衙门成员信息（县令主题）
  *
  * 术语映射：
- * - 宗门名称 -> 衙门名称
- * - 宗门类型 -> 衙门类型
+ * - 衙门名称 -> 衙门名称
+ * - 衙门类型 -> 衙门类型
  * - 职位 -> 官职
  * - 贡献 -> 政绩贡献
  */
 export interface SectMemberInfo {
-  /** @deprecated 县令主题：衙门名称 */
-  宗门名称: string;
-  /** @deprecated 县令主题：衙门类型 */
-  宗门类型: GovernmentOfficeType;
+  衙门名称: string;
+  衙门类型: GovernmentOfficeType;
   职位: GovernmentPosition;
   贡献: number;
   关系: SectRelationship;
@@ -521,27 +519,27 @@ export interface SectMemberInfo {
   描述?: string;
 }
 
-/** 衙门基础信息/宗门基础信息（县令主题：衙门基础信息） */
+/** 衙门基础信息 */
 export interface SectInfo {
-  名称: string; // 宗门名称
-  类型: GovernmentOfficeType; // 宗门类型
-  等级: '一流' | '二流' | '三流' | '末流'; // 宗门等级
+  名称: string; // 衙门名称
+  类型: GovernmentOfficeType; // 衙门类型
+  等级: '一流' | '二流' | '三流' | '末流'; // 衙门等级
   位置?: string; // 总部位置
-  描述: string; // 宗门描述
-  特色: string[]; // 宗门特色
+  描述: string; // 衙门描述
+  特色: string[]; // 衙门特色
   成员数量: SectMemberCount; // 成员数量统计
   与玩家关系: SectRelationship; // 与玩家的关系
-  声望: number; // 玩家在该宗门的声望
+  声望: number; // 玩家在该衙门的声望
   可否加入: boolean; // 是否可以加入
   加入条件?: string[]; // 加入条件
   加入好处?: string[]; // 加入后的好处
-  // 新增：宗门领导和实力展示
+  // 新增：衙门领导和实力展示
   领导层?: {
-    宗主: string; // 宗主姓名
-    宗主修为: string; // 如"元婴后期"
-    副宗主?: string; // 副宗主姓名（如有）
-    长老数量: number; // 长老总数
-    最强修为: string; // 宗门内最强修为
+    县令: string; // 县令姓名
+    长官政绩: string; // 如"七品后期"
+    副县令?: string; // 副县令姓名（如有）
+    长老数量: number; // 吏员总数
+    最强政绩: string; // 衙门内最强政绩
   };
   // 新增：简化的势力范围信息
   势力范围?: {
@@ -551,7 +549,7 @@ export interface SectInfo {
   };
 }
 
-/** 衙门成员数量统计/宗门成员数量统计 */
+/** 衙门成员数量统计 */
 export interface SectMemberCount {
   总数?: number; // 总成员数
   total?: number; // 英文字段名兼容
@@ -561,14 +559,14 @@ export interface SectMemberCount {
   byPosition?: Record<string, number>; // 英文字段名兼容
 }
 
-/** 衙门系统数据/宗门系统数据（县令主题：衙门系统数据） */
+/** 衙门系统数据 */
 export interface SectSystemData extends AIMetadata {
-  availableSects: SectInfo[]; // 可用的宗门列表
-  sectRelationships: Record<string, number>; // 与各宗门的关系值
-  sectHistory: string[]; // 宗门历史记录 (修复拼写错误)
+  availableSects: SectInfo[]; // 可用的衙门列表
+  sectRelationships: Record<string, number>; // 与各衙门的关系值
+  sectHistory: string[]; // 衙门历史记录 (修复拼写错误)
 }
 
-/** 衙门系统迁移记录/宗门系统迁移记录 */
+/** 衙门系统迁移记录 */
 export interface SectMigrationRecord {
   来源版本: number;
   目标版本: number;
@@ -576,46 +574,46 @@ export interface SectMigrationRecord {
   说明?: string;
 }
 
-/** 衙门系统数据 - V2 / 宗门系统数据 - V2 */
+/** 衙门系统数据 - V2 */
 export interface SectSystemV2 extends AIMetadata {
   版本: number;
-  当前宗门?: string | null;
-  宗门档案: Record<string, WorldFaction>;
-  宗门成员?: Record<string, string[]>;
-  宗门藏经阁?: Record<string, any[]>;
-  宗门贡献商店?: Record<string, any[]>;
-  宗门任务?: Record<string, SectTaskItem[]>;
-  宗门任务状态?: Record<string, SectTaskStatus>;
+  当前衙门?: string | null;
+  衙门档案: Record<string, WorldFaction>;
+  衙门成员?: Record<string, string[]>;
+  衙门书房?: Record<string, any[]>;
+  衙门兑换所?: Record<string, any[]>;
+  衙门任务?: Record<string, SectTaskItem[]>;
+  衙门任务状态?: Record<string, SectTaskStatus>;
   迁移记录?: SectMigrationRecord;
-  内容状态?: Record<string, SectContentStatus>; // 衙门/宗门内容初始化状态
-  /** 衙门轻度经营/宗门轻度经营（县令主题：县令面板） */
-  宗门经营?: Record<string, SectManagementState>;
-  /** 衙门大战/宗门大战（分阶段推进） */
-  宗门战争?: SectWarSystem;
+  内容状态?: Record<string, SectContentStatus>; // 衙门内容初始化状态
+  /** 衙门轻度经营（县令主题：县令面板） */
+  衙门经营?: Record<string, SectManagementState>;
+  /** 衙门竞争（分阶段推进） */
+  衙门竞争?: SectWarSystem;
 }
 
-/** 衙门内容初始化状态/宗门内容初始化状态 */
+/** 衙门内容初始化状态 */
 export interface SectContentStatus {
-  藏经阁已初始化: boolean; // 衙门主题：藏书阁；修仙主题：藏经阁
+  藏书阁已初始化: boolean; // 衙门藏书阁
   贡献商店已初始化: boolean;
   最后更新时间?: string;
   演变次数: number; // AI随机增加内容的次数
 }
 
-// --- 衙门经营/宗门经营 --- 衙门大战/宗门大战（扩展） ---
+// --- 衙门经营/衙门竞争（扩展） ---
 
 export interface SectManagementState extends AIMetadata {
-  宗门名称: string; // 衙门名称/宗门名称
+  衙门名称: string; // 衙门名称
   战力?: number; // 0-100（默认与 档案.领导层.综合战力 同口径）
   安定?: number; // 0-100
   外门训练度?: number; // 0-100（用于战力与战损修正）
   府库?: {
-    灵石?: number; // 县令主题：银两；修仙主题：灵石
+    银两?: number;
     灵材?: number;
-    丹药?: number;
+    药品?: number;
     阵材?: number;
   };
-  设施?: Record<string, number>; // 县令主题：衙门设施；修仙主题：练功房/藏经阁/炼丹房/护山大阵 -> level
+  设施?: Record<string, number>; // 衙门设施：练功房/藏书阁/药房/护城大阵 -> level
   最近结算?: string; // ISO时间或游戏时间字符串
   月报?: Array<{
     时间: string;
@@ -628,11 +626,11 @@ export type SectWarStatus = '备战' | '进行中' | '停战' | '胜利' | '失�
 export type SectWarStageName = '侦察' | '交锋' | '破阵' | '攻山' | '善后';
 
 export interface SectWarSideState {
-  宗门名称: string; // 衙门名称/宗门名称
+  衙门名称: string; // 衙门名称
   战力: number; // 0-100
-  外门: number; // 外门吏员/外门弟子
-  内门: number; // 内门吏员/内门弟子
-  核心: number; // 核心吏员/核心弟子
+  外门: number; // 外门吏员
+  内门: number; // 内门吏员
+  核心: number; // 核心吏员
   士气?: number; // 0-100
 }
 
@@ -669,37 +667,37 @@ export interface SectWarSystem extends AIMetadata {
 }
 
 // ============================================================================
-// 政府系统类型（县令主题主要类型 - 向后兼容别名）
+// 政府系统类型（县令主题 - 向后兼容别名）
 // ============================================================================
 
-/** 政府成员信息（县令主题主要类型） */
+/** 政府成员信息（县令主题） */
 export type GovernmentMemberInfo = SectMemberInfo;
 
-/** 政府基础信息（县令主题主要类型） */
+/** 政府基础信息（县令主题） */
 export type GovernmentInfo = SectInfo;
 
-/** 政府系统数据（县令主题主要类型） */
+/** 政府系统数据（县令主题） */
 export type GovernmentSystemData = SectSystemData;
 
-/** 政府系统数据 V2（县令主题主要类型） */
+/** 政府系统数据 V2（县令主题） */
 export type GovernmentSystemV2 = SectSystemV2;
 
-/** 政府战争状态（县令主题主要类型） */
+/** 政府战争状态（县令主题） */
 export type GovernmentWarState = SectWarState;
 
-/** 政府战争边状态（县令主题主要类型） */
+/** 政府战争边状态（县令主题） */
 export type GovernmentWarSideState = SectWarSideState;
 
-/** 政府战争阶段名称（县令主题主要类型） */
+/** 政府战争阶段名称（县令主题） */
 export type GovernmentWarStageName = SectWarStageName;
 
-/** 政府战争报告（县令主题主要类型） */
+/** 政府战争报告（县令主题） */
 export type GovernmentWarReport = SectWarReport;
 
-/** 政府战争系统（县令主题主要类型） */
+/** 政府战争系统（县令主题） */
 export type GovernmentWarSystem = SectWarSystem;
 
-/** 衙门藏书阁方略/宗门藏经阁功法 - 扩展版本 */
+/** 衙门藏书阁方略 - 扩展版本 */
 export interface SectLibraryTechniqueExtended {
   id: string;
   name: string;
@@ -709,12 +707,12 @@ export interface SectLibraryTechniqueExtended {
   description: string;
   方略效果?: string;
   官品要求?: string;
-  职位要求?: string; // 外门弟子/内门弟子/核心弟子等
+  职位要求?: string; // 外门吏员/内门吏员/核心吏员等
   已被兑换?: boolean;
   剩余数量?: number;
 }
 
-/** 衙门贡献商店物品/宗门贡献商店物品 - 扩展版本 */
+/** 衙门兑换所物品 - 扩展版本 */
 export interface SectShopItemExtended {
   id: string;
   name: string;
@@ -803,9 +801,9 @@ export interface EquipmentSlot {
   物品ID: string;
   装备特效?: string[];
   装备增幅?: {
-    气血上限?: number;
-    灵气上限?: number;
-    神识上限?: number;
+    健康上限?: number;
+    威望上限?: number;
+    智慧上限?: number;
     后天六司?: Partial<InnateAttributes>;
   };
   耐久度?: ValuePair<number>;
@@ -852,14 +850,14 @@ export interface StatusEffect {
  * 接口名保留为Realm是为了向后兼容旧存档
  */
 export interface Realm {
-  名称: string;        // 官品名称/境界名称，如"九品"、"练气"
-  阶段: string;        // 官品阶段/境界阶段，如"初期"、"中期"、"后期"、"圆满"
-  当前进度: number;    // 当前施政进度/当前修炼进度
-  下一级所需: number;  // 晋升到下一阶段所需进度/突破到下一阶段所需进度
+  名称: string;        // 官品名称
+  阶段: string;        // 官品阶段，如"初期"、"中期"、"后期"、"圆满"
+  当前进度: number;    // 当前施政进度
+  下一级所需: number;  // 晋升到下一阶段所需进度
   晋升描述: string;    // 晋升到下一阶段的描述
 }
 
-/** 官品（县令主题：主要类型） */
+/** 官品（县令主题） */
 export interface OfficialRank {
   名称: string;        // 官品名称，如"九品"
   阶段: string;        // 官品阶段，如"初期"、"中期"、"后期"、"圆满"
@@ -867,10 +865,10 @@ export interface OfficialRank {
   下一级所需: number;  // 晋升到下一阶段所需进度
   晋升描述: string;    // 晋升到下一阶段的描述
 }
-/** 官品子阶段类型/境界子阶段类型 */
+/** 官品子阶段类型 */
 export type RealmStage = '初期' | '中期' | '后期' | '圆满' | '极境';
 
-/** 官品子阶段定义/境界子阶段定义 */
+/** 官品子阶段定义 */
 export interface RealmStageDefinition {
   stage: RealmStage;
   title: string;
@@ -881,7 +879,7 @@ export interface RealmStageDefinition {
   can_cross_realm_battle?: boolean; // 是否可越阶战斗
 }
 
-/** 官品定义/境界定义 */
+/** 官品定义 */
 export interface RealmDefinition {
   level: number;
   name: string;
@@ -890,14 +888,14 @@ export interface RealmDefinition {
   lifespan: string;
   activityScope: string;
   gapDescription: string;
-  stages?: RealmStageDefinition[]; // 官品子阶段/境界子阶段，凡人境界没有子阶段
+  stages?: RealmStageDefinition[]; // 官品子阶段，凡人境界没有子阶段
 }
 
 
 
 /**
  * 玩家状态接口
- * @deprecated 部分字段使用修仙术语，实际含义为县令主题术语：
+ * @deprecated 部分字段使用旧系统术语，实际含义为县令主题术语：
  * - 境界 → 官品
  * - 气血 → 健康
  * - 灵气 → 威望
@@ -907,13 +905,13 @@ export interface RealmDefinition {
  */
 export interface PlayerStatus extends AIMetadata {
   /**
-   * @deprecated 县令主题：官品；修仙主题：境界
-   * 包含施政/修为进度（当前进度 = 施政当前/修为当前，下一级所需 = 施政最大/修为最大）
+   * @deprecated 县令主题：官品
+   * 包含施政进度（当前进度 = 施政当前，下一级所需 = 施政最大）
    */
   境界: Realm;
   /**
    * 官品（县令主题，与境界同义）
-   * 县令主题推荐使用此字段，修仙主题使用境界字段
+   * 县令主题推荐使用此字段
    */
   官品?: Realm;
   声望: number;
@@ -923,31 +921,31 @@ export interface PlayerStatus extends AIMetadata {
     x?: number; // 经度坐标 (Longitude, 通常 100-115)
     y?: number; // 纬度坐标 (Latitude, 通常 25-35)
     /**
-     * @deprecated 县令主题：民心支持度；修仙主题：灵气浓度
-     * 1-100，影响施政/修炼速度
+     * @deprecated 县令主题：民心支持度
+     * 1-100，影响施政速度
      */
     灵气浓度?: number;
     民心支持度?: number; // 当前位置的民心支持度，1-100（县令主题）
   };
   /**
-   * @deprecated 县令主题：健康/体力；修仙主题：气血
+   * @deprecated 县令主题：健康/体力
    */
   气血: ValuePair<number>;
   /**
-   * @deprecated 县令主题：民心/威望；修仙主题：灵气
+   * @deprecated 县令主题：民心/威望
    */
   灵气: ValuePair<number>;
   /**
-   * @deprecated 县令主题：智慧/洞察；修仙主题：神识
+   * @deprecated 县令主题：智慧/洞察
    */
   神识: ValuePair<number>;
   /**
-   * @deprecated 县令主题：任期/寿命；修仙主题：寿元
+   * @deprecated 县令主题：任期/寿命
    */
   寿命: ValuePair<number>;
   状态效果?: StatusEffect[];
   /**
-   * @deprecated 县令主题：衙门信息；修仙主题：宗门信息
+   * @deprecated 县令主题：衙门信息
    */
   宗门信息?: SectMemberInfo;
   事件系统?: EventSystem;
@@ -956,7 +954,7 @@ export interface PlayerStatus extends AIMetadata {
 
 // --- MECE短路径：拆分"属性/位置/效果" ---
 // 属性：动态数值（官品/境界、健康、民心/威望、智慧/洞察、任期/寿命、声望等）
-// 县令主题：使用官品字段（可选）；修仙主题：使用境界字段
+// 县令主题：使用官品字段（可选）
 export type PlayerAttributes = Pick<PlayerStatus, '境界' | '官品' | '声望' | '气血' | '灵气' | '神识' | '寿命'>;
 // 位置：空间信息（从 PlayerStatus.位置 提取）
 export type PlayerLocation = PlayerStatus['位置'];
@@ -986,7 +984,7 @@ export interface CharacterStatusForDisplay {
 /** 世界大陆信息 */
 /**
  * @deprecated 使用 MagistrateContinent 替代
- * 旧术语：世界大陆（修仙游戏中的修仙大陆）
+ * 旧术语：世界大陆（旧系统）
  * 新术语：世界政区（县令游戏中的行政区域）
  */
 export interface WorldContinent {
@@ -994,7 +992,7 @@ export interface WorldContinent {
   name?: string; // 兼容英文名
   描述: string;
   地理特征?: string[];
-  修真环境?: string;
+  政治环境?: string;  // 原修真环境
   气候?: string;
   天然屏障?: string[];
   大洲边界?: { x: number; y: number }[];
@@ -1018,7 +1016,7 @@ export interface MagistrateContinent {
 
 /**
  * @deprecated 使用 WorldGovernment 替代
- * 旧术语：世界势力（修仙游戏中的宗门势力）
+ * 旧术语：世界势力（旧系统）
  * 新术语：世界衙门（县令游戏中的政府衙门）
  */
 export interface WorldFaction {
@@ -1034,27 +1032,27 @@ export interface WorldFaction {
   与玩家关系?: '敌对' | '中立' | '友好' | '盟友' | string;
   声望值?: number;
 
-  // 宗门系统扩展字段 - 只对宗门类型势力有效
-  特色列表?: string[]; // 宗门特色列表，替代 特色 字符串
+  // 衙门系统扩展字段 - 只对衙门类型势力有效
+  特色列表?: string[]; // 衙门特色列表，替代 特色 字符串
 
-  // 宗门成员统计
+  // 衙门成员统计
   成员数量?: SectMemberCount;
 
-  // 宗门领导层 - 新增必需字段
+  // 衙门领导层 - 新增必需字段
   领导层?: {
-    宗主: string;
-    宗主修为: string; // 如"化神中期"、"元婴后期"等
-    副宗主?: string;
-    圣女?: string;
-    圣子?: string;
-    太上长老?: string;
-    太上长老修为?: string;
-    长老数量?: number; // 宗门长老数量
-    最强修为: string; // 宗门内最高修为境界
+    县令: string;
+    官职等级: string; // 如"七品"、"六品"等
+    副县令?: string;
+    师爷?: string;
+    书吏?: string;
+    太书吏?: string;
+    太书吏等级?: string;
+    长老数量?: number; // 衙门吏员数量
+    最高官职: string; // 衙门内最高官职
     综合战力?: number; // 1-100的综合战力评估
-    核心弟子数?: number;
-    内门弟子数?: number;
-    外门弟子数?: number;
+    核心吏员数?: number;
+    内门吏员数?: number;
+    外门吏员数?: number;
   };
 
   // 势力范围详情
@@ -1093,14 +1091,14 @@ export interface WorldGovernment {
   // 衙门领导层 - 新增必需字段
   领导层?: {
     县令: string;  // 原宗主
-    官职等级: string;  // 原宗主修为，如"七品"、"六品"等
+    官职等级: string;  // 原长官政绩，如"七品"、"六品"等
     副县令?: string;  // 原副宗主
     师爷?: string;  // 原圣女
     书吏?: string;  // 原圣子
     太书吏?: string;  // 原太上长老
     太书吏等级?: string;  // 原太上长老修为
     长老数量?: number; // 衙门长老数量
-    最高官职: string;  // 衙门内最高官职（原最强修为）
+    最高官职: string;  // 衙门内最高官职（原最强政绩）
     综合战力?: number; // 1-100的综合战力评估
     核心吏员数?: number;  // 原核心弟子数
     内门吏员数?: number;  // 原内门弟子数
@@ -1123,7 +1121,7 @@ export interface WorldGovernment {
 /** 世界地点信息 */
 export interface WorldLocation {
   名称: string;
-  类型: '城池' | '宗门' | '秘境' | '险地' | '商会' | '坊市' | '洞府' | string;
+  类型: '城池' | '衙门' | '秘境' | '险地' | '商会' | '集市' | '县衙' | string;
   位置: string;
   coordinates?: { x: number; y: number }; // 原始坐标数据
   描述: string;
@@ -1177,7 +1175,7 @@ export interface EconomyState extends AIMetadata {
 
 /** 事件类型（可扩展） */
 export type EventType =
-  | '宗门大战'
+  | '衙门竞争'
   | '世界变革'
   | '异宝降世'
   | '秘境现世'
@@ -1218,7 +1216,7 @@ export interface EventSystemConfig {
   事件提示词: string;
   // 事件类型开关
   启用事件类型?: {
-    宗门大战?: boolean;
+    衙门竞争?: boolean;
     世界变革?: boolean;
     异宝降世?: boolean;
     秘境现世?: boolean;
@@ -1347,7 +1345,6 @@ export interface NpcProfile {
   // === 修炼属性 ===
   境界: Realm;
   官品?: Realm; // 县令主题字段（与境界保持同步）
-  灵根?: SpiritRoot | string; // 修仙主题字段（向后兼容，可选）
   才能: CharacterBaseInfo['后天']; // 县令主题字段（后天才能）
   天赋: CharacterBaseInfo['天赋']; // 能力列表
   先天六司: InnateAttributes; // NPC只有一个六司字段，不分先天/最终
@@ -1361,7 +1358,7 @@ export interface NpcProfile {
   };
 
   // === 社交关系 ===
-  与玩家关系: string; // 如：道侣、师徒、朋友、敌人、陌生人
+  与玩家关系: string; // 如：同僚、师徒、朋友、敌人、陌生人
   好感度: number; // -100 到 100
   当前位置: {
     描述: string;
@@ -1384,7 +1381,7 @@ export interface NpcProfile {
 
   // === 资产物品 ===
   背包: {
-    灵石: { 下品: number; 中品: number; 上品: number; 极品: number };
+    银两: { 下品: number; 中品: number; 上品: number; 极品: number };
     货币?: Record<string, CurrencyAsset>;
     货币设置?: CurrencySettings;
     物品: Record<string, Item>;
@@ -1394,7 +1391,7 @@ export interface NpcProfile {
   私密信息?: PrivacyProfile; // 仅NSFW模式下存在
   实时关注: boolean; // 标记为关注的NPC会在AI回合中主动更新
 
-  // === 扩展字段（用于“特殊NPC/定制人物”等业务标记，不影响核心生成）===
+  // === 扩展字段（用于"特殊NPC/定制人物"等业务标记，不影响核心生成）===
   扩展?: {
     specialNpc?: boolean;
     specialNpcId?: string;
@@ -1460,7 +1457,6 @@ export interface SaveSlot {
   官品?: string; // 县令主题：官品
   政绩进度?: number; // 县令主题：政绩进度百分比
   位置?: string; // 当前位置
-  修为进度?: number; // 修为进度
   世界地图?: WorldMap;
   存档数据?: SaveData | null;
 }
@@ -1472,11 +1468,11 @@ export interface CharacterBaseInfo extends AIMetadata {
   性别: '男' | '女' | '其他' | string;
   出生日期: { 年: number; 月: number; 日: number; 小时?: number; 分钟?: number }; // 出生日期（用于自动计算年龄）
   种族?: string; // 添加种族字段
-  官品?: string; // NPC当前官品（原境界）
+  官品?: string; // NPC当前官品
   世界: World;
   天资: TalentTier;
   出生: Origin | string;
-  后天: SpiritRoot | string;  // 后天才能（原灵根）
+  后天: SpiritRoot | string;  // 后天才能
   天赋: Talent[];  // 能力列表
   先天六司: InnateAttributes;
   后天六司: InnateAttributes; // 后天获得的六司加成（装备、理念等），开局默认全为0
@@ -1549,40 +1545,7 @@ export interface LocalStorageRoot {
 export type Continent = WorldContinent;
 export type Location = WorldLocation;
 
-// --- 修炼速度系统（修仙主题）/施政速度系统（县令主题）---
-
-/** 修炼速度影响因子（修仙主题） */
-export interface CultivationSpeedFactors {
-  灵气浓度系数: number;    // 0.1 - 2.0，基于位置灵气浓度(1-100)
-  先天六司系数: number;    // 0.5 - 2.0，基于先天六司综合值
-  后天六司系数: number;    // 0.0 - 0.6，基于后天六司综合值（额外加成）
-  状态效果系数: number;    // 0.5 - 2.0，基于buff/debuff
-  功法加成系数: number;    // 0.0 - 1.0，基于当前修炼功法
-  环境加成系数: number;    // 0.0 - 0.5，洞府、宗门福地等
-}
-
-/** 修炼速度计算结果（修仙主题） */
-export interface CultivationSpeedResult {
-  基础速度: number;        // 每回合基础修为增加
-  综合系数: number;        // 所有因子的综合乘数
-  最终速度: number;        // 基础速度 * 综合系数
-  预计突破时间: string;    // 预计到达下一阶段的游戏时间
-  因子详情: CultivationSpeedFactors;
-}
-
-/** 境界突破时间标准（修仙主题，游戏时间） */
-export interface RealmBreakthroughTime {
-  境界名称: string;
-  阶段: string;
-  最短月数: number;        // 最短突破时间（月）
-  标准月数: number;        // 标准突破时间（月）
-  最长月数: number;        // 最长突破时间（月）
-  // 兼容旧格式
-  最短时间?: string;       // 如 "1年"
-  标准时间?: string;       // 如 "5年"
-  最长时间?: string;       // 如 "20年"
-  突破难度?: '简单' | '普通' | '困难' | '极难' | '逆天';
-}
+// --- 施政速度系统（县令主题）---
 
 /** 施政速度影响因子（县令主题） */
 export interface AdministrationSpeedFactors {
@@ -1650,10 +1613,10 @@ export interface SixSiWeights {
   魅力: number;
 }
 
-// --- 炼器/炼丹系统 ---
+// --- 炼制系统 ---
 
 /** 炼制类型 */
-export type CraftingType = '炼器' | '炼丹';
+export type CraftingType = '炼器' | '制药';
 
 /** 炼制结果品质 */
 export type CraftingResultQuality = '废品' | '残次品' | '成品' | '精品' | '极品' | '神品';
@@ -1683,7 +1646,7 @@ export interface CraftingResult {
 /** 炼制事件记录 */
 export interface CraftingEvent {
   eventId: string;
-  eventType: '炼器' | '炼丹';
+  eventType: '炼器' | '制药';
   timestamp: string;
   materials: string[]; // 材料名称列表
   result: CraftingResultQuality;

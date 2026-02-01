@@ -1364,7 +1364,6 @@ export const useCharacterStore = defineStore('characterV3', () => {
         角色名字: (currentSaveData as any).角色?.身份?.名字,
         官品: playerAttributes?.官品?.名称 || '平民',
         位置: playerLocation?.描述 || '未知',
-        修为进度: 0,
         游戏内时间: undefined
       };
 

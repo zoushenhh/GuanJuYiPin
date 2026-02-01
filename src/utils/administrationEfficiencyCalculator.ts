@@ -19,8 +19,8 @@
  */
 
 import type {
-  CultivationSpeedFactors,
-  CultivationSpeedResult,
+  AdministrationSpeedFactors,
+  AdministrationSpeedResult,
 } from '@/types/game';
 
 /** 行政效率计算结果 */

@@ -312,9 +312,9 @@ export class EnhancedWorldGenerator {
       世界背景: this.config.worldBackground || rawData.world_background || rawData.worldBackground || '',
       大陆信息: (rawData.continents || []).map((continent: Record<string, any>) => ({
         名称: continent.名称 || continent.name || '未名大陆',
-        描述: continent.描述 || continent.description || '一片神秘的修仙大陆，灵气充沛，势力林立',
+        描述: continent.描述 || continent.description || '一片神秘的政区，繁荣昌盛，势力林立',
         地理特征: continent.terrain_features || continent.地理特征 || [],
-        修真环境: continent.cultivation_environment || continent.修真环境 || '灵气充沛，适宜修行',
+        政治环境: continent.cultivation_environment || continent.修真环境 || '政治清明，适宜治理',
         气候: continent.climate || continent.气候 || '四季分明，温和宜人',
         天然屏障: continent.natural_barriers || continent.天然屏障 || [],
         大洲边界: continent.continent_bounds || continent.大洲边界 || []
@@ -323,13 +323,13 @@ export class EnhancedWorldGenerator {
         // 计算声望与综合战力（若可）
         const calcInput: SectCalculationData = {
           name: faction.name || faction.名称,
-          type: faction.type || faction.类型 || '修仙宗门',
+          type: faction.type || faction.类型 || '正统衙门',
           level: faction.level || faction.等级 || '三流',
           memberCount: (faction.memberCount?.total || 0),
           overallStrength: 0,
           // 中文属性名（向后兼容）
           名称: faction.name || faction.名称,
-          类型: faction.type || faction.类型 || '修仙宗门',
+          类型: faction.type || faction.类型 || '正统衙门',
           等级: faction.level || faction.等级 || '三流',
           宗主修为: faction.leadership?.宗主修为,
           最强修为: faction.leadership?.最强修为,
@@ -344,18 +344,19 @@ export class EnhancedWorldGenerator {
 
         const leadership = faction.leadership
           ? {
-              宗主: faction.leadership.宗主,
-              宗主修为: faction.leadership.宗主修为,
-              副宗主: faction.leadership.副宗主 ?? undefined,
-              圣女: isHehuan ? (faction.leadership.圣女 ?? undefined) : undefined,
-              圣子: isHehuan ? (faction.leadership.圣子 ?? undefined) : undefined,
-              太上长老: faction.leadership.太上长老 ?? undefined,
-              太上长老修为: faction.leadership.太上长老修为 ?? undefined,
-              最强修为: faction.leadership.最强修为 || faction.leadership.宗主修为,
+              县令: faction.leadership.宗主 || faction.leadership.县令 || '未知',
+              官职等级: faction.leadership.宗主修为 || faction.leadership.官职等级 || '七品',
+              副县令: faction.leadership.副宗主 ?? undefined,
+              师爷: isHehuan ? (faction.leadership.圣女 ?? undefined) : undefined,
+              书吏: isHehuan ? (faction.leadership.圣子 ?? undefined) : undefined,
+              太书吏: faction.leadership.太上长老 ?? undefined,
+              太书吏等级: faction.leadership.太上长老修为 ?? undefined,
+              长老数量: faction.leadership.长老数量 ?? (faction.leadership.核心弟子数 ?? 0),
+              最高官职: faction.leadership.最强修为 || faction.leadership.宗主修为 || '七品',
               综合战力: calculated.综合战力,
-              核心弟子数: faction.leadership.核心弟子数,
-              内门弟子数: faction.leadership.内门弟子数,
-              外门弟子数: faction.leadership.外门弟子数
+              核心吏员数: faction.leadership.核心弟子数,
+              内门吏员数: faction.leadership.内门弟子数,
+              外门吏员数: faction.leadership.外门弟子数
             }
           : undefined;
 

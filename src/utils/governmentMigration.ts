@@ -50,7 +50,7 @@ export const detectGovernmentMigration = (saveData: SaveData | null): Government
   const isEmptyObject = governmentSystem !== null && typeof governmentSystem === 'object' && Object.keys(governmentSystem).length === 0;
 
   // 只有当存在旧版字段或版本不匹配时才需要迁移
-  const hasLegacyOfficeFields = !!(governmentSystem as any)?.成员信息?.宗门名称;
+  const hasLegacyOfficeFields = !!(governmentSystem as any)?.成员信息?.衙门名称;
   // 空对象不算版本不匹配
   const hasVersionMismatch = governmentSystem !== null && !isEmptyObject && governmentSystem.版本 !== GOVERNMENT_SYSTEM_VERSION;
 
@@ -63,7 +63,7 @@ export const detectGovernmentMigration = (saveData: SaveData | null): Government
   check.fromVersion = fromVersion;
 
   // 只检测真正需要迁移的情况
-  if (hasLegacyOfficeFields && !governmentSystem?.当前宗门) {
+  if (hasLegacyOfficeFields && !governmentSystem?.当前衙门) {
     check.reasons.push('玩家政府信息未同步到政府系统');
   }
 
@@ -89,7 +89,7 @@ const buildGovernmentSystem = (
     }
   });
 
-  const playerOfficeName = (existing as any)?.成员信息?.宗门名称 ?? null;
+  const playerOfficeName = (existing as any)?.成员信息?.衙门名称 ?? null;
   const membersByOffice = collectMembersByOffice(saveData);
 
   return {
