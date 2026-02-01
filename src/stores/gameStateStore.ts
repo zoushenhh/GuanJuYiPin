@@ -35,7 +35,7 @@ function buildGoverningStrategyProgress(inventory: Inventory | null) {
   const items = inventory?.物品 || {};
 
   Object.values(items).forEach((item: any) => {
-    if (item?.类型 !== '治国方略') return;
+    if (item?.类型 !== '治理方略') return;
     const itemId = item.物品ID;
     if (!itemId) return;
     progress[itemId] = {
@@ -136,7 +136,7 @@ interface GameState {
   thousandDao: any | null;
   // 事件系统
   eventSystem: EventSystem;
-  // 治国方略
+  // 治理方略
   governingStrategy: any | null;
   // 政务模块（完整结构）
   administration: any | null;

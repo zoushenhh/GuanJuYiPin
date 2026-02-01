@@ -245,7 +245,7 @@ const panelTitles: Record<string, { title: string; icon: IconComponent }> = {
   Relationships: { title: '人物关系', icon: Users },
   Cultivation: { title: '政务系统', icon: BookOpen },
   Techniques: { title: '方略技能', icon: Zap },
-  ThousandDao: { title: '治国方略', icon: Scroll },
+  ThousandDao: { title: '治理方略', icon: Scroll },
   Settings: { title: '系统设置', icon: Settings },
   Save: { title: '保存游戏', icon: Save },
   WorldMap: { title: '世界地图', icon: Map },

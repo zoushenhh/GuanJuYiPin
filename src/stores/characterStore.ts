@@ -1046,7 +1046,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
           const storeItems = gameStateStore.inventory?.物品;
           if (saveItems && storeItems) {
             for (const [itemId, item] of Object.entries(saveItems as Record<string, any>)) {
-              if ((item as any)?.类型 === '治国方略' && (item as any)?.已解锁技能 && storeItems[itemId]) {
+              if ((item as any)?.类型 === '治理方略' && (item as any)?.已解锁技能 && storeItems[itemId]) {
                 (storeItems[itemId] as any).已解锁技能 = [...(item as any).已解锁技能];
               }
             }
@@ -1962,8 +1962,8 @@ const deleteNpc = async (npcName: string) => {
 
 
 /**
- * [新增] 装备一个治国方略
- * @param itemId 要装备的治国方略物品ID
+ * [新增] 装备一个治理方略
+ * @param itemId 要装备的治理方略物品ID
  */
 const equipTechnique = async (itemId: string) => {
   // 🔥 [修复] 使用 gameStateStore 获取当前存档数据
@@ -1978,33 +1978,33 @@ const equipTechnique = async (itemId: string) => {
 
   const item = (saveData as any).角色?.背包?.物品?.[itemId];
 
-  if (!item || item.类型 !== '治国方略') {
-    toast.error('要装备的物品不是一个有效的治国方略');
+  if (!item || item.类型 !== '治理方略') {
+    toast.error('要装备的物品不是一个有效的治理方略');
     return;
   }
 
   // 🔍 调试：装备前检查品质数据
-  console.log('[角色商店-调试] 装备治国方略前的数据:', {
+  console.log('[角色商店-调试] 装备治理方略前的数据:', {
     方略名称: item.名称,
     品质字段存在: !!item.品质,
     品质内容: item.品质,
     完整物品数据: item
   });
 
-  // 1. 卸下当前所有治国方略（治国方略类型）
+  // 1. 卸下当前所有治理方略（治理方略类型）
   Object.values(((saveData as any).角色?.背包?.物品 ?? {}) as Record<string, any>).forEach((i) => {
-    if (i.类型 === '治国方略') {
+    if (i.类型 === '治理方略') {
       i.已装备 = false;
     }
   });
 
-  // 2. 装备新治国方略（治国方略类型）
+  // 2. 装备新治理方略（治理方略类型）
   item.已装备 = true;
 
   // 🔥 [关键修复] 初始化政绩进度（如果未定义）
   if (item.政绩进度 === undefined || item.政绩进度 === null) {
     item.政绩进度 = item.政绩进度 || 0;
-    debug.log('角色商店', `初始化治国方略政绩进度为 0`);
+    debug.log('角色商店', `初始化治理方略政绩进度为 0`);
   }
 
   // 🔥 [关键修复] 初始化并更新已解锁技能数组
@@ -2016,7 +2016,7 @@ const equipTechnique = async (itemId: string) => {
   const skillsToCheck = item.方略技能 || [];
   if (skillsToCheck && Array.isArray(skillsToCheck)) {
     const currentProgress = item.政绩进度 || 0;
-    debug.log('角色商店', `[技能解锁检查] 治国方略: ${item.名称}, 进度: ${currentProgress}%, 技能数: ${skillsToCheck.length}`);
+    debug.log('角色商店', `[技能解锁检查] 治理方略: ${item.名称}, 进度: ${currentProgress}%, 技能数: ${skillsToCheck.length}`);
     skillsToCheck.forEach((skill: any) => {
       const unlockThreshold = skill.熟练度要求 || 0;
       debug.log('角色商店', `  检查技能: ${skill.技能名称}, 阈值: ${unlockThreshold}%, 当前进度: ${currentProgress}%, 应解锁: ${currentProgress >= unlockThreshold}`);
@@ -2037,16 +2037,16 @@ const equipTechnique = async (itemId: string) => {
     },
   };
 
-  debug.log('角色商店', `已装备治国方略: ${item.名称}`);
+  debug.log('角色商店', `已装备治理方略: ${item.名称}`);
   debug.log('角色商店', `政绩进度存储在: 背包.物品.${item.物品ID}.政绩进度`);
   debug.log('角色商店', `已解锁技能数量: ${item.已解锁技能?.length || 0}`);
 
-  // 🔥 [掌握技能自动计算] 装备治国方略后重新计算掌握技能
+  // 🔥 [掌握技能自动计算] 装备治理方略后重新计算掌握技能
   try {
     const updatedSkills = updateMasteredSkills(saveData);
-    debug.log('角色商店', `装备治国方略后已更新掌握技能列表，共 ${updatedSkills.length} 个技能`);
+    debug.log('角色商店', `装备治理方略后已更新掌握技能列表，共 ${updatedSkills.length} 个技能`);
   } catch (e) {
-    debug.error('角色商店', '装备治国方略后自动计算掌握技能失败:', e);
+    debug.error('角色商店', '装备治理方略后自动计算掌握技能失败:', e);
   }
 
   // 🔥 [修复] 更新 gameStateStore 并保存完整存档数据
@@ -2055,7 +2055,7 @@ const equipTechnique = async (itemId: string) => {
   // 🔥 [关键修复] loadFromSaveData 后再次确保技能解锁状态正确
   // 因为 loadFromSaveData 可能会创建新对象
   const itemInStore = gameStateStore.inventory?.物品?.[itemId] as any;
-  if (itemInStore && itemInStore.类型 === '治国方略') {
+  if (itemInStore && itemInStore.类型 === '治理方略') {
     if (!itemInStore.已解锁技能) {
       itemInStore.已解锁技能 = [];
     }
@@ -2076,14 +2076,14 @@ const equipTechnique = async (itemId: string) => {
 
   // 🔍 调试：同步后再次检查品质数据
   const itemAfterSync = (saveData as any).角色?.背包?.物品?.[itemId];
-  console.log('[角色商店-调试] 持久化后的治国方略数据:', {
+  console.log('[角色商店-调试] 持久化后的治理方略数据:', {
     方略名称: itemAfterSync?.名称,
     品质字段存在: !!itemAfterSync?.品质,
     品质内容: itemAfterSync?.品质,
     完整物品数据: itemAfterSync
   });
 
-  // 🔥 修复：显示真实治国方略名称而非伪装名称
+  // 🔥 修复：显示真实治理方略名称而非伪装名称
   const realTechniqueName = item.名称;
   toast.success(`已开始实施《${realTechniqueName}》`);
 };
@@ -2184,8 +2184,8 @@ const importCharacter = async (profileData: CharacterProfile & { _导入存档�
 };
 
 /**
- * [新增] 卸下一个治国方略
- * @param itemId 要卸下的治国方略物品ID
+ * [新增] 卸下一个治理方略
+ * @param itemId 要卸下的治理方略物品ID
  */
 /**
  * 从 IndexedDB 加载指定槽位的存档数据
@@ -2267,21 +2267,21 @@ const unequipTechnique = async (itemId: string) => {
   // 兼容旧数据：如果 已装备 为 false 但 实施中 为 true，也允许卸下
   const isEquipped = item.已装备 || (item as any).实施中;
 
-  if (!item || item.类型 !== '治国方略' || !isEquipped) {
-    debug.error('角色商店', '治国方略卸载验证失败:', {
+  if (!item || item.类型 !== '治理方略' || !isEquipped) {
+    debug.error('角色商店', '治理方略卸载验证失败:', {
       itemExists: !!item,
       itemType: item?.类型,
       isEquipped: item?.已装备,
       isImplementing: (item as any)?.实施中,
       requestedItemId: itemId
     });
-    toast.error('要卸下的治国方略与当前实施的治国方略不匹配');
+    toast.error('要卸下的治理方略与当前实施的治理方略不匹配');
     return;
   }
 
   // 政绩进度已存储在背包物品本身，无需同步
 
-  // 2. 更新背包中的治国方略状态
+  // 2. 更新背包中的治理方略状态
   item.已装备 = false;
   if ((item as any).实施中) (item as any).实施中 = false;
 
@@ -2293,15 +2293,15 @@ const unequipTechnique = async (itemId: string) => {
     };
   }
 
-  debug.log('角色商店', `已卸下治国方略: ${item.名称}`);
+  debug.log('角色商店', `已卸下治理方略: ${item.名称}`);
   debug.log('角色商店', `政绩进度保留在: 背包.物品.${item.物品ID}.政绩进度`);
 
-  // 🔥 [掌握技能自动计算] 卸下治国方略后重新计算掌握技能
+  // 🔥 [掌握技能自动计算] 卸下治理方略后重新计算掌握技能
   try {
     const updatedSkills = updateMasteredSkills(saveData);
-    debug.log('角色商店', `卸下治国方略后已更新掌握技能列表，共 ${updatedSkills.length} 个技能`);
+    debug.log('角色商店', `卸下治理方略后已更新掌握技能列表，共 ${updatedSkills.length} 个技能`);
   } catch (e) {
-    debug.error('角色商店', '卸下治国方略后自动计算掌握技能失败:', e);
+    debug.error('角色商店', '卸下治理方略后自动计算掌握技能失败:', e);
   }
 
   // 🔥 注意：由于saveData是gameStateStore状态的引用，直接修改已自动更新store
@@ -2311,7 +2311,7 @@ const unequipTechnique = async (itemId: string) => {
 
   await commitMetadataToStorage(); // 直接持久化到IndexedDB
   const progress = item.政绩进度 || 0;
-  // 🔥 修复：显示真实治国方略名称而非伪装名称
+  // 🔥 修复：显示真实治理方略名称而非伪装名称
   const realTechniqueName =  item.名称;
   toast.info(`已停止实施《${realTechniqueName}》，政绩进度${progress}%已保存到背包`);
 };

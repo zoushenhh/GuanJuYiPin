@@ -59,7 +59,7 @@ const autoTranslateMap: Record<string, string> = {
 
   // === 左侧栏 ===
   '游戏功能': 'Functions', '施政管理': 'Administration Management', '背包物品': 'Inventory', '查看道具装备': 'Items',
-  '人物详情': 'Character', '查看官品政绩': 'Official Rank & Achievement', '治国方略': 'Governance Strategies', '施政方略': 'Administration Strategies',
+  '人物详情': 'Character', '查看官品政绩': 'Official Rank & Achievement', '治理方略': 'Governance Strategies', '施政方略': 'Administration Strategies',
   '方略技能': 'Strategy Skills', '施政仕途': 'Administration Approaches',
   '红尘俗事': 'Worldly Affairs', '人物关系': 'Relations', '人情世故网络': 'Social', '衙门信息': 'Government Office',
   '任务日志': 'Quests', '当前任务进度': 'Progress', '世界探索': 'Explore', '世界地图': 'World Map',
@@ -218,7 +218,7 @@ const autoTranslateMap: Record<string, string> = {
   '威望': 'Prestige',
   '决定健康上限、恢复速度、寿命上限。影响体能训练、抗打击能力。': 'Affects health and lifespan',
   '决定民心上限、吸收效率。影响处理政务速度、政策威力。': 'Affects public trust capacity',
-  '决定智慧上限、学习效率。影响治国方略领悟、技能掌握速度。': 'Affects learning speed',
+  '决定智慧上限、学习效率。影响治理方略领悟、技能掌握速度。': 'Affects learning speed',
   '决定各种概率、物品掉落品质。影响天材地宝获取、贵人相助。': 'Affects luck and drops',
   '决定初始好感度、社交加成。影响NPC互动、衙门威望获取。': 'Affects social interactions',
   '决定心魔抗性、意志力。影响贪污抵抗、关键抉择。': 'Affects willpower',

@@ -46,14 +46,14 @@ export interface GameCharacter {
     promotion_bottleneck?: string;
   };
 
-  // ==================== 六维根骨 ====================
+  // ==================== 六司属性 ====================
   attributes: {
-    STR: number; // 力量
-    CON: number; // 体质
-    DEX: number; // 身法
-    INT: number; // 悟性
-    SPI: number; // 神魂
-    LUK: number; // 气运
+    STR: number; // 精力
+    CON: number; // 灵性
+    DEX: number; // 悟性
+    INT: number; // 气运
+    SPI: number; // 魅力
+    LUK: number; // 心性
   };
 
   // ==================== 三大资源 ====================
@@ -125,7 +125,7 @@ export interface GameCharacter {
     职位?: string;
     master?: string;
     disciples?: string[];
-    dao_companion?: string;
+    同僚?: string;
     relationships: Record<string, {
       value: number;
       type: string;
@@ -136,14 +136,14 @@ export interface GameCharacter {
   // ==================== 隐藏状态 ====================
   hidden_state: {
     karma: {
-      righteous: number;
-      demonic: number;
-      heavenly_favor: number;
+      清正: number;
+      贪墨: number;
+      天恩: number;
     };
-    dao_heart: {
+    心境: {
       stability: number;
-      demons: string[];
-      enlightenment: number;
+      弊端: string[];
+      修养: number;
     };
     special_marks: string[];
   };
@@ -212,7 +212,7 @@ export interface GM_Response {
     dc: number;
     roll: number; // 1-100
     success_rate: number; // 0-100
-    grade: '天眷' | '完胜' | '险胜' | '失手' | '反噬' | string;
+    grade: '大吉' | '完胜' | '险胜' | '失手' | '反噬' | string;
     details?: any;
   };
   stateChanges?: import('./game').StateChangeLog;

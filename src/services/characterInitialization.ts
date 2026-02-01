@@ -1052,10 +1052,10 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
       (corresponding.修炼中 === true || corresponding.已装备 === true);
 
     if (!ok) {
-      console.warn(`[数据校准] 检测到无效的"已失传治国方略"：角色.修炼.修炼功法 非空，但角色.背包.物品中无对应实体。正在清除无效修炼状态...`);
+      console.warn(`[数据校准] 检测到无效的"已失传治理方略"：角色.修炼.修炼功法 非空，但角色.背包.物品中无对应实体。正在清除无效修炼状态...`);
       if (repairedMigrated.角色?.修炼) repairedMigrated.角色.修炼.修炼功法 = null;
     } else {
-      console.log(`[数据校准] 治国方略一致性校验通过: "${cultivating.名称}"`);
+      console.log(`[数据校准] 治理方略一致性校验通过: "${cultivating.名称}"`);
     }
   }
 

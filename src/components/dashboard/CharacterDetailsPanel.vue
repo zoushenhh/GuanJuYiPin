@@ -236,7 +236,7 @@
                <section class="info-card glass-panel">
                   <div class="card-header">
                     <BookOpen :size="20" class="header-icon gold" />
-                    <h3>{{ t('治国方略') }}</h3>
+                    <h3>{{ t('治理方略') }}</h3>
                   </div>
 
                   <div v-if="!fullCultivationTechnique" class="empty-placeholder">

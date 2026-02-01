@@ -51,7 +51,7 @@
               <select v-model="settings.theme" class="setting-select" @change="onSettingChange">
                 <option value="light">{{ t('明亮') }}</option>
                 <option value="dark">{{ t('暗黑') }}</option>
-                <option value="xianling">{{ t('官途') }}</option>
+                <option value="xianling">{{ t('官居一品') }}</option>
                 <option value="auto">{{ t('跟随系统') }}</option>
               </select>
             </div>
@@ -680,7 +680,7 @@ const exportSettings = () => {
         timestamp: new Date().toISOString(),
         version: '3.7.4',
         userAgent: navigator.userAgent,
-        gameVersion: '官途 v3.7.4'
+        gameVersion: '官居一品 v3.7.4'
       }
     };
 
@@ -690,7 +690,7 @@ const exportSettings = () => {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(dataBlob);
     const dateStr = new Date().toISOString().split('T')[0];
-    link.download = `官途-设置备份-${dateStr}.json`;
+    link.download = `官居一品-设置备份-${dateStr}.json`;
 
     document.body.appendChild(link);
     link.click();

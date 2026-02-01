@@ -177,7 +177,7 @@
           </div>
         </div>
         <div v-else class="placeholder">
-          {{ $t('请选择一处朝代，开始官途生涯。') }}
+          {{ $t('请选择一处朝代，开始官居一品生涯。') }}
         </div>
       </div>
     </div>

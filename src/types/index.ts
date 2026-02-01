@@ -88,7 +88,7 @@ export type { StrategyItem as TechniqueItem } from './game.d';
 export type LegacyItemType =
   | '装备'      // 装备类物品
   | '功法'      // 修仙主题：功法（已废弃，映射到'方略'）
-  | '方略'      // 县令主题：治国方略
+  | '方略'      // 县令主题：治理方略
   | '丹药'      // 修仙主题：丹药（已废弃，映射到'药品'）
   | '药品'      // 县令主题：药品
   | '材料'      // 材料类物品

@@ -10,7 +10,7 @@
  * - governance-schools.ts 官学体系数据（原 thousandDaoData）
  * - bureaucracy.ts       官僚制度数据（原 sectSystemFactory）
  * - realms.ts            城市等级数据（已更新）
- * - thousandDaoData.ts   治国方略系统（已更新）
+ * - thousandDaoData.ts   治理方略系统（已更新）
  *
  * 保留文件：
  * - itemQuality.ts       物品品质系统
@@ -47,7 +47,7 @@ export * from './bureaucracy';
 // 城市等级与官品系统
 export * from './realms';
 
-// 治国方略系统（AI动态生成）
+// 治理方略系统（AI动态生成）
 export * from './thousandDaoData';
 
 // ============================================================================
@@ -83,7 +83,7 @@ export interface DataModules {
   bureaucracy: typeof import('./bureaucracy');
   // 城市等级
   realms: typeof import('./realms');
-  // 治国方略
+  // 治理方略
   thousandDao: typeof import('./thousandDaoData');
   // 物品品质
   itemQuality: typeof import('./itemQuality');

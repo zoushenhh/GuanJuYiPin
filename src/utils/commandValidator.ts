@@ -610,11 +610,11 @@ function validateItemObject(value: any): ValueValidationResult {
   if (typeof value.数量 !== 'number') errors.push('物品缺少"数量"字段或类型错误');
   if (value.描述 === undefined) errors.push('物品缺少"描述"字段');
 
-  if (value.类型 === '治国方略') {
+  if (value.类型 === '治理方略') {
     if (!Array.isArray(value.政务技能)) {
-      errors.push('治国方略物品缺少"政务技能"数组');
+      errors.push('治理方略物品缺少"政务技能"数组');
     } else if (value.政务技能.length === 0) {
-      errors.push('治国方略物品的"政务技能"数组不能为空，至少需要1个技能');
+      errors.push('治理方略物品的"政务技能"数组不能为空，至少需要1个技能');
     } else {
       value.政务技能.forEach((skill: any, index: number) => {
         if (typeof skill !== 'object' || skill === null) {

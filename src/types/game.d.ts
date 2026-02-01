@@ -7,7 +7,7 @@
  * 所有数据结构均基于县令模拟器主题设定。
  *
  * 术语对照说明:
- * - 修炼/修炼功法 -> 施政/治国方略
+ * - 修炼/修炼功法 -> 施政/治理方略
  * - 境界 -> 官品/职位
  * - 灵石 -> 银两/资金
  * - 宗门 -> 衙门/官府
@@ -295,7 +295,7 @@ export interface TechniqueEffects {
  * 定义游戏中所有物品的分类
  *
  * - 装备：武器、防具、饰品等可装备物品
- * - 方略：治国方略、政策措施（县令主题，替代"功法"）
+ * - 方略：治理方略、政策措施（县令主题，替代"功法"）
  * - 药品：丹药、草药等医疗用品（县令主题）
  * - 材料：炼制材料、资源
  * - 其他：杂物
@@ -305,7 +305,7 @@ export interface TechniqueEffects {
  */
 export type ItemType =
   | '装备'    // 装备类物品
-  | '方略'    // 治国方略（县令主题：主要）
+  | '方略'    // 治理方略（县令主题：主要）
   | '药品'    // 药品（县令主题：主要）
   | '材料'    // 材料
   | '其他';   // 其他物品
@@ -314,7 +314,7 @@ export type ItemType =
 export type LegacyItemType =
   | '装备'      // 装备类物品
   | '功法'      // 修仙主题：功法（已废弃，映射到'方略'）
-  | '方略'      // 县令主题：治国方略
+  | '方略'      // 县令主题：治理方略
   | '丹药'      // 修仙主题：丹药（已废弃，映射到'药品'）
   | '药品'      // 县令主题：药品
   | '材料'      // 材料类物品
@@ -342,7 +342,7 @@ export interface EquipmentItem extends BaseItem {
 }
 
 
-/** 治国方略类型物品（县令主题：主要类型） */
+/** 治理方略类型物品（县令主题：主要类型） */
 export interface StrategyItem extends BaseItem {
   类型: '方略';
   方略效果?: TechniqueEffects;
@@ -763,12 +763,12 @@ export interface SectTaskStatus {
   演变次数: number;
 }
 
-// --- 治国方略系统 ---
+// --- 治理方略系统 ---
 
 /**
  * @deprecated 接口名使用Dao（道）是为了向后兼容旧存档
  * 旧术语：大道阶段（修仙游戏中的修行境界）
- * 新术语：方略阶段（县令游戏中的治国方略阶段）
+ * 新术语：方略阶段（县令游戏中的治理方略阶段）
  */
 export interface DaoStage {
   名称: string;
@@ -779,7 +779,7 @@ export interface DaoStage {
 /**
  * @deprecated 接口名使用Dao（道）是为了向后兼容旧存档
  * 旧术语：大道数据（修仙游戏中的修行体系）
- * 新术语：方略数据（县令游戏中的治国方略体系）
+ * 新术语：方略数据（县令游戏中的治理方略体系）
  */
 export interface DaoData {
   道名: string;
@@ -794,11 +794,11 @@ export interface DaoData {
 }
 
 /**
- * 治国方略系统数据
+ * 治理方略系统数据
  *
  * @deprecated 接口名ThousandDaoSystem保留是为了向后兼容旧存档
  * 旧术语：千道系统（修仙游戏中可修炼的多条大道）
- * 新术语：方略系统（县令游戏中可学习治国方略）
+ * 新术语：方略系统（县令游戏中可学习治理方略）
  */
 export interface ThousandDaoSystem extends AIMetadata {
   /**
