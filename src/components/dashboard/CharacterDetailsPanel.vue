@@ -657,13 +657,13 @@ const formatSignedNumber = (value: unknown): string => {
 const getAttributeName = (key: string): string => {
   const attributeMap: Record<string, string> = {
     根骨: '断案',
-    灵性: '治理',
+    灵性: '威望',
     悟性: '用人',
     心性: '清廉',
-    气运: '威望',
+    气运: '气运',
     魅力: '民心'
   };
-  return attributeMap[key] || key;
+  return t(attributeMap[key] || key);
 };
 
 const fullCultivationTechnique = computed((): TechniqueItem | null => {

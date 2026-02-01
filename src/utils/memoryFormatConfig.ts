@@ -70,10 +70,10 @@ export const MEMORY_FORMAT_PRESETS: MemoryFormatConfig[] = [
         icon: '⚡',
         title: '特殊经历',
         key: 'special',
-        description: '觉醒、传承等重要经历',
+        description: '从政初心、官场经验等重要经历',
         placeholder: [
-          '入仕初心/天赋显现的具体时刻',
-          '重要传承物品的获得过程（如有）',
+          '从政初心/天赋显现的具体时刻',
+          '重要信物/官印的获得过程（如有）',
           '改变命运的关键事件'
         ]
       },
@@ -98,13 +98,13 @@ export const MEMORY_FORMAT_PRESETS: MemoryFormatConfig[] = [
     sections: [
       {
         icon: '⚔️',
-        title: '战斗经历',
+        title: '政务冲突',
         key: 'combat',
-        description: '战斗和冲突的记忆',
+        description: '政务纠纷和政治博弈的记忆',
         placeholder: [
-          '与{敌人}的激战过程',
-          '生死关头的感悟',
-          '实力突破的契机'
+          '与{对手/势力}的政治博弈过程',
+          '关键时刻的感悟',
+          '官品晋升的契机'
         ]
       },
       {
@@ -126,7 +126,7 @@ export const MEMORY_FORMAT_PRESETS: MemoryFormatConfig[] = [
         placeholder: [
           '获得{物品名}的经过',
           '领悟{技能/感悟}的过程',
-          '实力成长的体现'
+          '治理能力成长的体现'
         ]
       },
       {

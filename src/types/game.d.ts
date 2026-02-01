@@ -437,9 +437,23 @@ export type RankLevel =
 /** 衙门关系/宗门关系（县令主题：衙门关系；修仙主题：宗门关系） */
 export type SectRelationship = '仇敌' | '敌对' | '冷淡' | '中立' | '友好' | '盟友' | '附庸';
 
-/** 衙门成员信息/宗门成员信息（县令主题：衙门成员信息；修仙主题：宗门成员信息） */
+/**
+ * 衙门成员信息/宗门成员信息（县令主题：衙门成员信息；修仙主题：宗门成员信息）
+ *
+ * @deprecated 接口名保留为SectMemberInfo是为了向后兼容旧存档
+ * 旧术语：宗门成员信息（修仙游戏中的组织成员）
+ * 新术语：衙门成员信息（县令游戏中的政府官员）
+ *
+ * 术语映射：
+ * - 宗门名称 -> 衙门名称
+ * - 宗门类型 -> 衙门类型
+ * - 职位 -> 官职
+ * - 贡献 -> 政绩贡献
+ */
 export interface SectMemberInfo {
+  /** @deprecated 县令主题：衙门名称 */
   宗门名称: string;
+  /** @deprecated 县令主题：衙门类型 */
   宗门类型: GovernmentOfficeType;
   职位: GovernmentPosition;
   贡献: number;
@@ -680,14 +694,22 @@ export interface SectTaskStatus {
 
 // --- 治国方略系统 ---
 
-/** 方略阶段定义 */
+/**
+ * @deprecated 接口名使用Dao（道）是为了向后兼容旧存档
+ * 旧术语：大道阶段（修仙游戏中的修行境界）
+ * 新术语：方略阶段（县令游戏中的治国方略阶段）
+ */
 export interface DaoStage {
   名称: string;
   描述: string;
   突破经验: number;
 }
 
-/** 方略数据（方略定义+进度合并） */
+/**
+ * @deprecated 接口名使用Dao（道）是为了向后兼容旧存档
+ * 旧术语：大道数据（修仙游戏中的修行体系）
+ * 新术语：方略数据（县令游戏中的治国方略体系）
+ */
 export interface DaoData {
   道名: string;
   描述: string;
@@ -700,9 +722,19 @@ export interface DaoData {
   总经验: number;
 }
 
-/** 治国方略系统数据 */
+/**
+ * 治国方略系统数据
+ *
+ * @deprecated 接口名ThousandDaoSystem保留是为了向后兼容旧存档
+ * 旧术语：千道系统（修仙游戏中可修炼的多条大道）
+ * 新术语：方略系统（县令游戏中可学习治国方略）
+ */
 export interface ThousandDaoSystem extends AIMetadata {
-  方略列表: Record<string, DaoData>; // 以方略名称为key，数据+进度合并
+  /**
+   * @deprecated 县令主题：方略列表
+   * 以方略名称为key，数据+进度合并
+   */
+  方略列表: Record<string, DaoData>;
 }
 
 // --- 装备 ---
@@ -791,25 +823,61 @@ export interface RealmDefinition {
 
 
 
+/**
+ * 玩家状态接口
+ * @deprecated 部分字段使用修仙术语，实际含义为县令主题术语：
+ * - 境界 → 官品
+ * - 气血 → 健康
+ * - 灵气 → 威望
+ * - 神识 → 智慧
+ * - 寿命 → 任期/寿命
+ * - 宗门信息 → 衙门信息
+ */
 export interface PlayerStatus extends AIMetadata {
-  境界: Realm; // 县令主题：官品；修仙主题：境界。包含施政/修为进度（当前进度 = 施政当前/修为当前，下一级所需 = 施政最大/修为最大）
-  // 县令主题：官品与境界同义（为兼容性保留字段）
-  官品?: Realm; // 官品（县令主题，与境界同义）
+  /**
+   * @deprecated 县令主题：官品；修仙主题：境界
+   * 包含施政/修为进度（当前进度 = 施政当前/修为当前，下一级所需 = 施政最大/修为最大）
+   */
+  境界: Realm;
+  /**
+   * 官品（县令主题，与境界同义）
+   * 县令主题推荐使用此字段，修仙主题使用境界字段
+   */
+  官品?: Realm;
   声望: number;
   政绩?: number; // 政绩/功绩（县令主题）
   位置: {
     描述: string;
     x?: number; // 经度坐标 (Longitude, 通常 100-115)
     y?: number; // 纬度坐标 (Latitude, 通常 25-35)
-    灵气浓度?: number; // 县令主题：民心支持度；修仙主题：灵气浓度。1-100，影响施政/修炼速度
+    /**
+     * @deprecated 县令主题：民心支持度；修仙主题：灵气浓度
+     * 1-100，影响施政/修炼速度
+     */
+    灵气浓度?: number;
     民心支持度?: number; // 当前位置的民心支持度，1-100（县令主题）
   };
-  气血: ValuePair<number>; // 健康/体力
-  灵气: ValuePair<number>; // 县令主题：民心/威望；修仙主题：灵气
-  神识: ValuePair<number>; // 县令主题：智慧/洞察；修仙主题：神识
-  寿命: ValuePair<number>; // 任期/寿命
+  /**
+   * @deprecated 县令主题：健康/体力；修仙主题：气血
+   */
+  气血: ValuePair<number>;
+  /**
+   * @deprecated 县令主题：民心/威望；修仙主题：灵气
+   */
+  灵气: ValuePair<number>;
+  /**
+   * @deprecated 县令主题：智慧/洞察；修仙主题：神识
+   */
+  神识: ValuePair<number>;
+  /**
+   * @deprecated 县令主题：任期/寿命；修仙主题：寿元
+   */
+  寿命: ValuePair<number>;
   状态效果?: StatusEffect[];
-  宗门信息?: SectMemberInfo; // 县令主题：衙门信息；修仙主题：宗门信息
+  /**
+   * @deprecated 县令主题：衙门信息；修仙主题：宗门信息
+   */
+  宗门信息?: SectMemberInfo;
   事件系统?: EventSystem;
   // 注意: 玩家的NSFW数据存储在 SaveData.身体部位开发 中，不使用 PrivacyProfile
 }

@@ -50,10 +50,10 @@ const PROTECTED_ROOT_PATHS: string[] = [
   '角色.背包',
   '角色.背包.物品',
   '角色.背包.货币',
-  '角色.功法',
-  '角色.功法.功法进度',
-  '角色.大道',
-  '角色.大道.方略列表',
+  '角色.方略',
+  '角色.方略.方略进度',
+  '角色.理念',
+  '角色.理念.理念列表',
   '角色.效果',
   '角色.位置',
   '角色.技能',
@@ -305,9 +305,9 @@ function validateValueType(key: string, value: unknown, action: string): string[
       }
     }
 
-    // 大道对象（角色.大道.方略列表.<道名>）
-    if (key.startsWith('角色.大道.方略列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
-      if (typeof value !== 'object' || value === null) errors.push('大道对象必须是对象类型');
+    // 理念对象（角色.理念.理念列表.<理念名>）
+    if (key.startsWith('角色.理念.理念列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
+      if (typeof value !== 'object' || value === null) errors.push('理念对象必须是对象类型');
     }
 
     return errors;
@@ -498,10 +498,10 @@ export function validateAndRepairCommandValue(command: TavernCommand): Validatio
       errors.push(...result.errors);
     }
 
-    // 8. 大道对象
-    if (key.startsWith('角色.大道.方略列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
-      const daoName = key.split('.')[3];
-      const result = validateDaoObject(value, daoName);
+    // 8. 理念对象
+    if (key.startsWith('角色.理念.理念列表.') && action === 'set' && (key.match(/\./g) || []).length === 3) {
+      const理念Name = key.split('.')[3];
+      const result = validateDaoObject(value, 理念Name);
       errors.push(...result.errors);
     }
 
@@ -704,7 +704,7 @@ function validateDaoObject(value: any, daoNameFromKey?: string): ValueValidation
   const errors: string[] = [];
 
   if (typeof value !== 'object' || value === null) {
-    errors.push('大道对象必须是对象类型');
+    errors.push('理念对象必须是对象类型');
     return { valid: false, errors };
   }
 
@@ -713,12 +713,12 @@ function validateDaoObject(value: any, daoNameFromKey?: string): ValueValidation
     if (possibleName) {
       value.道名 = possibleName;
     } else {
-      errors.push('大道对象缺少"道名"字段');
+      errors.push('理念对象缺少"道名"字段');
     }
   }
 
   if (value.描述 === undefined) {
-    value.描述 = value.description || '为官之道';
+    value.描述 = value.description || '治理理念';
   }
 
   if (!Array.isArray(value.阶段列表)) {

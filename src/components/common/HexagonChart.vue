@@ -79,7 +79,7 @@ const statOrder: AttributeKey[] = ['root_bone', 'spirituality', 'comprehension',
 
 const statNames: Record<AttributeKey, string> = {
   root_bone: t('根骨'),
-  spirituality: t('灵性'),
+  spirituality: t('威望'),
   comprehension: t('悟性'),
   fortune: t('气运'),
   charm: t('魅力'),

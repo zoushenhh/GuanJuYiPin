@@ -187,7 +187,7 @@
             <label>事件描述模板</label>
             <textarea
               v-model="customEventForm.描述模板"
-              placeholder="支持占位符：{玩家名}、{位置}、{境界}&#10;例如：{玩家名}在{位置}发现了一处神秘洞府..."
+              placeholder="支持占位符：{玩家名}、{位置}、{官品}&#10;例如：{玩家名}在{位置}发现了一处特殊区域..."
               rows="4"
             ></textarea>
           </div>
