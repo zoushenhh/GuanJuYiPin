@@ -3,68 +3,81 @@
   <div class="right-sidebar">
     <div class="sidebar-header">
       <h3 class="sidebar-title">
-        <User :size="18" class="title-icon" />
-        <span>{{ t('角色状态') }}</span>
+        <MapPin :size="18" class="title-icon" />
+        <span>{{ t('城镇发展') }}</span>
       </h3>
     </div>
 
     <div v-if="isDataLoaded && characterInfo" class="sidebar-content">
-      <!-- 核心数值 -->
+      <!-- 城镇发展数值 -->
       <div class="vitals-section">
         <h3 class="section-title">
           <Heart :size="14" class="section-icon" />
-          <span>{{ t('核心数值') }}</span>
+          <span>{{ t('发展指标') }}</span>
         </h3>
         <div class="vitals-list">
           <div class="vital-item">
             <div class="vital-info">
               <span class="vital-name">
-                <Droplet :size="12" class="vital-icon blood" />
-                <span>{{ t('气血') }}</span>
+                <Heart :size="12" class="vital-icon support" />
+                <span>{{ t('民心') }}</span>
               </span>
-              <span class="vital-text">{{ playerStatus?.气血?.当前 }} / {{ playerStatus?.气血?.上限 }}</span>
+              <span class="vital-text">{{ Math.round(locationSpirit) }}%</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill health" :style="{ width: getVitalPercent('气血') + '%' }"></div>
+              <div class="progress-fill support" :style="{ width: locationSpirit + '%' }"></div>
             </div>
           </div>
 
           <div class="vital-item">
             <div class="vital-info">
               <span class="vital-name">
-                <Sparkles :size="12" class="vital-icon mana" />
-                <span>{{ t('政治资本') }}</span>
+                <Sparkles :size="12" class="vital-icon prosperity" />
+                <span>{{ t('繁荣度') }}</span>
               </span>
-              <span class="vital-text">{{ playerStatus?.威望?.当前 ?? 0 }} / {{ playerStatus?.威望?.上限 ?? 100 }}</span>
+              <span class="vital-text">{{ countyState.value?.发展活力 || 50 }}</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill mana" :style="{ width: getVitalPercent('威望') + '%' }"></div>
+              <div class="progress-fill prosperity" :style="{ width: (countyState.value?.发展活力 || 50) + '%' }"></div>
             </div>
           </div>
 
           <div class="vital-item">
             <div class="vital-info">
               <span class="vital-name">
-                <Brain :size="12" class="vital-icon spirit" />
-                <span>{{ t('智慧') }}</span>
+                <Brain :size="12" class="vital-icon security" />
+                <span>{{ t('治安') }}</span>
               </span>
-              <span class="vital-text">{{ playerStatus?.智慧?.当前 ?? 0 }} / {{ playerStatus?.智慧?.上限 ?? 100 }}</span>
+              <span class="vital-text">{{ getSecurityDisplay() }}</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill spirit" :style="{ width: getVitalPercent('智慧') + '%' }"></div>
+              <div class="progress-fill security" :style="{ width: getSecurityPercent() + '%' }"></div>
             </div>
           </div>
 
           <div class="vital-item">
             <div class="vital-info">
               <span class="vital-name">
-                <Clock :size="12" class="vital-icon lifespan" />
-                <span>{{ t('寿元') }}</span>
+                <Star :size="12" class="vital-icon silver" />
+                <span>{{ t('库银') }}</span>
               </span>
-              <span class="vital-text">{{ currentAge }} / {{ playerStatus?.寿命?.上限 }}</span>
+              <span class="vital-text">{{ formatCountySilver() }}</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill lifespan" :style="{ width: getLifespanPercent() + '%' }"></div>
+              <div class="progress-fill silver" :style="{ width: getSilverPercent() + '%' }"></div>
+            </div>
+          </div>
+
+          <div class="vital-item">
+            <div class="vital-info">
+              <span class="vital-name">
+                <User :size="12" class="vital-icon population" />
+                <span>{{ t('人口') }}</span>
+              </span>
+              <span class="vital-text">{{ formatCountyPopulation() }}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill population" :style="{ width: getPopulationPercent() + '%' }"></div>
             </div>
           </div>
         </div>
@@ -544,6 +557,87 @@ const formatLargeNumber = (num: number): string => {
   if (num >= 1000) return (num / 1000).toFixed(1) + '千';
   return num.toString();
 };
+
+// 获取治安显示文本
+const getSecurityDisplay = (): string => {
+  const vitality = countyState.value?.发展活力 || 50;
+  if (vitality >= 90) return t('太平');
+  if (vitality >= 75) return t('良好');
+  if (vitality >= 60) return t('一般');
+  if (vitality >= 40) return t('较差');
+  return t('混乱');
+};
+
+// 获取治安百分比
+const getSecurityPercent = (): number => {
+  const vitality = countyState.value?.发展活力 || 50;
+  return Math.min(100, Math.max(0, vitality));
+};
+
+// 获取库银百分比（基于城市等级）
+const getSilverPercent = (): number => {
+  const silver = parseCountySilver();
+  const level = cityLevel.value?.名称 || '集镇';
+
+  const maxSilver: Record<string, number> = {
+    '荒村': 1000,
+    '集镇': 10000,
+    '县城': 100000,
+    '府城': 1000000,
+    '州城': 10000000,
+    '都城': 100000000,
+    '皇城': 1000000000,
+    '京畿': 10000000000,
+    '天下': 100000000000
+  };
+
+  const max = maxSilver[level] || 10000;
+  return Math.min(100, Math.max(0, (silver / max) * 100));
+};
+
+// 获取人口百分比（基于城市等级）
+const getPopulationPercent = (): number => {
+  const level = cityLevel.value?.名称 || '集镇';
+  const vitality = countyState.value?.发展活力 || 50;
+
+  const basePopulation: Record<string, number> = {
+    '荒村': 500,
+    '集镇': 3000,
+    '县城': 10000,
+    '府城': 50000,
+    '州城': 150000,
+    '都城': 500000,
+    '皇城': 1000000,
+    '京畿': 2000000,
+    '天下': 5000000
+  };
+
+  const base = basePopulation[level] || 3000;
+  const max = base * 2; // 假设最大人口是基础人口的2倍
+  const current = Math.round(base * (0.5 + vitality / 100));
+
+  return Math.min(100, Math.max(0, (current / max) * 100));
+};
+
+// 解析库银数值
+const parseCountySilver = (): number => {
+  const sectName = characterInfo.value?.衙门 || '';
+  if (sectName) {
+    const sectData = (gameStateStore as any).sectSystem?.宗门经营?.[sectName];
+    if (sectData?.府库?.银两) {
+      return Number(sectData.府库.银两) || 0;
+    }
+  }
+  // 降级到角色背包
+  const inventory = gameStateStore.inventory;
+  const silver = (inventory as any)?.银两;
+  if (silver) {
+    const total = (silver.小额 || 0) + (silver.中额 || 0) * 10 + (silver.大额 || 0) * 100 + (silver.巨额 || 0) * 1000;
+    return total;
+  }
+  return 0;
+};
+
 </script>
 
 <style scoped>
@@ -1215,6 +1309,12 @@ const formatLargeNumber = (num: number): string => {
 .vital-icon.spirit { color: var(--vital-spirit); }
 .vital-icon.lifespan { color: var(--vital-lifespan); }
 .vital-icon.reputation { color: var(--color-warning); }
+/* 城镇发展图标颜色 */
+.vital-icon.support { color: #10b981; }
+.vital-icon.prosperity { color: #f59e0b; }
+.vital-icon.security { color: #3b82f6; }
+.vital-icon.silver { color: #8b5cf6; }
+.vital-icon.population { color: #ec4899; }
 
 /* 声望显示样式 */
 .reputation-display {
@@ -1468,6 +1568,13 @@ const formatLargeNumber = (num: number): string => {
 .progress-fill.spirit { background: var(--vital-spirit); }
 /* 寿元进度条统一紫色 */
 .progress-fill.lifespan { background: var(--vital-lifespan); }
+
+/* 城镇发展进度条颜色 */
+.progress-fill.support { background: linear-gradient(90deg, #10b981, #34d399); }
+.progress-fill.prosperity { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.progress-fill.security { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.progress-fill.silver { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.progress-fill.population { background: linear-gradient(90deg, #ec4899, #f472b6); }
 
 /* 修为状态样式 */
 .realm-display {
