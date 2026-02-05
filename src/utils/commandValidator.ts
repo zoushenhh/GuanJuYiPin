@@ -42,7 +42,7 @@ const PROTECTED_ROOT_PATHS: string[] = [
 
   // 角色子结构
   '角色.属性',
-  '角色.属性.官品',
+  // '角色.属性.官品' - 移除保护，允许AI通过set操作晋升官职（保留类型校验）
   '角色.属性.气血',
   '角色.属性.灵气',
   '角色.属性.神识',
@@ -55,7 +55,7 @@ const PROTECTED_ROOT_PATHS: string[] = [
   '角色.理念',
   '角色.理念.理念列表',
   '角色.效果',
-  '角色.位置',
+  // '角色.位置' - 移除保护，允许AI通过set操作移动角色（保留类型校验）
   '角色.技能',
 
   // 社交子结构
@@ -643,9 +643,8 @@ function validateNPCObject(value: any): ValueValidationResult {
   if (!value.性别) errors.push('NPC缺少"性别"字段');
   if (!value.出生日期) errors.push('NPC缺少"出生日期"字段');
 
-  if (!value.官品) {
-    errors.push('NPC缺少"官品"字段');
-  } else {
+  // 官品是可选字段（仅当NPC有官职时才有）
+  if (value.官品 !== undefined) {
     const rankResult = validateRankObject(value.官品, 'NPC');
     errors.push(...rankResult.errors);
   }
