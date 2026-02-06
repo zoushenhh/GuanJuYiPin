@@ -86,6 +86,12 @@ export const useCharacterStore = defineStore('characterV3', () => {
           needsSave = true;
         }
 
+        // 3.0.2 确保模式字段存在（所有角色都是单机模式）
+        if (!anyProfile.模式 || anyProfile.模式 !== '单机') {
+          anyProfile.模式 = '单机';
+          needsSave = true;
+        }
+
         // 3.0 迁移单机模式：兼容旧版本存档结构
         if (profile.存档 && (!profile.存档列表 || Object.keys(profile.存档列表).length === 0)) {
           debug.log('角色商店', `🔄 迁移角色「${roleNameForLog}」的旧版本存档结构`);
@@ -397,6 +403,8 @@ export const useCharacterStore = defineStore('characterV3', () => {
    */
   const reloadFromStorage = async () => {
     rootState.value = await storage.loadRootData();
+    // 🔥 强制触发响应式更新，确保 Vue 能检测到变化
+    triggerRef(rootState);
     debug.log('角色商店', '已从乾坤宝库重新同步所有数据');
   };
 
@@ -1501,7 +1509,7 @@ export const useCharacterStore = defineStore('characterV3', () => {
    */
   const loadSaves = async () => {
     // 这个方法主要用于刷新存档数据，实际上存档数据已经在 computed 中自动计算
-    reloadFromStorage();
+    await reloadFromStorage();
   };
 
   /**
