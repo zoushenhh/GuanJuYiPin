@@ -89,29 +89,29 @@
           <Star :size="14" class="section-icon" />
           <span>{{ t('官品状态') }}</span>
         </h3>
-        <div class="realm-display">
-          <div class="realm-info">
-            <span class="realm-name">{{ formatRealmDisplay(playerStatus?.境界) }}</span>
-            <span v-if="playerStatus?.境界?.突破描述" class="realm-breakthrough">{{ playerStatus?.境界?.突破描述 }}</span>
+        <div class="rank-display">
+          <div class="rank-info">
+            <span class="rank-name">{{ formatRankDisplay(playerStatus?.官品) }}</span>
+            <span v-if="playerStatus?.官品?.晋升描述" class="rank-promotion">{{ playerStatus?.官品?.晋升描述 }}</span>
           </div>
-          <!-- 有进度数据：显示进度条（包含凡人 -> 引气入体） -->
-          <div v-if="isRealmProgressAvailable" class="realm-progress">
+          <!-- 有进度数据：显示进度条 -->
+          <div v-if="isRankProgressAvailable" class="rank-progress">
             <div class="progress-bar">
               <div
                 class="progress-fill rank"
-                :class="getRealmProgressClass()"
-                :style="{ width: realmProgressPercent + '%' }"
+                :class="getRankProgressClass()"
+                :style="{ width: rankProgressPercent + '%' }"
               ></div>
             </div>
-            <span class="progress-text" :class="getRealmProgressClass()">
-              {{ realmProgressPercent }}%
-              <span v-if="realmProgressPercent >= 100" class="breakthrough-hint">可突破!</span>
-              <span v-else-if="realmProgressPercent >= 90" class="sprint-hint">可冲刺</span>
+            <span class="progress-text" :class="getRankProgressClass()">
+              {{ rankProgressPercent }}%
+              <span v-if="rankProgressPercent >= 100" class="promotion-hint">可晋升!</span>
+              <span v-else-if="rankProgressPercent >= 90" class="sprint-hint">可冲刺</span>
             </span>
           </div>
           <!-- 无进度数据：显示等待提示 -->
-          <div v-else class="realm-mortal">
-            <span class="mortal-text">{{ realmWaitingText }}</span>
+          <div v-else class="rank-waiting">
+            <span class="waiting-text">{{ rankWaitingText }}</span>
           </div>
         </div>
 
@@ -267,7 +267,6 @@ import StatusDetailCard from './components/StatusDetailCard.vue';
 import { useGameStateStore } from '@/stores/gameStateStore';
 import { useUIStore } from '@/stores/uiStore';
 import type { StatusEffect } from '@/types/game.d.ts';
-import { formatRealmWithStage } from '@/utils/realmUtils';
 import { calculateAgeFromBirthdate } from '@/utils/termCalculator';
 import { useI18n } from '@/i18n';
 
@@ -321,7 +320,7 @@ const cityLevel = computed(() => {
 
 // 从位置获取民心支持度（兼容旧字段）
 const locationSpirit = computed(() => {
-  return countyState?.民心支持度 ?? 0;
+  return countyState.value?.民心支持度 ?? 0;
 });
 
 // 模态框状态（通过 uiStore 管理，不再需要本地状态）
@@ -347,47 +346,32 @@ const formatTimeDisplay = (time: string | undefined): string => {
 
 
 
-// 计算百分比的工具方法
-const realmProgressPercent = computed(() => {
-  if (!gameStateStore.attributes?.境界) return 0;
-  const progress = gameStateStore.attributes.境界.当前进度;
-  const maxProgress = gameStateStore.attributes.境界.下一级所需;
+// 官品进度相关
+const rankProgressPercent = computed(() => {
+  if (!gameStateStore.attributes?.官品) return 0;
+  const progress = gameStateStore.attributes.官品.当前资历 || 0;
+  const maxProgress = gameStateStore.attributes.官品.晋升所需 || 100;
   if (!maxProgress || maxProgress <= 0) return 0;
   return Math.max(0, Math.min(100, Math.round((progress / maxProgress) * 100)));
 });
 
-const isRealmProgressAvailable = computed(() => {
-  const maxProgress = gameStateStore.attributes?.境界?.下一级所需;
+const isRankProgressAvailable = computed(() => {
+  const maxProgress = gameStateStore.attributes?.官品?.晋升所需;
   return typeof maxProgress === 'number' && maxProgress > 0;
 });
 
-const realmWaitingText = computed(() => {
+const rankWaitingText = computed(() => {
   const desc = playerStatus.value?.官品?.晋升描述;
   if (desc) return `${t('等待机缘')} · ${desc}`;
   return t('等待机缘');
 });
 
 // 根据进度百分比返回CSS类名
-const getRealmProgressClass = (): string => {
-  const percent = realmProgressPercent.value;
-  if (percent >= 100) return 'realm-breakthrough';  // 红色 - 可突破
-  if (percent >= 90) return 'realm-sprint';         // 黄色 - 可冲刺
-  return '';                                         // 紫色 - 默认
-};
-
-// 计算生命体征百分比
-const getVitalPercent = (type: '气血' | '威望' | '智慧') => {
-  if (!gameStateStore.attributes) return 0;
-  const vital = (gameStateStore.attributes as any)[type];
-  if (!vital?.当前 || !vital?.上限) return 0;
-  return Math.round((vital.当前 / vital.上限) * 100);
-};
-
-// 计算寿命百分比（使用计算后的年龄）
-const getLifespanPercent = () => {
-  const maxLifespan = gameStateStore.attributes?.寿命?.上限;
-  if (!maxLifespan) return 0;
-  return Math.round((currentAge.value / maxLifespan) * 100);
+const getRankProgressClass = (): string => {
+  const percent = rankProgressPercent.value;
+  if (percent >= 100) return 'rank-promotion-ready';  // 红色 - 可晋升
+  if (percent >= 90) return 'rank-sprint';            // 黄色 - 可冲刺
+  return '';                                            // 默认
 };
 
 // 获取天赋数据
@@ -447,8 +431,12 @@ const showStatusDetail = (effect: StatusEffect) => {
   });
 };
 
-const formatRealmDisplay = (realm?: unknown): string => {
-  return formatRealmWithStage(realm);
+const formatRankDisplay = (rank?: unknown): string => {
+  if (!rank || typeof rank !== 'object') return t('未入仕');
+  const rankInfo = rank as any;
+  if (rankInfo.名称) return rankInfo.名称;
+  if (rankInfo.品阶) return `${rankInfo.品阶}品`;
+  return t('未入仕');
 };
 
 // 获取声望显示文本
@@ -529,8 +517,8 @@ const formatCountySilver = (): string => {
 
 const formatCountyPopulation = (): string => {
   // 基于城市等级和发展活力估算人口
-  const level = cityLevel?.名称 || '集镇';
-  const vitality = countyState?.发展活力 || 50;
+  const level = cityLevel.value?.名称 || '集镇';
+  const vitality = countyState.value?.发展活力 || 50;
 
   const basePopulation: Record<string, number> = {
     '荒村': 500,
@@ -560,7 +548,7 @@ const formatLargeNumber = (num: number): string => {
 
 // 获取治安显示文本
 const getSecurityDisplay = (): string => {
-  const vitality = countyState?.发展活力 || 50;
+  const vitality = countyState.value?.发展活力 || 50;
   if (vitality >= 90) return t('太平');
   if (vitality >= 75) return t('良好');
   if (vitality >= 60) return t('一般');
@@ -570,14 +558,14 @@ const getSecurityDisplay = (): string => {
 
 // 获取治安百分比
 const getSecurityPercent = (): number => {
-  const vitality = countyState?.发展活力 || 50;
+  const vitality = countyState.value?.发展活力 || 50;
   return Math.min(100, Math.max(0, vitality));
 };
 
 // 获取库银百分比（基于城市等级）
 const getSilverPercent = (): number => {
   const silver = parseCountySilver();
-  const level = cityLevel?.名称 || '集镇';
+  const level = cityLevel.value?.名称 || '集镇';
 
   const maxSilver: Record<string, number> = {
     '荒村': 1000,
@@ -597,8 +585,8 @@ const getSilverPercent = (): number => {
 
 // 获取人口百分比（基于城市等级）
 const getPopulationPercent = (): number => {
-  const level = cityLevel?.名称 || '集镇';
-  const vitality = countyState?.发展活力 || 50;
+  const level = cityLevel.value?.名称 || '集镇';
+  const vitality = countyState.value?.发展活力 || 50;
 
   const basePopulation: Record<string, number> = {
     '荒村': 500,
@@ -812,24 +800,24 @@ const parseCountySilver = (): number => {
   text-align: center;
 }
 
-.progress-fill.cultivation {
+.progress-fill.rank {
   background: linear-gradient(90deg, #8b5cf6, #a78bfa);
 }
 
-/* 境界进度条 - 冲刺状态（90-99%）黄色 */
-.progress-fill.cultivation.realm-sprint {
+/* 官品进度条 - 冲刺状态（90-99%）黄色 */
+.progress-fill.rank.rank-sprint {
   background: linear-gradient(90deg, #f59e0b, #fbbf24);
   box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
 }
 
-/* 境界进度条 - 突破状态（100%）红色 */
-.progress-fill.cultivation.realm-breakthrough {
+/* 官品进度条 - 晋升状态（100%）红色 */
+.progress-fill.rank.rank-promotion-ready {
   background: linear-gradient(90deg, #ef4444, #f87171);
   box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
-  animation: breakthrough-pulse 1.5s ease-in-out infinite;
+  animation: promotion-pulse 1.5s ease-in-out infinite;
 }
 
-@keyframes breakthrough-pulse {
+@keyframes promotion-pulse {
   0%, 100% {
     box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
   }
@@ -839,18 +827,18 @@ const parseCountySilver = (): number => {
 }
 
 /* 进度文本颜色变化 */
-.progress-text.realm-sprint {
+.progress-text.rank-sprint {
   color: #f59e0b;
   font-weight: 600;
 }
 
-.progress-text.realm-breakthrough {
+.progress-text.rank-promotion-ready {
   color: #ef4444;
   font-weight: 700;
 }
 
-/* 突破和冲刺提示 */
-.breakthrough-hint {
+/* 晋升和冲刺提示 */
+.promotion-hint {
   font-size: 0.6rem;
   color: #ef4444;
   font-weight: 700;
@@ -1053,15 +1041,6 @@ const parseCountySilver = (): number => {
   border-color: #6b7280;
 }
 
-/* 灵根和声望信息 */
-.spiritual-info {
-  border-top: 1px solid var(--color-border);
-  padding-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .info-row {
   display: flex;
 }
@@ -1089,10 +1068,6 @@ const parseCountySilver = (): number => {
   flex-shrink: 0;
 }
 
-.info-icon.spiritual {
-  color: var(--color-accent);
-}
-
 .info-icon.reputation {
   color: var(--color-warning);
 }
@@ -1110,7 +1085,6 @@ const parseCountySilver = (): number => {
 /* 通用区块样式 */
 .ai-chat-section,
 .info-section,
-.cultivation-section,
 .vitals-section,
 .attributes-section,
 .location-section,
@@ -1307,7 +1281,6 @@ const parseCountySilver = (): number => {
 .vital-icon.blood { color: var(--vital-health); }
 .vital-icon.mana { color: var(--vital-lingqi); }
 .vital-icon.spirit { color: var(--vital-spirit); }
-.vital-icon.lifespan { color: var(--vital-lifespan); }
 .vital-icon.reputation { color: var(--color-warning); }
 /* 城镇发展图标颜色 */
 .vital-icon.support { color: #10b981; }
@@ -1566,8 +1539,6 @@ const parseCountySilver = (): number => {
 .progress-fill.health { background: var(--vital-health); }
 .progress-fill.mana { background: var(--vital-lingqi); }
 .progress-fill.spirit { background: var(--vital-spirit); }
-/* 寿元进度条统一紫色 */
-.progress-fill.lifespan { background: var(--vital-lifespan); }
 
 /* 城镇发展进度条颜色 */
 .progress-fill.support { background: linear-gradient(90deg, #10b981, #34d399); }
@@ -1576,8 +1547,8 @@ const parseCountySilver = (): number => {
 .progress-fill.silver { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
 .progress-fill.population { background: linear-gradient(90deg, #ec4899, #f472b6); }
 
-/* 修为状态样式 */
-.realm-display {
+/* 官品状态样式 */
+.rank-display {
   background: rgba(var(--color-surface-rgb), 0.6);
   border: 1px solid rgba(var(--color-border-rgb), 0.3);
   border-radius: 8px;
@@ -1585,7 +1556,7 @@ const parseCountySilver = (): number => {
   margin-bottom: 8px;
 }
 
-.realm-info {
+.rank-info {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -1594,26 +1565,26 @@ const parseCountySilver = (): number => {
   gap: 4px;
 }
 
-.realm-name {
+.rank-name {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-accent);
 }
 
-.realm-breakthrough {
+.rank-promotion {
   font-size: 0.7rem;
   color: var(--color-text-secondary);
   line-height: 1.4;
   opacity: 0.8;
 }
 
-.realm-level {
+.rank-level {
   font-size: 0.75rem;
   color: var(--color-text-secondary);
 }
 
-/* 凡人境界特殊样式 */
-.realm-mortal {
+/* 等待晋升特殊样式 */
+.rank-waiting {
   padding: 8px;
   background: rgba(var(--color-primary-rgb), 0.05);
   border-radius: 4px;
@@ -1621,14 +1592,14 @@ const parseCountySilver = (): number => {
   border: 1px dashed rgba(var(--color-primary-rgb), 0.3);
 }
 
-.mortal-text {
+.waiting-text {
   font-size: 0.8rem;
   color: var(--color-text-secondary);
   font-style: italic;
   opacity: 0.8;
 }
 
-.realm-progress {
+.rank-progress {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -1800,10 +1771,6 @@ const parseCountySilver = (): number => {
     font-size: 0.7rem;
   }
 
-  .realm-name {
-    font-size: 0.8rem;
-  }
-
   .progress-bar {
     height: 5px;
   }
@@ -1820,7 +1787,6 @@ const parseCountySilver = (): number => {
   }
 
   .vitals-section,
-  .cultivation-section,
   .collapsible-section {
     margin-bottom: 12px;
     padding: 10px;
