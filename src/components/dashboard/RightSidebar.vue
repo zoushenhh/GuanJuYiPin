@@ -35,10 +35,10 @@
                 <Sparkles :size="12" class="vital-icon prosperity" />
                 <span>{{ t('繁荣度') }}</span>
               </span>
-              <span class="vital-text">{{ countyState.value?.发展活力 || 50 }}</span>
+              <span class="vital-text">{{ countyState?.发展活力 || 50 }}</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill prosperity" :style="{ width: (countyState.value?.发展活力 || 50) + '%' }"></div>
+              <div class="progress-fill prosperity" :style="{ width: (countyState?.发展活力 || 50) + '%' }"></div>
             </div>
           </div>
 
@@ -154,7 +154,7 @@
             <!-- 繁荣度 -->
             <div class="county-stat-item">
               <span class="county-stat-label">{{ t('繁荣度') }}</span>
-              <span class="county-stat-value">{{ countyState.value?.发展活力 || 50 }}</span>
+              <span class="county-stat-value">{{ countyState?.发展活力 || 50 }}</span>
             </div>
             <!-- 治安 -->
             <div class="county-stat-item">
@@ -174,7 +174,7 @@
             <!-- 城市等级 -->
             <div class="county-stat-item">
               <span class="county-stat-label">{{ t('城市等级') }}</span>
-              <span class="county-stat-value">{{ cityLevel.value?.名称 || t('未知') }}</span>
+              <span class="county-stat-value">{{ cityLevel?.名称 || t('未知') }}</span>
             </div>
           </div>
         </div>
@@ -321,7 +321,7 @@ const cityLevel = computed(() => {
 
 // 从位置获取民心支持度（兼容旧字段）
 const locationSpirit = computed(() => {
-  return countyState.value?.民心支持度 ?? 0;
+  return countyState?.民心支持度 ?? 0;
 });
 
 // 模态框状态（通过 uiStore 管理，不再需要本地状态）
@@ -529,8 +529,8 @@ const formatCountySilver = (): string => {
 
 const formatCountyPopulation = (): string => {
   // 基于城市等级和发展活力估算人口
-  const level = cityLevel.value?.名称 || '集镇';
-  const vitality = countyState.value?.发展活力 || 50;
+  const level = cityLevel?.名称 || '集镇';
+  const vitality = countyState?.发展活力 || 50;
 
   const basePopulation: Record<string, number> = {
     '荒村': 500,
@@ -560,7 +560,7 @@ const formatLargeNumber = (num: number): string => {
 
 // 获取治安显示文本
 const getSecurityDisplay = (): string => {
-  const vitality = countyState.value?.发展活力 || 50;
+  const vitality = countyState?.发展活力 || 50;
   if (vitality >= 90) return t('太平');
   if (vitality >= 75) return t('良好');
   if (vitality >= 60) return t('一般');
@@ -570,14 +570,14 @@ const getSecurityDisplay = (): string => {
 
 // 获取治安百分比
 const getSecurityPercent = (): number => {
-  const vitality = countyState.value?.发展活力 || 50;
+  const vitality = countyState?.发展活力 || 50;
   return Math.min(100, Math.max(0, vitality));
 };
 
 // 获取库银百分比（基于城市等级）
 const getSilverPercent = (): number => {
   const silver = parseCountySilver();
-  const level = cityLevel.value?.名称 || '集镇';
+  const level = cityLevel?.名称 || '集镇';
 
   const maxSilver: Record<string, number> = {
     '荒村': 1000,
@@ -597,8 +597,8 @@ const getSilverPercent = (): number => {
 
 // 获取人口百分比（基于城市等级）
 const getPopulationPercent = (): number => {
-  const level = cityLevel.value?.名称 || '集镇';
-  const vitality = countyState.value?.发展活力 || 50;
+  const level = cityLevel?.名称 || '集镇';
+  const vitality = countyState?.发展活力 || 50;
 
   const basePopulation: Record<string, number> = {
     '荒村': 500,

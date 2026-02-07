@@ -1,8 +1,8 @@
 <template>
-  <div v-if="editingItem" class="modal-overlay" @click="$emit('close')">
+  <div v-if="editingItem && safeEditingItem" class="modal-overlay" @click="$emit('close')">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
-        <h3>{{ localEditingItem.key ? '编辑变量' : '新增变量' }}</h3>
+        <h3>{{ safeEditingItem.key ? '编辑变量' : '新增变量' }}</h3>
         <button @click="$emit('close')" class="close-btn">
           <X :size="16" />
         </button>
@@ -91,6 +91,11 @@ const localEditingItem = ref<EditingItem>({ type: '', key: '', value: '' })
 const selectedType = ref<'string' | 'number' | 'boolean' | 'object' | 'array'>('string')
 const jsonError = ref('')
 
+// 🔥 安全访问 computed，确保 localEditingItem.value 永远不会是 null
+const safeEditingItem = computed(() => {
+  return localEditingItem.value || { type: '', key: '', value: '' }
+})
+
 // 值类型选项
 const valueTypes = [
   { value: 'string', label: '字符串' },
@@ -135,7 +140,8 @@ const previewData = computed(() => {
 
 // 是否可以保存
 const canSave = computed(() => {
-  return localEditingItem.value.key.trim() !== '' &&
+  return localEditingItem.value &&
+         localEditingItem.value.key.trim() !== '' &&
          editingValue.value.trim() !== '' &&
          !jsonError.value
 })
@@ -288,6 +294,9 @@ watch(() => props.editingItem, (newItem) => {
     selectedType.value = detectValueType(newItem.value)
     jsonError.value = ''
     validateJSON()
+  } else {
+    // 当 props.editingItem 为 null 时，重置为默认值
+    localEditingItem.value = { type: '', key: '', value: '' }
   }
 }, { immediate: true })
 </script>
