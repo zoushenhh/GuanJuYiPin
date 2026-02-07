@@ -35,6 +35,66 @@ function isRandomTalent(talent: string | object): boolean {
 }
 
 /**
+ * 加权随机选择函数
+ * @param items 候选项数组
+ * @param getWeight 权重计算函数，稀有度越低权重越高
+ * @returns 随机选中的项
+ *
+ * 权重算法：
+ * - 稀有度 1: 权重 10（最常见）
+ * - 稀有度 2: 权重 8
+ * - 稀有度 3: 权重 6
+ * - 稀有度 4: 权重 4
+ * - 稀有度 5: 权重 2（最罕见）
+ */
+function weightedRandomSelect<T>(
+  items: T[],
+  getWeight: (item: T) => number
+): T {
+  if (items.length === 0) {
+    throw new Error('weightedRandomSelect: 候选项数组不能为空');
+  }
+
+  // 计算总权重
+  const totalWeight = items.reduce((sum, item) => sum + getWeight(item), 0);
+
+  // 生成一个 0 到总权重之间的随机数
+  let random = Math.random() * totalWeight;
+
+  // 遍历候选项，累积权重直到超过随机数
+  for (const item of items) {
+    const weight = getWeight(item);
+    random -= weight;
+    if (random <= 0) {
+      return item;
+    }
+  }
+
+  // 兜底：返回第一个（理论上不会执行到这里）
+  return items[0];
+}
+
+/**
+ * 根据稀有度计算权重（反比关系）
+ * @param rarity 稀有度 1-10
+ * @returns 权重值
+ */
+function calculateWeightFromRarity(rarity: number): number {
+  // 稀有度越低，权重越高
+  // rarity 1 -> weight 10
+  // rarity 2 -> weight 8
+  // rarity 3 -> weight 6
+  // rarity 4 -> weight 4
+  // rarity 5 -> weight 2
+  const maxRarity = 5;
+  const baseWeight = 10;
+  const weightPerLevel = 2;
+
+  const clampedRarity = Math.max(1, Math.min(rarity, maxRarity));
+  return Math.max(1, baseWeight - (clampedRarity - 1) * weightPerLevel);
+}
+
+/**
  * 询问用户是否继续重试的辅助函数
  * @param taskName 任务名称
  * @param errorMessage 错误信息
@@ -816,7 +876,7 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
     if (typeof mergedBaseInfo.后天 === 'string' && mergedBaseInfo.后天.includes('随机')) {
       console.warn('[数据最终化] ⚠️ 警告：AI未能正确替换随机才干，使用本地数据库生成');
 
-      // 🔥 后备逻辑：使用本地数据库随机生成
+      // 🔥 后备逻辑：使用本地数据库加权随机生成
       const 天资 = baseInfo.天资;
       let 才干池 = LOCAL_POST_HEAVENS.filter(root => {
         // 根据天资筛选合适的才干，排除特殊才干(神品、仙品等)
@@ -840,9 +900,12 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
         才干池 = LOCAL_POST_HEAVENS;
       }
 
-      const 随机才干 = 才干池[Math.floor(Math.random() * 才干池.length)];
+      // 🔥 使用加权随机选择才干（基于稀有度）
+      const 随机才干 = weightedRandomSelect(才干池, (item) =>
+        calculateWeightFromRarity(item.rarity || 3)
+      );
       mergedBaseInfo.后天 = 随机才干;
-      console.log(`[数据最终化] ✅ 已从本地数据库生成随机才干: ${随机才干.name} (${随机才干.tier})`);
+      console.log(`[数据最终化] ✅ 已从本地数据库生成随机才干（稀有度=${随机才干.rarity}）: ${随机才干.name} (${随机才干.tier})`);
     }
   } else {
     console.log(`[数据最终化] ✅ 用户选择特定才干，强制使用用户选择: ${(baseInfo.后天 as SpiritRoot)?.name}`);
@@ -860,13 +923,15 @@ async function finalizeAndSyncData(saveData: SaveData, baseInfo: CharacterBaseIn
 
     // 验证AI是否正确替换了随机出身
     if (typeof mergedBaseInfo.出生 === 'string' && mergedBaseInfo.出生.includes('随机')) {
-      console.warn('[数据最终化] ⚠️ 警告：AI未能正确替换随机出身，使用本地数据库生成');
+      console.warn('[数据最终化] ⚠️ 警告：AI未能正确替换随机出身，使用本地数据库生成（基于稀有度加权）');
 
-      // 🔥 后备逻辑：使用本地数据库随机生成
-      // 从本地数据库中随机选择一个出身
-      const 随机出身 = LOCAL_APTITUDES[Math.floor(Math.random() * LOCAL_APTITUDES.length)];
+      // 🔥 后备逻辑：使用本地数据库加权随机生成
+      // 根据稀有度进行加权随机选择，稀有度越低出现概率越高
+      const 随机出身 = weightedRandomSelect(LOCAL_APTITUDES, (item) =>
+        calculateWeightFromRarity(item.rarity || 3)
+      );
       mergedBaseInfo.出生 = 随机出身;
-      console.log(`[数据最终化] ✅ 已从本地数据库生成随机出身: ${随机出身.name}`);
+      console.log(`[数据最终化] ✅ 已从本地数据库生成随机出身（稀有度=${随机出身.rarity}）: ${随机出身.name}`);
     }
   } else {
     console.log(`[数据最终化] ✅ 用户选择特定出身，强制使用用户选择: ${(baseInfo.出生 as Origin)?.name}`);
