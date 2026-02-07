@@ -57,6 +57,7 @@ import SectWarContent from '../components/dashboard/components/SectWarContent.vu
 import GameVariablePanel from '../components/dashboard/GameVariablePanel.vue';
 import PromptManagementPanel from '../components/dashboard/PromptManagementPanel.vue';
 import APIManagementPanel from '../components/dashboard/APIManagementPanel.vue';
+import GovernmentPanel from '../components/dashboard/GovernmentPanel.vue';
 
 const routes = [
   {
@@ -195,6 +196,11 @@ const routes = [
         path: 'api-management',
         name: 'APIManagement',
         component: APIManagementPanel,
+      },
+      {
+        path: 'government',
+        name: 'Government',
+        component: GovernmentPanel,
       },
     ],
   },

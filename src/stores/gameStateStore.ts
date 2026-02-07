@@ -23,11 +23,62 @@ import type {
   SectSystemV2,
   StatusEffect,
 } from '@/types/game';
+import type { ConstructionProject } from '@/types/jurisdiction';
 import { isTavernEnv } from '@/utils/tavern';
 import { ensureSystemConfigHasNsfw } from '@/utils/nsfw';
 import { isSaveDataV3, migrateSaveDataToLatest } from '@/utils/saveMigration';
 import { normalizeInventoryCurrencies } from '@/utils/currencySystem';
 import { detectPlayerGovernmentLeadership } from '@/utils/governmentLeadershipUtils';
+
+// ============================================================================
+// 政务台类型定义
+// ============================================================================
+
+/**
+ * 政务待办事项
+ */
+export interface GovernmentAffair {
+  id: string;                    // 唯一标识
+  名称: string;                  // 事项名称
+  类型: '民生' | '治安' | '建设' | '纠纷' | '其他';  // 事项类型
+  描述: string;                  // 详细描述
+  紧急度: '低' | '中' | '高' | '极高';  // 紧急程度
+  难度: '简单' | '普通' | '困难' | '极难';  // 处理难度
+  发布时间: string;              // 发布时间（游戏时间字符串）
+  期限?: string;                 // 可选的截止时间（游戏时间字符串）
+  是否已处理: boolean;           // 是否已处理
+  处理结果?: string;             // 处理结果描述
+  影响?: {                       // 处理后的影响
+    民心变化?: number;
+    治安变化?: number;
+    繁荣变化?: number;
+    库银变化?: number;
+  };
+}
+
+/**
+ * 长期建设项目
+ */
+export interface ConstructionProject {
+  id: string;                    // 项目唯一标识
+  名称: string;                  // 项目名称
+  类型: string;                  // 项目类型（如：基础设施、水利、道路等）
+  描述: string;                  // 项目描述
+  进度: number;                  // 当前进度（0-100）
+  预计工时: number;              // 预计工时（小时）
+  状态: '进行中' | '已完成' | '已暂停';  // 项目状态
+  开始时间: string;              // 开始时间（ISO字符串）
+  完成时间?: string;             // 完成时间（可选）
+}
+
+/**
+ * 政务台状态（系统域）
+ */
+export interface GovernmentDesk {
+  待办事项: GovernmentAffair[];        // 待处理政务列表
+  正在进行: ConstructionProject[];     // 进行中的建设项目
+  已完成事项: GovernmentAffair[];      // 已完成的历史记录（可选）
+}
 
 function buildGoverningStrategyProgress(inventory: Inventory | null) {
   const progress: Record<string, { 方略进度: number; 已解锁技能: string[] }> = {};
@@ -161,6 +212,9 @@ interface GameState {
 
   // 对话后自动存档配置
   conversationAutoSaveEnabled: boolean; // 是否启用对话后自动存档
+
+  // 政务台系统（系统域）
+  governmentDesk: GovernmentDesk | null;
 }
 
 export const useGameStateStore = defineStore('gameState', {
@@ -212,6 +266,13 @@ export const useGameStateStore = defineStore('gameState', {
 
     // 对话后自动存档配置（默认开启）
     conversationAutoSaveEnabled: true,
+
+    // 政务台系统（初始化为空）
+    governmentDesk: {
+      待办事项: [],
+      正在进行: [],
+      已完成事项: [],
+    },
   }),
 
   actions: {
@@ -355,6 +416,16 @@ export const useGameStateStore = defineStore('gameState', {
 
       const systemConfig = v3?.系统?.配置 ? deepCopy(v3.系统.配置) : null;
 
+      // 加载政务台数据（系统域）
+      const governmentDeskRaw = v3?.系统?.政务台;
+      const governmentDesk: GovernmentDesk | null = governmentDeskRaw
+        ? {
+            待办事项: Array.isArray(governmentDeskRaw.待办事项) ? governmentDeskRaw.待办事项 : [],
+            正在进行: Array.isArray(governmentDeskRaw.正在进行) ? governmentDeskRaw.正在进行 : [],
+            已完成事项: Array.isArray(governmentDeskRaw.已完成事项) ? governmentDeskRaw.已完成事项 : [],
+          }
+        : null;
+
       const body = v3?.角色?.身体 ? deepCopy(v3.角色.身体) : null;
       let bodyPartDevelopment =
         body && typeof body === 'object' && (body as any).部位开发 ? deepCopy((body as any).部位开发) : null;
@@ -442,6 +513,15 @@ export const useGameStateStore = defineStore('gameState', {
       if (!this.administration) {
         this.administration = { 政绩方略: this.governingStrategy ?? null } as any;
       }
+
+      // 加载政务台数据（兼容旧存档）
+      this.governmentDesk = governmentDesk
+        ? deepCopy(governmentDesk)
+        : {
+            待办事项: [],
+            正在进行: [],
+            已完成事项: [],
+          };
 
       this.isGameLoaded = true;
     },
@@ -545,6 +625,15 @@ export const useGameStateStore = defineStore('gameState', {
         return Object.keys(baseBody).length > 0 ? baseBody : undefined;
       })();
 
+      // 准备政务台数据（系统域）
+      const governmentDesk = this.governmentDesk
+        ? {
+            待办事项: this.governmentDesk.待办事项 ?? [],
+            正在进行: this.governmentDesk.正在进行 ?? [],
+            已完成事项: this.governmentDesk.已完成事项 ?? [],
+          }
+        : undefined;
+
       const v3: any = {
         元数据: meta,
         角色: {
@@ -573,6 +662,7 @@ export const useGameStateStore = defineStore('gameState', {
           设置: settings,
           缓存: { 掌握技能: this.masteredSkills ?? (skillState as any)?.掌握技能 ?? [] },
           历史: { 叙事: this.narrativeHistory || [] },
+          政务台: governmentDesk, // 新增：政务台数据
           扩展: {},
         },
       };
@@ -626,40 +716,88 @@ export const useGameStateStore = defineStore('gameState', {
     /**
      * 推进游戏时间
      * @param minutes 要推进的分钟数
+     * @param options 可选配置
+     * @returns 结算报告（如果触发了政务结算）
      */
-    advanceGameTime(minutes: number) {
-      if (this.gameTime) {
-        // 实现时间推进逻辑，处理进位
-        this.gameTime.分钟 += minutes;
-
-        // 处理小时进位
-        if (this.gameTime.分钟 >= 60) {
-          const hours = Math.floor(this.gameTime.分钟 / 60);
-          this.gameTime.分钟 = this.gameTime.分钟 % 60;
-          this.gameTime.小时 += hours;
-        }
-
-        // 处理天进位（注意：GameTime 使用"日"而非"天"）
-        if (this.gameTime.小时 >= 24) {
-          const days = Math.floor(this.gameTime.小时 / 24);
-          this.gameTime.小时 = this.gameTime.小时 % 24;
-          this.gameTime.日 += days;
-        }
-
-        // 处理月进位（假设每月30天）
-        if (this.gameTime.日 > 30) {
-          const months = Math.floor((this.gameTime.日 - 1) / 30);
-          this.gameTime.日 = ((this.gameTime.日 - 1) % 30) + 1;
-          this.gameTime.月 += months;
-        }
-
-        // 处理年进位
-        if (this.gameTime.月 > 12) {
-          const years = Math.floor((this.gameTime.月 - 1) / 12);
-          this.gameTime.月 = ((this.gameTime.月 - 1) % 12) + 1;
-          this.gameTime.年 += years;
-        }
+    async advanceGameTime(
+      minutes: number,
+      options?: {
+        /** 是否触发政务结算 */
+        settleAffairs?: boolean;
+        /** 是否触发随机事件 */
+        triggerEvents?: boolean;
+        /** 随机事件概率 */
+        eventProbability?: number;
+        /** 时间推进回调 */
+        onTimeAdvance?: (oldTime: any, newTime: any, minutesAdvanced: number) => void;
       }
+    ) {
+      if (!this.gameTime) {
+        console.warn('[gameStateStore] gameTime 未初始化，无法推进时间');
+        return null;
+      }
+
+      const oldTime = { ...this.gameTime };
+
+      // 实现时间推进逻辑，处理进位
+      this.gameTime.分钟 += minutes;
+
+      // 处理小时进位
+      if (this.gameTime.分钟 >= 60) {
+        const hours = Math.floor(this.gameTime.分钟 / 60);
+        this.gameTime.分钟 = this.gameTime.分钟 % 60;
+        this.gameTime.小时 += hours;
+      }
+
+      // 处理天进位（注意：GameTime 使用"日"而非"天"）
+      if (this.gameTime.小时 >= 24) {
+        const days = Math.floor(this.gameTime.小时 / 24);
+        this.gameTime.小时 = this.gameTime.小时 % 24;
+        this.gameTime.日 += days;
+      }
+
+      // 处理月进位（假设每月30天）
+      if (this.gameTime.日 > 30) {
+        const months = Math.floor((this.gameTime.日 - 1) / 30);
+        this.gameTime.日 = ((this.gameTime.日 - 1) % 30) + 1;
+        this.gameTime.月 += months;
+      }
+
+      // 处理年进位
+      if (this.gameTime.月 > 12) {
+        const years = Math.floor((this.gameTime.月 - 1) / 12);
+        this.gameTime.月 = ((this.gameTime.月 - 1) % 12) + 1;
+        this.gameTime.年 += years;
+      }
+
+      // 触发回调
+      if (options?.onTimeAdvance) {
+        options.onTimeAdvance(oldTime, this.gameTime, minutes);
+      }
+
+      // 如果需要政务结算
+      if (options?.settleAffairs) {
+        // 动态导入政务结算模块（避免循环依赖）
+        const { settleGovernmentAffairs } = await import('@/utils/governmentAffairSettlement');
+
+        const hoursPassed = minutes / 60;
+        const report = settleGovernmentAffairs(
+          {
+            governmentDesk: this.governmentDesk,
+            location: this.location,
+            gameTime: this.gameTime,
+          },
+          hoursPassed,
+          {
+            triggerEvents: options.triggerEvents,
+            eventProbability: options.eventProbability,
+          }
+        );
+
+        return report;
+      }
+
+      return null;
     },
 
     /**
@@ -703,6 +841,13 @@ export const useGameStateStore = defineStore('gameState', {
       this.systemConfig = null;
       this.body = null;
       this.bodyPartDevelopment = null;
+
+      // 重置政务台数据
+      this.governmentDesk = {
+        待办事项: [],
+        正在进行: [],
+        已完成事项: [],
+      };
 
       console.log('[GameState] State has been reset');
     },
@@ -920,6 +1065,298 @@ export const useGameStateStore = defineStore('gameState', {
       }
 
       console.log('[gameStateStore] ✅ 已添加到短期记忆', finalContent.substring(0, 50) + '...');
-    }
+    },
+
+    // ========================================================================
+    // 政务台系统方法
+    // ========================================================================
+
+    /**
+     * 添加待办政务事项
+     * @param affair 政务事项对象
+     */
+    addAffair(affair: GovernmentAffair) {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return;
+      }
+
+      // 检查是否已存在同ID的事项
+      const exists = this.governmentDesk.待办事项.some(item => item.id === affair.id);
+      if (exists) {
+        console.warn(`[gameStateStore] 政务事项 ${affair.id} 已存在`);
+        return;
+      }
+
+      this.governmentDesk.待办事项.push(affair);
+      console.log(`[gameStateStore] ✅ 已添加待办政务: ${affair.名称}`);
+    },
+
+    /**
+     * 移除待办政务事项
+     * @param affairId 政务事项ID
+     * @param moveToCompleted 是否移动到已完成列表（默认true）
+     */
+    removeAffair(affairId: string, moveToCompleted: boolean = true) {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return;
+      }
+
+      const index = this.governmentDesk.待办事项.findIndex(item => item.id === affairId);
+      if (index === -1) {
+        console.warn(`[gameStateStore] 未找到待办政务: ${affairId}`);
+        return;
+      }
+
+      const affair = this.governmentDesk.待办事项[index];
+
+      // 标记为已处理
+      affair.是否已处理 = true;
+
+      if (moveToCompleted && this.governmentDesk.已完成事项) {
+        // 移动到已完成列表
+        this.governmentDesk.已完成事项.unshift(affair);
+
+        // 限制已完成列表大小（保留最近50条）
+        if (this.governmentDesk.已完成事项.length > 50) {
+          this.governmentDesk.已完成事项 = this.governmentDesk.已完成事项.slice(0, 50);
+        }
+      }
+
+      // 从待办列表移除
+      this.governmentDesk.待办事项.splice(index, 1);
+      console.log(`[gameStateStore] ✅ 已移除待办政务: ${affairId}`);
+    },
+
+    /**
+     * 更新待办政务事项
+     * @param affairId 政务事项ID
+     * @param updates 要更新的字段
+     */
+    updateAffair(affairId: string, updates: Partial<GovernmentAffair>) {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return;
+      }
+
+      const affair = this.governmentDesk.待办事项.find(item => item.id === affairId);
+      if (!affair) {
+        console.warn(`[gameStateStore] 未找到待办政务: ${affairId}`);
+        return;
+      }
+
+      // 更新字段
+      Object.assign(affair, updates);
+      console.log(`[gameStateStore] ✅ 已更新待办政务: ${affairId}`);
+    },
+
+    /**
+     * 获取当前待办政务列表
+     * @returns 待办政务数组
+     */
+    getAffairs(): GovernmentAffair[] {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return [];
+      }
+
+      return [...this.governmentDesk.待办事项]; // 返回副本，避免直接修改
+    },
+
+    /**
+     * 根据类型筛选待办政务
+     * @param type 政务类型
+     * @returns 筛选后的政务数组
+     */
+    getAffairsByType(type: GovernmentAffair['类型']): GovernmentAffair[] {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return [];
+      }
+
+      return this.governmentDesk.待办事项.filter(affair => affair.类型 === type);
+    },
+
+    /**
+     * 根据紧急度筛选待办政务
+     * @param urgency 紧急度
+     * @returns 筛选后的政务数组
+     */
+    getAffairsByUrgency(urgency: GovernmentAffair['紧急度']): GovernmentAffair[] {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return [];
+      }
+
+      return this.governmentDesk.待办事项.filter(affair => affair.紧急度 === urgency);
+    },
+
+    /**
+     * 获取已完成的政务事项列表
+     * @returns 已完成政务数组
+     */
+    getCompletedAffairs(): GovernmentAffair[] {
+      if (!this.governmentDesk || !this.governmentDesk.已完成事项) {
+        return [];
+      }
+
+      return [...this.governmentDesk.已完成事项]; // 返回副本
+    },
+
+    /**
+     * 添加长期建设项目
+     * @param project 建设项目对象
+     */
+    addProject(project: ConstructionProject) {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return;
+      }
+
+      // 检查是否已存在同ID的项目
+      const exists = this.governmentDesk.正在进行.some(item => item.id === project.id);
+      if (exists) {
+        console.warn(`[gameStateStore] 建设项目 ${project.id} 已存在`);
+        return;
+      }
+
+      this.governmentDesk.正在进行.push(project);
+      console.log(`[gameStateStore] ✅ 已添加建设项目: ${project.名称}`);
+    },
+
+    /**
+     * 移除建设项目
+     * @param projectId 项目ID
+     */
+    removeProject(projectId: string) {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return;
+      }
+
+      const index = this.governmentDesk.正在进行.findIndex(item => item.id === projectId);
+      if (index === -1) {
+        console.warn(`[gameStateStore] 未找到建设项目: ${projectId}`);
+        return;
+      }
+
+      this.governmentDesk.正在进行.splice(index, 1);
+      console.log(`[gameStateStore] ✅ 已移除建设项目: ${projectId}`);
+    },
+
+    /**
+     * 更新建设项目进度
+     * @param projectId 项目ID
+     * @param progress 新的进度值（0-100）
+     */
+    updateProjectProgress(projectId: string, progress: number) {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return;
+      }
+
+      const project = this.governmentDesk.正在进行.find(item => item.id === projectId);
+      if (!project) {
+        console.warn(`[gameStateStore] 未找到建设项目: ${projectId}`);
+        return;
+      }
+
+      project.进度 = Math.max(0, Math.min(100, progress));
+
+      // 如果进度达到100，自动标记为完工
+      // 兼容不同的状态值
+      const isCompletedStatus = project.状态 === '已完成' || project.状态 === '完工';
+      if (project.进度 >= 100 && !isCompletedStatus) {
+        project.状态 = '已完成';
+        console.log(`[gameStateStore] ✅ 建设项目已完成: ${project.名称}`);
+      }
+
+      console.log(`[gameStateStore] ✅ 已更新项目进度: ${projectId} -> ${project.进度}%`);
+    },
+
+    /**
+     * 获取进行中的建设项目列表
+     * @returns 建设项目数组
+     */
+    getProjects(): ConstructionProject[] {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return [];
+      }
+
+      return [...this.governmentDesk.正在进行]; // 返回副本
+    },
+
+    /**
+     * 根据状态筛选建设项目
+     * @param status 项目状态
+     * @returns 筛选后的项目数组
+     */
+    getProjectsByStatus(status: ConstructionProject['状态']): ConstructionProject[] {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return [];
+      }
+
+      return this.governmentDesk.正在进行.filter(project => project.状态 === status);
+    },
+
+    /**
+     * 获取已完工的建设项目
+     * @returns 已完工项目数组
+     */
+    getCompletedProjects(): ConstructionProject[] {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return [];
+      }
+
+      return this.governmentDesk.正在进行.filter(project => project.状态 === '完工');
+    },
+
+    /**
+     * 清空政务台数据（用于测试或重置）
+     */
+    clearGovernmentDesk() {
+      if (!this.governmentDesk) {
+        console.warn('[gameStateStore] 政务台未初始化');
+        return;
+      }
+
+      this.governmentDesk.待办事项 = [];
+      this.governmentDesk.正在进行 = [];
+      this.governmentDesk.已完成事项 = [];
+      console.log('[gameStateStore] ✅ 已清空政务台数据');
+    },
+
+    /**
+     * 获取政务台统计信息
+     * @returns 统计对象
+     */
+    getGovernmentDeskStats() {
+      if (!this.governmentDesk) {
+        return {
+          待办总数: 0,
+          高紧急度: 0,
+          进行中项目: 0,
+          已完成项目: 0,
+        };
+      }
+
+      return {
+        待办总数: this.governmentDesk.待办事项.length,
+        高紧急度: this.governmentDesk.待办事项.filter(a =>
+          a.紧急度 === '高' || a.紧急度 === '极高'
+        ).length,
+        进行中项目: this.governmentDesk.正在进行.filter(p =>
+          p.状态 !== '完工' && p.状态 !== '废弃'
+        ).length,
+        已完成项目: this.governmentDesk.正在进行.filter(p =>
+          p.状态 === '完工'
+        ).length,
+        已完成事项: this.governmentDesk.已完成事项?.length ?? 0,
+      };
+    },
   },
 });

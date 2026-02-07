@@ -90,6 +90,15 @@ export interface JurisdictionStats extends AIMetadata {
     繁荣趋势: number[];         // 最近10个时间点的繁荣度值
   };
 
+  // 发展趋势（自然增长/衰减率）
+  发展趋势: {
+    民心增长率: number;         // 民心自然增长/衰减率（-5 到 +5）
+    治安增长率: number;         // 治安自然增长/衰减率（-5 到 +5）
+    繁荣增长率: number;         // 繁荣度自然增长/衰减率（-5 到 +5）
+    人口增长率: number;         // 人口自然增长率（-2% 到 +3%）
+    最后更新时间: string;       // 最后更新时间（游戏时间）
+  };
+
   // 扩展字段
   扩展?: {
     [key: string]: any;
@@ -260,6 +269,105 @@ export interface ConstructionProject {
 // 导出类型集合
 // ============================================================================
 
+// ============================================================================
+// 政务事务系统
+// ============================================================================
+
+/**
+ * 政务事务类型
+ */
+export type GovernmentAffairType =
+  | '突发'      // 突发事件，需要立即处理
+  | '建设'      // 建设项目
+  | '断案'      // 审理案件
+  | '巡查';     // 巡察辖区
+
+/**
+ * 政务事务状态
+ */
+export type GovernmentAffairStatus =
+  | '待处理'    // 待处理
+  | '处理中'    // 正在处理
+  | '已完成'    // 已完成
+  | '已逾期';   // 已逾期
+
+/**
+ * 政务选项结果
+ */
+export interface GovernmentAffairOption {
+  描述: string;                  // 选项描述
+  消耗: {
+    库银?: number;              // 消耗库银
+    粮食?: number;              // 消耗粮食
+    精力?: number;              // 消耗精力
+  };
+  结果: {
+    民心?: number;              // 民心变化
+    治安?: number;              // 治安变化
+    繁荣?: number;              // 繁荣度变化
+    库银?: number;              // 库银变化
+  };
+  剧情提示: string;              // 剧情提示文本
+}
+
+/**
+ * 政务事务对象
+ */
+export interface GovernmentAffair {
+  id: string;                    // 事务ID
+  标题: string;                  // 事务标题
+  类型: GovernmentAffairType;    // 事务类型
+  耗时: number;                  // 耗时（单位：分钟）
+  紧迫度: number;                // 紧迫度（0-10），逾期惩罚系数
+  状态?: GovernmentAffairStatus; // 事务状态
+  选项: GovernmentAffairOption[]; // 可选选项
+  生成时间?: string;             // 生成时间（游戏时间）
+  截止时间?: string;             // 截止时间（游戏时间）
+  描述?: string;                 // 详细描述
+}
+
+/**
+ * 政务队列（正在进行的事务列表）
+ */
+export interface GovernmentAffairQueue {
+  当前事务: GovernmentAffair[];   // 当前处理中的事务
+  待处理事务: GovernmentAffair[]; // 待处理的事务
+  已完成事务: GovernmentAffair[]; // 已完成的事务
+  历史记录: GovernmentAffair[];   // 历史事务记录
+}
+
+// ============================================================================
+// 长期建设项目
+// ============================================================================
+
+/**
+ * 建设项目（长期项目）
+ * 用于"正在进行"的政务队列
+ */
+export interface OngoingConstructionProject extends ConstructionProject {
+  开始时间: string;              // 开始时间（游戏时间）
+  预计完成时间: string;          // 预计完成时间（游戏时间）
+  当前阶段: {
+    阶段名称: string;            // 当前阶段名称
+    进度: number;                // 当前阶段进度（0-100）
+  };
+  资源消耗: {
+    已消耗银两: number;          // 已消耗银两
+    已消耗粮食: number;          // 已消耗粮食
+    已消耗人力: number;          // 已消耗人力
+  };
+  派遣人员?: string[];           // 派遣的人员名单
+}
+
+/**
+ * 建设项目队列
+ */
+export interface ConstructionProjectQueue {
+  进行中: OngoingConstructionProject[];  // 进行中的项目
+  规划中: ConstructionProject[];         // 规划中的项目
+  已完成: ConstructionProject[];         // 已完成的项目
+}
+
 export type {
   // 核心类型
   JurisdictionStats,
@@ -268,6 +376,12 @@ export type {
   TaxConfig,
   TaxRecord,
   ConstructionProject,
+  OngoingConstructionProject,
+
+  // 政务系统
+  GovernmentAffair,
+  GovernmentAffairQueue,
+  ConstructionProjectQueue,
 
   // 类型枚举
   JurisdictionLevel,
@@ -277,4 +391,6 @@ export type {
   JurisdictionEventType,
   ProjectType,
   ProjectStatus,
+  GovernmentAffairType,
+  GovernmentAffairStatus,
 };

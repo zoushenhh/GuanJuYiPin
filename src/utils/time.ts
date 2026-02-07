@@ -127,3 +127,120 @@ export function formatGameTimeDetailed(time: GameTime): string {
   const xunName = getCurrentXunName(time);
   return `为官${time.年}年${time.月}月${xunName}${time.日}日 ${String(time.小时).padStart(2, '0')}:${String(time.分钟).padStart(2, '0')}`;
 }
+
+// ============================================================================
+// 时间推进函数（县令主题：政务结算集成）
+// ============================================================================
+
+/**
+ * 时间推进选项
+ */
+export interface AdvanceTimeOptions {
+  /** 时间推进回调 */
+  onTimeAdvance?: (oldTime: GameTime, newTime: GameTime, minutesAdvanced: number) => void;
+  /** 是否触发政务结算 */
+  settleAffairs?: boolean;
+  /** 是否触发随机事件 */
+  triggerEvents?: boolean;
+  /** 随机事件概率（0-1） */
+  eventProbability?: number;
+}
+
+/**
+ * 推进时间（核心函数）
+ *
+ * @param currentTime 当前游戏时间
+ * @param minutesToAdd 要推进的分钟数
+ * @param options 可选配置
+ * @returns 推进后的游戏时间
+ */
+export function advanceTime(
+  currentTime: GameTime,
+  minutesToAdd: number,
+  options?: AdvanceTimeOptions
+): GameTime {
+  const oldTime = { ...currentTime };
+  const newTime = normalizeGameTime({
+    ...currentTime,
+    分钟: currentTime.分钟 + minutesToAdd,
+  });
+
+  // 触发回调
+  if (options?.onTimeAdvance) {
+    options.onTimeAdvance(oldTime, newTime, minutesToAdd);
+  }
+
+  return newTime;
+}
+
+/**
+ * 按小时推进时间
+ *
+ * @param currentTime 当前游戏时间
+ * @param hoursToAdd 要推进的小时数
+ * @param options 可选配置
+ * @returns 推进后的游戏时间
+ */
+export function advanceTimeByHours(
+  currentTime: GameTime,
+  hoursToAdd: number,
+  options?: AdvanceTimeOptions
+): GameTime {
+  return advanceTime(currentTime, hoursToAdd * 60, options);
+}
+
+/**
+ * 按天推进时间
+ *
+ * @param currentTime 当前游戏时间
+ * @param daysToAdd 要推进的天数
+ * @param options 可选配置
+ * @returns 推进后的游戏时间
+ */
+export function advanceTimeByDays(
+  currentTime: GameTime,
+  daysToAdd: number,
+  options?: AdvanceTimeOptions
+): GameTime {
+  return advanceTime(currentTime, daysToAdd * 24 * 60, options);
+}
+
+/**
+ * 计算两个时间之间的小时数差
+ *
+ * @param startTime 开始时间
+ * @param endTime 结束时间
+ * @returns 小时数差（绝对值）
+ */
+export function calculateHoursBetween(startTime: GameTime, endTime: GameTime): number {
+  const startTotalMinutes = startTime.年 * 365 * 24 * 60 +
+                            startTime.月 * 30 * 24 * 60 +
+                            startTime.日 * 24 * 60 +
+                            startTime.小时 * 60 +
+                            startTime.分钟;
+  const endTotalMinutes = endTime.年 * 365 * 24 * 60 +
+                          endTime.月 * 30 * 24 * 60 +
+                          endTime.日 * 24 * 60 +
+                          endTime.小时 * 60 +
+                          endTime.分钟;
+  return Math.abs(endTotalMinutes - startTotalMinutes) / 60;
+}
+
+/**
+ * 格式化时间差为可读字符串
+ *
+ * @param hours 小时数
+ * @returns 格式化字符串，如 "2小时30分钟" 或 "3天5小时"
+ */
+export function formatTimeDifference(hours: number): string {
+  const days = Math.floor(hours / 24);
+  const remainingHours = Math.floor(hours % 24);
+  const minutes = Math.floor((hours % 1) * 60);
+
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days}天`);
+  if (remainingHours > 0) parts.push(`${remainingHours}小时`);
+  if (minutes > 0 && days === 0) parts.push(`${minutes}分钟`);
+
+  return parts.join('') || '0分钟';
+}

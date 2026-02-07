@@ -55,6 +55,29 @@ export type {
   RatingDetails,
 } from './county.d';
 
+// 辖区与政务系统类型
+export type {
+  JurisdictionStats,
+  JurisdictionEvent,
+  GovernanceEvaluation,
+  TaxConfig,
+  TaxRecord,
+  ConstructionProject,
+  OngoingConstructionProject,
+  GovernmentAffair,
+  GovernmentAffairQueue,
+  ConstructionProjectQueue,
+  JurisdictionLevel,
+  SecurityLevel,
+  PublicTrustLevel,
+  GovernanceGrade,
+  JurisdictionEventType,
+  ProjectType,
+  ProjectStatus,
+  GovernmentAffairType,
+  GovernmentAffairStatus,
+} from './jurisdiction.d';
+
 // 官阶品级系统类型
 export type {
   OfficialRank as RankOfficialRank,

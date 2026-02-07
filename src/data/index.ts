@@ -34,6 +34,12 @@ export * from './policies';
 // 突发事件
 export * from './incidents';
 
+// 政务事务
+export * from './governmentAffairs';
+
+// 县城数值配置
+export * from './jurisdictionConfig';
+
 // 官学体系
 export * from './governance-schools';
 

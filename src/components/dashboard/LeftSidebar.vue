@@ -66,6 +66,17 @@
             <ChevronRight :size="14" class="btn-arrow" />
           </button>
 
+          <button class="function-btn governance" @click="handleGovernment">
+            <div class="btn-icon">
+              <ClipboardList :size="18" />
+            </div>
+            <div class="btn-content">
+              <span class="btn-text">{{ t('政务办公') }}</span>
+              <span class="btn-desc">{{ t('处理日常政务') }}</span>
+            </div>
+            <ChevronRight :size="14" class="btn-arrow" />
+          </button>
+
         </div>
       </div>
 
@@ -251,7 +262,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Package, User, Users, BookOpen, Zap, Brain, Map, Save, Settings, LogOut, Home, Bell, ChevronRight, Database, Clock, FileText, Plug, LayoutGrid, Heart } from 'lucide-vue-next';
+import { Package, User, Users, BookOpen, Zap, Brain, Map, Save, Settings, LogOut, Home, Bell, ChevronRight, Database, Clock, FileText, Plug, LayoutGrid, Heart, ClipboardList } from 'lucide-vue-next';
 import { useCharacterStore } from '@/stores/characterStore';
 import { toast } from '@/utils/toast';
 import { useUIStore } from '@/stores/uiStore';

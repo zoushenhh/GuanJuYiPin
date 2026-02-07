@@ -555,6 +555,136 @@ const forceResetAIProcessingState = () => {
   toast.info(t('AI处理状态已重置'));
 };
 
+// ============================================================================
+// 时间推进与政务结算
+// ============================================================================
+
+/**
+ * 处理时间推进和政务结算
+ * 在每次AI回复后调用
+ */
+const handleTimeAdvanceAndSettlement = async () => {
+  try {
+    // 默认推进时间：每次对话推进1小时
+    const defaultMinutes = 60;
+    const hoursPassed = defaultMinutes / 60;
+
+    // 推进时间并触发政务结算
+    const settlementReport = await gameStateStore.advanceGameTime(defaultMinutes, {
+      settleAffairs: true,  // 触发政务结算
+      triggerEvents: false, // 暂不触发随机事件（由AI生成）
+      eventProbability: 0.1,
+      onTimeAdvance: (oldTime, newTime, minutesAdvanced) => {
+        console.log('[时间推进] 时间已推进:', {
+          从: formatTimeForDisplay(oldTime),
+          到: formatTimeForDisplay(newTime),
+          推进分钟: minutesAdvanced,
+        });
+      },
+    });
+
+    // 如果有结算报告，显示提示
+    if (settlementReport) {
+      displaySettlementReport(settlementReport);
+    }
+  } catch (error) {
+    console.error('[时间推进] 处理失败:', error);
+    // 不影响主流程，仅记录错误
+  }
+};
+
+/**
+ * 格式化游戏时间用于显示
+ * @param time GameTime 对象
+ * @returns 格式化字符串
+ */
+const formatTimeForDisplay = (time: any): string => {
+  if (!time) return '未知时间';
+  return `${time.年}年${time.月}月${time.日}日 ${String(time.小时).padStart(2, '0')}:${String(time.分钟).padStart(2, '0')}`;
+};
+
+/**
+ * 显示结算报告
+ * @param report 结算报告对象
+ */
+const displaySettlementReport = (report: any) => {
+  const messages: string[] = [];
+
+  // 时间推进提示
+  messages.push(`⏰ 时间已推进 ${report.推进时长.toFixed(1)} 小时`);
+
+  // 逾期惩罚
+  if (report.逾期惩罚 && report.逾期惩罚.length > 0) {
+    messages.push('');
+    messages.push('【逾期政务】');
+    report.逾期惩罚.forEach((p: any) => {
+      messages.push(`⚠️ ${p.政务名称}: 逾期${p.逾期天数}天`);
+      messages.push(`   ${p.惩罚描述}`);
+    });
+  }
+
+  // 自然趋势（仅显示显著变化）
+  const trends = report.自然趋势;
+  if (trends) {
+    const significantChanges: string[] = [];
+    if (Math.abs(trends.民心变化) >= 0.1) {
+      significantChanges.push(`民心${trends.民心变化 > 0 ? '+' : ''}${trends.民心变化.toFixed(2)}`);
+    }
+    if (Math.abs(trends.治安变化) >= 0.1) {
+      significantChanges.push(`治安${trends.治安变化 > 0 ? '+' : ''}${trends.治安变化.toFixed(2)}`);
+    }
+    if (Math.abs(trends.繁荣度变化) >= 0.1) {
+      significantChanges.push(`繁荣${trends.繁荣度变化 > 0 ? '+' : ''}${trends.繁荣度变化.toFixed(2)}`);
+    }
+    if (Math.abs(trends.库银变化) >= 1) {
+      significantChanges.push(`库银${trends.库银变化 > 0 ? '+' : ''}${trends.库银变化.toFixed(0)}`);
+    }
+
+    if (significantChanges.length > 0) {
+      messages.push('');
+      messages.push('【自然趋势】');
+      messages.push(significantChanges.join('，'));
+    }
+  }
+
+  // 阈值效果
+  if (report.阈值效果) {
+    if (report.阈值效果.惩罚 && report.阈值效果.惩罚.length > 0) {
+      messages.push('');
+      messages.push('【警戒惩罚】');
+      report.阈值效果.惩罚.forEach((p: any) => {
+        messages.push(`⚠️ ${p.类型}: ${p.描述}`);
+      });
+    }
+    if (report.阈值效果.奖励 && report.阈值效果.奖励.length > 0) {
+      messages.push('');
+      messages.push('【优秀奖励】');
+      report.阈值效果.奖励.forEach((b: any) => {
+        messages.push(`✨ ${b.类型}: ${b.描述}`);
+      });
+    }
+  }
+
+  // 项目进度更新
+  if (report.项目更新 && report.项目更新.length > 0) {
+    messages.push('');
+    messages.push('【建设进度】');
+    report.项目更新.forEach((u: any) => {
+      const status = u.是否完成 ? '✅ 已完成' : `推进 ${u.进度变化.toFixed(1)}%`;
+      messages.push(`🏗️ ${u.项目名称}: ${status}`);
+    });
+  }
+
+  // 显示提示（最多显示3条，避免刷屏）
+  if (messages.length > 0) {
+    const displayMessages = messages.slice(0, 5);
+    toast.info(displayMessages.join('\n'), {
+      timeout: 5000,
+      multiline: true,
+    });
+  }
+};
+
 
 // 行动选择相关
 const showActionModal = ref(false);
@@ -1593,6 +1723,9 @@ const sendMessage = async () => {
     // 🔥 [关键修复] 无论成功失败，都在这里清除AI处理状态
     // 成功的提示
     if (!hasError && aiResponse) {
+      // 🔥 [新功能] 时间推进与政务结算
+      await handleTimeAdvanceAndSettlement();
+
       toast.success('推演完成');
       // 清空已发送的图片
       clearImages();
